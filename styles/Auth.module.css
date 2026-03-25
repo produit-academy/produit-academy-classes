@@ -1,0 +1,91 @@
+/* styles/Auth.module.css */
+
+.authPage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding-top: 95px;
+}
+
+.authContainer {
+  max-width: 450px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 3rem;
+  background-color: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.authTitle {
+  font-family: 'Lora', serif;
+  font-size: 2.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.authSubtitle {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  margin-bottom: 2.5rem;
+}
+
+.authForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  text-align: left;
+}
+
+.authForm input,
+.authForm select {
+  background: var(--background-light);
+  border: 1px solid var(--card-border);
+  color: var(--text-primary);
+  padding: 1rem;
+  border-radius: 5px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.authForm input:focus,
+.authForm select:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px rgba(0, 63, 136, 0.15);
+}
+
+.authForm .ctaBtn {
+  margin-top: 1rem;
+}
+
+.authSwitch {
+  margin-top: 2rem;
+  color: var(--text-secondary);
+}
+
+.authSwitch a {
+  color: var(--accent-blue);
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.authSwitch a:hover {
+  color: var(--accent-green-dark);
+}
+
+.authError {
+  color: #dc2626;
+  background-color: #fee2e2;
+  padding: 1rem;
+  border-radius: 5px;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
