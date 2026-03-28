@@ -11,7 +11,7 @@ const itemVariants = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 
 const slideInUp = { hidden: { opacity: 0, y: 50 }, visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: 'easeOut' } } };
 
 export default function Home() {
-  const [formData, setFormData] = useState({ name: '', email: '', phone: '', course: '', message: '' });
+  const [formData, setFormData] = useState({ name: '', email: '', phone: '', course: '', message: '', platform: 'classes' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitResult, setSubmitResult] = useState({ type: '', message: '' });
   const [courses, setCourses] = useState([]);
@@ -40,7 +40,7 @@ export default function Home() {
       });
       if (!res.ok) throw new Error('Failed to send');
       setSubmitResult({ type: 'success', message: 'Message sent successfully. We will get back to you shortly.' });
-      setFormData({ name: '', email: '', phone: '', course: '', message: '' });
+      setFormData({ name: '', email: '', phone: '', course: '', message: '', platform: 'classes' });
     } catch (err) {
       setSubmitResult({ type: 'error', message: 'Something went wrong. Please try again later.' });
     } finally {
