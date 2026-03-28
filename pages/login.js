@@ -46,13 +46,13 @@ export default function Login() {
                 // 2. Decode the token to find out who this user is
                 const user = decodeToken(data.access);
 
-                // 3. Optional: Security Check - Ensure they belong to the 'classes' platform
-                // if (user.platform !== 'classes' && user.role !== 'admin') {
-                //   setError("Access denied. Please use the GATE portal.");
-                //   localStorage.removeItem('access_token');
-                //   setLoading(false);
-                //   return;
-                // }
+                // 3. Security Check - Ensure they belong to the 'classes' platform
+                if (user.platform !== 'classes' && user.role !== 'admin') {
+                    setError("Access denied. Please use the correct portal.");
+                    localStorage.removeItem('access_token');
+                    setLoading(false);
+                    return;
+                }
 
                 // 4. Route them to their specific dashboard with a full reload to reset auth state
                 switch (user?.role) {
@@ -91,7 +91,7 @@ export default function Login() {
                 <div className={styles.authContainer}>
                     <h1 className={styles.authTitle}>Welcome Back</h1>
                     <p className={styles.authSubtitle}>Sign in to access your live classes.</p>
-                    
+
                     {error && <p className={styles.authError}>{error}</p>}
 
                     <form className={styles.authForm} onSubmit={handleLogin}>
