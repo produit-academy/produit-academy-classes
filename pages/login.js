@@ -30,7 +30,7 @@ export default function Login() {
 
         try {
             // NOTE: Update this URL to your production Django backend when deploying
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
+            const API_URL = process.env.NEXT_PUBLIC_API_URL;
             const res = await fetch(`${API_URL}/api/login/`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
