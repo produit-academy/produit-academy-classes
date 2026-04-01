@@ -91,7 +91,6 @@ function AdminCourses() {
                 </button>
             </div>
 
-            {/* Create / Edit Form */}
             {showForm && (
                 <div className="glass-card" style={{ padding: '24px', marginBottom: '24px', maxWidth: '500px' }}>
                     <h3 style={{ marginBottom: '16px', fontSize: '1.1rem' }}>
@@ -127,7 +126,6 @@ function AdminCourses() {
                 </div>
             )}
 
-            {/* Courses Table */}
             {loading ? (
                 <div className="loading-container"><div className="loading-spinner" /></div>
             ) : courses.length > 0 ? (
@@ -137,8 +135,6 @@ function AdminCourses() {
                             <tr>
                                 <th>Course Name</th>
                                 <th>Students</th>
-                                <th>Teachers</th>
-                                <th>Mentor</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
@@ -153,10 +149,6 @@ function AdminCourses() {
                                         )}
                                     </td>
                                     <td>{c.student_count}</td>
-                                    <td>
-                                        {c.teacher_list?.map((t) => t.username).join(', ') || 'None'}
-                                    </td>
-                                    <td>{c.mentor_name || 'None'}</td>
                                     <td>
                                         <span className={`badge ${c.is_active ? 'badge-active' : 'badge-cancelled'}`}>
                                             {c.is_active ? 'Active' : 'Inactive'}

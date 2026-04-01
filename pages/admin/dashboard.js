@@ -63,6 +63,15 @@ function AdminDashboard() {
                                 <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>Enroll students via CSV or manual</p>
                             </div>
                         </a>
+                        <a href="/admin/staff" style={{ textDecoration: 'none' }}>
+                            <div className="glass-card" style={{ padding: '24px', textAlign: 'center', cursor: 'pointer' }}>
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent-purple)" strokeWidth="2" style={{ marginBottom: '10px' }}>
+                                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="11" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                </svg>
+                                <h4 style={{ fontWeight: 600, marginBottom: '4px' }}>Manage Staff</h4>
+                                <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>Create teacher and mentor accounts</p>
+                            </div>
+                        </a>
                     </div>
                 </>
             ) : (

@@ -28,7 +28,7 @@ function TeacherDashboard() {
     };
 
     return (
-        <DashboardLayout title={`Welcome, ${user?.username || 'Teacher'}`}>
+        <DashboardLayout title={`Welcome, ${user?.first_name || user?.username || 'Teacher'}`}>
             <Head>
                 <title>Teacher Dashboard | Produit Classes</title>
             </Head>
@@ -39,8 +39,8 @@ function TeacherDashboard() {
                 <>
                     <div className="stats-grid">
                         <StatCard label="Total Classes Held" value={data.total_classes_held} color="var(--accent-green)" />
-                        <StatCard label="Total Students" value={data.total_students} color="var(--accent-blue)" />
-                        <StatCard label="Assigned Courses" value={data.courses?.length || 0} color="var(--accent-purple)" />
+                        <StatCard label="Assigned Students" value={data.total_students} color="var(--accent-blue)" />
+                        <StatCard label="My Courses" value={data.courses?.length || 0} color="var(--accent-purple)" />
                         <StatCard
                             label="Pending Attendance"
                             value={data.pending_attendance?.length || 0}
@@ -119,6 +119,40 @@ function TeacherDashboard() {
                             )}
                         </div>
                     </div>
+
+                    {/* Assigned Students */}
+                    {data.assigned_students?.length > 0 && (
+                        <>
+                            <h3 className="section-heading" style={{ marginTop: '8px' }}>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                My Students ({data.assigned_students.length})
+                            </h3>
+                            <div className="glass-card data-table-wrapper">
+                                <table className="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Student</th>
+                                            <th>Email</th>
+                                            <th>Attendance</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {data.assigned_students.map(s => (
+                                            <tr key={s.id}>
+                                                <td><strong>{s.first_name} {s.last_name}</strong></td>
+                                                <td style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>{s.email}</td>
+                                                <td>
+                                                    <span style={{ color: s.attendance_percentage >= 75 ? 'var(--accent-green)' : 'var(--accent-red)', fontWeight: 600 }}>
+                                                        {s.attendance_percentage}%
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </>
+                    )}
                 </>
             ) : (
                 <div className="alert alert-error">Failed to load dashboard data.</div>

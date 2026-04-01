@@ -17,6 +17,7 @@ const NAV_ITEMS = {
         { label: 'Dashboard', href: '/admin/dashboard', icon: 'grid' },
         { label: 'Courses', href: '/admin/courses', icon: 'book' },
         { label: 'Enrollments', href: '/admin/enrollments', icon: 'users' },
+        { label: 'Staff', href: '/admin/staff', icon: 'users' },
         { label: 'Enquiries', href: '/admin/contacts', icon: 'mail' },
     ],
 };

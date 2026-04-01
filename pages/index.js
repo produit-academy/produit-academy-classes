@@ -17,7 +17,7 @@ export default function Home() {
   const [courses, setCourses] = useState([]);
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/classes/courses/`)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/classes/courses/` || `http://localhost:8000/api/classes/courses/`)
       .then(res => res.json())
       .then(data => setCourses(data))
       .catch(err => console.error("Failed to fetch courses", err));
@@ -33,7 +33,7 @@ export default function Home() {
     setIsSubmitting(true);
     setSubmitResult({ type: '', message: '' });
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/contact/`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/contact/` || `http://localhost:8000/api/contact/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
