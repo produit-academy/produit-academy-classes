@@ -86,23 +86,6 @@ export default function Home() {
                 </a>
               </motion.div>
 
-              {/* Animated Stats */}
-              <motion.div className={styles.heroStats} variants={containerVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.5 }}>
-                <motion.div variants={itemVariants} className={styles.heroStat}>
-                  <span className={styles.heroStatValue}>Live</span>
-                  <span className={styles.heroStatLabel}>Interactive Classes</span>
-                </motion.div>
-                <motion.div variants={itemVariants} className={styles.heroStatDivider} />
-                <motion.div variants={itemVariants} className={styles.heroStat}>
-                  <span className={styles.heroStatValue}>Expert</span>
-                  <span className={styles.heroStatLabel}>Mentorship Support</span>
-                </motion.div>
-                <motion.div variants={itemVariants} className={styles.heroStatDivider} />
-                <motion.div variants={itemVariants} className={styles.heroStat}>
-                  <span className={styles.heroStatValue}>Smart</span>
-                  <span className={styles.heroStatLabel}>Analytics Dashboard</span>
-                </motion.div>
-              </motion.div>
             </div>
           </div>
 
@@ -112,6 +95,27 @@ export default function Home() {
           <div className={`${styles.heroOrb} ${styles.heroOrb3}`} />
         </section>
 
+        {/* Animated Stats Overlapping Below Resulting in cleaner first-screen */}
+        <div className={styles.heroStatsWrapper}>
+          <motion.div className={styles.heroStats} variants={containerVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.5 }}>
+            <motion.div variants={itemVariants} className={styles.heroStat}>
+              <span className={styles.heroStatValue}>Live</span>
+              <span className={styles.heroStatLabel}>Interactive Classes</span>
+            </motion.div>
+            <motion.div variants={itemVariants} className={styles.heroStatDivider} />
+            <motion.div variants={itemVariants} className={styles.heroStat}>
+              <span className={styles.heroStatValue}>Expert</span>
+              <span className={styles.heroStatLabel}>Mentorship Support</span>
+            </motion.div>
+            <motion.div variants={itemVariants} className={styles.heroStatDivider} />
+            <motion.div variants={itemVariants} className={styles.heroStat}>
+              <span className={styles.heroStatValue}>Smart</span>
+              <span className={styles.heroStatLabel}>Analytics Dashboard</span>
+            </motion.div>
+          </motion.div>
+        </div>
+
+    
         {/* ============ FEATURES SECTION ============ */}
         <section className={styles.featuresSection} id="features">
           <div className="container">

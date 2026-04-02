@@ -7,6 +7,7 @@ function MyApp({ Component, pageProps }) {
   return (
     <AuthProvider>
       <Head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <title>Produit Academy Classes | Live Academic Portal</title>
         <link rel="icon" href="/logo.png" />
       </Head>
