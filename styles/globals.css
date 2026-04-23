@@ -351,12 +351,22 @@ a:hover {
   justify-content: center;
   font-weight: 700;
   font-size: 0.95rem;
+  flex-shrink: 0; /* Prevent squishing */
+}
+
+.sidebar-user-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* For long emails */
 }
 
 .sidebar-username {
   font-weight: 600;
   font-size: 0.9rem;
   color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sidebar-logout {

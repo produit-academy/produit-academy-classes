@@ -6,6 +6,7 @@ import DashboardLayout from '../../components/DashboardLayout';
 
 function AdminEnrollments() {
     const [enrollments, setEnrollments] = useState([]);
+    const router = useRouter();
     const [courses, setCourses] = useState([]);
     const [staff, setStaff] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -501,6 +502,9 @@ function AdminEnrollments() {
                                                 </button>
                                                 <button className="glass-btn" onClick={() => openEditModal(e.student)} style={{ fontSize: '0.75rem', padding: '4px 8px' }}>
                                                     Edit Profile
+                                                </button>
+                                                <button className="glass-btn" onClick={() => router.push(`/admin/students/${e.student}`)} style={{ fontSize: '0.75rem', padding: '4px 8px', background: 'var(--accent-light)', color: 'var(--accent)' }}>
+                                                    View Analytics
                                                 </button>
                                                 <button className="glass-btn danger" onClick={() => handleDeleteStudent(e.student, e.student_name)} style={{ fontSize: '0.75rem', padding: '4px 8px' }}>
                                                     Delete Student

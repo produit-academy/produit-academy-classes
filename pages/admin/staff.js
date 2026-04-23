@@ -1,10 +1,12 @@
 import Head from 'next/head';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import { withAuth } from '../../lib/auth';
 import { apiGet, apiPost, apiPut, apiDelete } from '../../lib/api';
 import DashboardLayout from '../../components/DashboardLayout';
 
 function AdminStaff() {
+  const router = useRouter();
   const [staffList, setStaffList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -281,6 +283,9 @@ function AdminStaff() {
                     <div style={{ display: 'flex', gap: '8px' }}>
                         <button className="glass-btn" onClick={() => handleEdit(staff)} style={{ padding: '4px 12px', fontSize: '0.8rem' }}>
                             Edit
+                        </button>
+                        <button className="glass-btn" onClick={() => router.push(`/admin/staff/${staff.id}`)} style={{ padding: '4px 12px', fontSize: '0.8rem', background: 'var(--accent-light)', color: 'var(--accent)' }}>
+                            View Analytics
                         </button>
                         <button className="glass-btn danger" onClick={() => handleDelete(staff.id, staff.first_name)} style={{ padding: '4px 12px', fontSize: '0.8rem' }}>
                             Delete
