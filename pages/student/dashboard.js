@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import { withAuth, useAuth } from '../../lib/auth';
-import { apiGet } from '../../lib/api';
+import { apiGet, apiPost } from '../../lib/api';
 import DashboardLayout from '../../components/DashboardLayout';
 import StatCard from '../../components/StatCard';
 
@@ -9,13 +9,31 @@ function StudentDashboard() {
     const { user } = useAuth();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [acceptingId, setAcceptingId] = useState(null);
 
-    useEffect(() => {
+    const loadData = () => {
+        setLoading(true);
         apiGet('/api/classes/student/dashboard/')
             .then(setData)
             .catch(console.error)
             .finally(() => setLoading(false));
-    }, []);
+    };
+
+    useEffect(() => { loadData(); }, []);
+
+    const handleAcceptDemo = async (demoId) => {
+        setAcceptingId(demoId);
+        try {
+            const res = await apiPost(`/api/classes/student/demo/${demoId}/accept/`);
+            if (res.ok) {
+                loadData();
+            }
+        } catch (err) {
+            console.error('Failed to accept demo', err);
+        } finally {
+            setAcceptingId(null);
+        }
+    };
 
     const formatDate = (dateStr) => {
         const d = new Date(dateStr);
@@ -75,6 +93,40 @@ function StudentDashboard() {
                         </div>
                     )}
 
+                    {/* Completed Demos — Accept Section */}
+                    {data.completed_demos?.length > 0 && (
+                        <>
+                            <h3 className="section-heading">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-purple)" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                Demo Results — Ready to Accept
+                            </h3>
+                            {data.completed_demos.map((demo) => (
+                                <div key={demo.id} className="class-card glass-card" style={{ borderLeft: '3px solid var(--accent-purple)' }}>
+                                    <div className="class-card-info">
+                                        <h4>
+                                            {demo.title}
+                                            <span style={{ marginLeft: '8px', fontSize: '0.72rem', background: 'rgba(155,89,182,0.12)', color: '#8e44ad', padding: '2px 10px', borderRadius: '20px', fontWeight: 600 }}>DEMO</span>
+                                        </h4>
+                                        <p>{demo.course_name}</p>
+                                    </div>
+                                    <div className="class-card-meta">
+                                        <span className="class-time">
+                                            {formatDate(demo.scheduled_time)}
+                                        </span>
+                                        <button
+                                            onClick={() => handleAcceptDemo(demo.id)}
+                                            disabled={acceptingId === demo.id}
+                                            className="glass-btn primary"
+                                            style={{ fontSize: '0.85rem', padding: '8px 20px' }}
+                                        >
+                                            {acceptingId === demo.id ? 'Enrolling...' : '✓ Accept & Enroll'}
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </>
+                    )}
+
                     {/* Upcoming Classes */}
                     <h3 className="section-heading">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -84,7 +136,12 @@ function StudentDashboard() {
                         data.upcoming_classes.map((cls) => (
                             <div key={cls.id} className="class-card glass-card">
                                 <div className="class-card-info">
-                                    <h4>{cls.title}</h4>
+                                    <h4>
+                                        {cls.title}
+                                        {cls.is_demo && (
+                                            <span style={{ marginLeft: '8px', fontSize: '0.72rem', background: 'rgba(241,196,15,0.15)', color: '#d4a017', padding: '2px 10px', borderRadius: '20px', fontWeight: 600 }}>DEMO</span>
+                                        )}
+                                    </h4>
                                     <p>{cls.course_name}</p>
                                 </div>
                                 <div className="class-card-meta">
@@ -132,3 +189,4 @@ function StudentDashboard() {
 }
 
 export default withAuth(StudentDashboard, ['student']);
+

@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import { withAuth, useAuth } from '../../lib/auth';
-import { apiGet } from '../../lib/api';
+import { apiGet, apiPatch } from '../../lib/api';
 import DashboardLayout from '../../components/DashboardLayout';
 import StatCard from '../../components/StatCard';
 
@@ -9,13 +9,34 @@ function TeacherDashboard() {
     const { user } = useAuth();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [demoLink, setDemoLink] = useState('');
+    const [submittingLinkId, setSubmittingLinkId] = useState(null);
 
-    useEffect(() => {
+    const loadData = () => {
+        setLoading(true);
         apiGet('/api/classes/teacher/dashboard/')
             .then(setData)
             .catch(console.error)
             .finally(() => setLoading(false));
+    };
+
+    useEffect(() => {
+        loadData();
     }, []);
+
+    const submitMeetingLink = async (classId) => {
+        if (!demoLink) return;
+        setSubmittingLinkId(classId);
+        try {
+            await apiPatch(`/api/classes/teacher/demo/${classId}/link/`, { meeting_link: demoLink });
+            setDemoLink('');
+            loadData();
+        } catch (error) {
+            console.error('Failed to submit link', error);
+        } finally {
+            setSubmittingLinkId(null);
+        }
+    };
 
     const formatDate = (dateStr) => {
         const d = new Date(dateStr);
@@ -73,9 +94,32 @@ function TeacherDashboard() {
                                             <span className="class-time">
                                                 {formatDate(cls.scheduled_time)} &middot; {formatTime(cls.scheduled_time)}
                                             </span>
-                                            <a href={cls.meeting_link} target="_blank" rel="noopener noreferrer" className="glass-btn primary" style={{ fontSize: '0.85rem', padding: '8px 16px' }}>
-                                                Start Class
-                                            </a>
+                                            {cls.meeting_link ? (
+                                                <a href={cls.meeting_link} target="_blank" rel="noopener noreferrer" className="glass-btn primary" style={{ fontSize: '0.85rem', padding: '8px 16px' }}>
+                                                    Start Class
+                                                </a>
+                                            ) : cls.is_demo ? (
+                                                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                                    <input 
+                                                        type="text" 
+                                                        placeholder="Paste Google Meet Link" 
+                                                        value={submittingLinkId === cls.id ? '' : demoLink}
+                                                        onChange={(e) => setDemoLink(e.target.value)}
+                                                        className="glass-input"
+                                                        style={{ padding: '6px 12px', fontSize: '0.85rem', width: '200px' }}
+                                                    />
+                                                    <button 
+                                                        onClick={() => submitMeetingLink(cls.id)}
+                                                        disabled={submittingLinkId === cls.id}
+                                                        className="glass-btn primary" 
+                                                        style={{ fontSize: '0.85rem', padding: '6px 12px' }}
+                                                    >
+                                                        {submittingLinkId === cls.id ? 'Saving...' : 'Save Link'}
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>No link provided</span>
+                                            )}
                                         </div>
                                     </div>
                                 ))

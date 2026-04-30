@@ -1,5 +1,6 @@
 import Head from 'next/head';
 import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/router';
 import { withAuth } from '../../lib/auth';
 import { apiGet, apiPost, apiPut, apiDelete } from '../../lib/api';
 import DashboardLayout from '../../components/DashboardLayout';
