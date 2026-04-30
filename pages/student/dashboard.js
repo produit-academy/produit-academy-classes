@@ -10,6 +10,10 @@ function StudentDashboard() {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [acceptingId, setAcceptingId] = useState(null);
+    const [showBookModal, setShowBookModal] = useState(false);
+    const [bookingCourseId, setBookingCourseId] = useState('');
+    const [bookingTime, setBookingTime] = useState('');
+    const [booking, setBooking] = useState(false);
 
     const loadData = () => {
         setLoading(true);
@@ -27,11 +31,54 @@ function StudentDashboard() {
             const res = await apiPost(`/api/classes/student/demo/${demoId}/accept/`);
             if (res.ok) {
                 loadData();
+            } else {
+                alert(res.data?.error || 'Failed to accept demo');
             }
         } catch (err) {
             console.error('Failed to accept demo', err);
         } finally {
             setAcceptingId(null);
+        }
+    };
+
+    const handleRejectDemo = async (demoId) => {
+        if (!confirm('Are you sure you want to request a new teacher? This will notify the admin.')) return;
+        setAcceptingId(demoId);
+        try {
+            const res = await apiPost(`/api/classes/student/demo/${demoId}/reject/`);
+            if (res.ok) {
+                loadData();
+            } else {
+                alert(res.data?.error || 'Failed to reject demo');
+            }
+        } catch (err) {
+            console.error('Failed to reject demo', err);
+        } finally {
+            setAcceptingId(null);
+        }
+    };
+
+    const handleBookSession = async (e) => {
+        e.preventDefault();
+        setBooking(true);
+        try {
+            const res = await apiPost('/api/classes/book/', {
+                course_id: bookingCourseId,
+                scheduled_time: new Date(bookingTime).toISOString(),
+            });
+            if (res.ok) {
+                setShowBookModal(false);
+                setBookingTime('');
+                setBookingCourseId('');
+                loadData();
+            } else {
+                alert('Failed to book session: ' + (res.data?.error || 'Unknown error'));
+            }
+        } catch (err) {
+            console.error(err);
+            alert('A network error occurred.');
+        } finally {
+            setBooking(false);
         }
     };
 
@@ -117,9 +164,17 @@ function StudentDashboard() {
                                             onClick={() => handleAcceptDemo(demo.id)}
                                             disabled={acceptingId === demo.id}
                                             className="glass-btn primary"
-                                            style={{ fontSize: '0.85rem', padding: '8px 20px' }}
+                                            style={{ fontSize: '0.85rem', padding: '8px 20px', marginRight: '8px' }}
                                         >
-                                            {acceptingId === demo.id ? 'Enrolling...' : '✓ Accept & Enroll'}
+                                            {acceptingId === demo.id ? 'Processing...' : '✓ Accept Teacher'}
+                                        </button>
+                                        <button
+                                            onClick={() => handleRejectDemo(demo.id)}
+                                            disabled={acceptingId === demo.id}
+                                            className="glass-btn outline"
+                                            style={{ fontSize: '0.85rem', padding: '8px 16px', color: 'var(--accent-red)', borderColor: 'rgba(231,76,60,0.3)' }}
+                                        >
+                                            Request New
                                         </button>
                                     </div>
                                 </div>
@@ -128,10 +183,15 @@ function StudentDashboard() {
                     )}
 
                     {/* Upcoming Classes */}
-                    <h3 className="section-heading">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                        Upcoming Classes
-                    </h3>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '24px', marginBottom: '16px' }}>
+                        <h3 className="section-heading" style={{ margin: 0 }}>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            Upcoming Classes
+                        </h3>
+                        <button onClick={() => setShowBookModal(true)} className="glass-btn primary" style={{ padding: '8px 16px', fontSize: '0.85rem' }}>
+                            + Book a Class
+                        </button>
+                    </div>
                     {data.upcoming_classes?.length > 0 ? (
                         data.upcoming_classes.map((cls) => (
                             <div key={cls.id} className="class-card glass-card">
@@ -179,6 +239,48 @@ function StudentDashboard() {
                                 ))}
                             </div>
                         </>
+                    )}
+
+                    {/* Book Session Modal */}
+                    {showBookModal && (
+                        <div className="modal-overlay" onClick={() => setShowBookModal(false)}>
+                            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                                <h3>Book a New Session</h3>
+                                <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem', fontSize: '0.9rem' }}>Select a course and schedule your next 1-to-1 session.</p>
+                                <form onSubmit={handleBookSession}>
+                                    <div className="form-group" style={{ marginBottom: '1rem' }}>
+                                        <label>Select Course</label>
+                                        <select 
+                                            className="input-field" 
+                                            value={bookingCourseId} 
+                                            onChange={e => setBookingCourseId(e.target.value)}
+                                            required
+                                        >
+                                            <option value="" disabled>-- Select Course --</option>
+                                            {data.courses?.map(c => (
+                                                <option key={c.id} value={c.id}>{c.name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+                                        <label>Select Date & Time</label>
+                                        <input 
+                                            type="datetime-local" 
+                                            className="input-field"
+                                            value={bookingTime}
+                                            onChange={e => setBookingTime(e.target.value)}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="modal-actions">
+                                        <button type="button" className="glass-btn outline" onClick={() => setShowBookModal(false)}>Cancel</button>
+                                        <button type="submit" className="glass-btn primary" disabled={booking || !bookingCourseId || !bookingTime}>
+                                            {booking ? 'Booking...' : 'Confirm Booking'}
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
                     )}
                 </>
             ) : (

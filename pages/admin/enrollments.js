@@ -58,6 +58,9 @@ function AdminEnrollments() {
     const mentors = staff.filter(s => s.role === 'mentor');
     const teachers = staff.filter(s => s.role === 'teacher');
 
+    const filteredManualTeachers = manualCourse ? teachers.filter(t => t.subjects && t.subjects.includes(parseInt(manualCourse))) : teachers;
+    const filteredCsvTeachers = csvCourse ? teachers.filter(t => t.subjects && t.subjects.includes(parseInt(csvCourse))) : teachers;
+
     const reloadEnrollments = async () => {
         const enr = await apiGet('/api/classes/admin/enrollments/list/');
         setEnrollments(enr);
@@ -388,7 +391,7 @@ function AdminEnrollments() {
                                 <label className="form-label">Assign Teacher</label>
                                 <select className="input-field" value={manualTeacher} onChange={e => setManualTeacher(e.target.value)}>
                                     <option value="">None</option>
-                                    {teachers.map(t => <option key={t.id} value={t.id}>{t.first_name} {t.last_name}</option>)}
+                                    {filteredManualTeachers.map(t => <option key={t.id} value={t.id}>{t.first_name} {t.last_name}</option>)}
                                 </select>
                             </div>
                         </div>
@@ -442,7 +445,7 @@ function AdminEnrollments() {
                             <label className="form-label">Assign Teacher (all students)</label>
                             <select className="input-field" value={csvTeacher} onChange={e => setCsvTeacher(e.target.value)}>
                                 <option value="">None</option>
-                                {teachers.map(t => <option key={t.id} value={t.id}>{t.first_name} {t.last_name}</option>)}
+                                {filteredCsvTeachers.map(t => <option key={t.id} value={t.id}>{t.first_name} {t.last_name}</option>)}
                             </select>
                         </div>
                     </div>
