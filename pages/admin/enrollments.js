@@ -13,7 +13,6 @@ function AdminEnrollments() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
-    const [activeTab, setActiveTab] = useState('manual');
 
     // Manual enroll state
     const [manualCourse, setManualCourse] = useState('');
@@ -27,13 +26,6 @@ function AdminEnrollments() {
     const [manualMentor, setManualMentor] = useState('');
     const [manualTeacher, setManualTeacher] = useState('');
     const [enrolling, setEnrolling] = useState(false);
-
-    // CSV state
-    const [csvCourse, setCsvCourse] = useState('');
-    const [csvMentor, setCsvMentor] = useState('');
-    const [csvTeacher, setCsvTeacher] = useState('');
-    const [uploading, setUploading] = useState(false);
-    const fileRef = useRef(null);
 
     // Edit Student state
     const [editingStudent, setEditingStudent] = useState(null);
@@ -57,7 +49,6 @@ function AdminEnrollments() {
     const teachers = staff.filter(s => s.role === 'teacher');
 
     const filteredManualTeachers = manualCourse ? teachers.filter(t => t.subjects && t.subjects.includes(parseInt(manualCourse))) : teachers;
-    const filteredCsvTeachers = csvCourse ? teachers.filter(t => t.subjects && t.subjects.includes(parseInt(csvCourse))) : teachers;
 
     const reloadEnrollments = async () => {
         const enr = await apiGet('/api/classes/admin/enrollments/list/');
@@ -110,40 +101,6 @@ function AdminEnrollments() {
             setError('Failed to connect to server.');
         } finally {
             setEnrolling(false);
-        }
-    };
-
-    const handleCSVUpload = async () => {
-        const file = fileRef.current?.files[0];
-        if (!file || !csvCourse) {
-            setError('Please select a course and a CSV file.');
-            return;
-        }
-        setUploading(true);
-        setError('');
-        setSuccess('');
-
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('course_id', csvCourse);
-        if (csvMentor) formData.append('mentor_id', csvMentor);
-        if (csvTeacher) formData.append('teacher_id', csvTeacher);
-
-        try {
-            const res = await apiPost('/api/classes/admin/enrollments/', formData);
-            const data = await res.json();
-            if (res.ok) {
-                setSuccess(data.detail || 'Students enrolled!');
-                if (data.errors?.length > 0) setError(`Some errors: ${data.errors.join(', ')}`);
-                reloadEnrollments();
-                if (fileRef.current) fileRef.current.value = '';
-            } else {
-                setError(data.detail || 'Upload failed.');
-            }
-        } catch {
-            setError('Failed to connect to server.');
-        } finally {
-            setUploading(false);
         }
     };
 
@@ -310,19 +267,8 @@ function AdminEnrollments() {
                 </div>
             )}
 
-            {/* Tab Switcher */}
-            <div style={{ display: 'flex', gap: '4px', marginBottom: '0' }}>
-                <button style={tabStyle(activeTab === 'manual')} onClick={() => setActiveTab('manual')}>
-                    Enroll Student
-                </button>
-                <button style={tabStyle(activeTab === 'csv')} onClick={() => setActiveTab('csv')}>
-                    Bulk Enroll (CSV)
-                </button>
-            </div>
-
             {/* Manual Enroll Form */}
-            {activeTab === 'manual' && (
-                <div className="glass-card" style={{ padding: '24px', marginBottom: '24px', borderTopLeftRadius: 0 }}>
+            <div className="glass-card" style={{ padding: '24px', marginBottom: '24px' }}>
                     <h3 style={{ marginBottom: '4px', fontSize: '1.05rem' }}>Add Individual Student</h3>
                     <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '16px' }}>
                         Fill in the student details and assign to a course. If the student doesn't have an account, one will be created automatically. Their temporary password will be their Mobile Number (or "ProduitStudent123!" if left blank).
@@ -401,65 +347,6 @@ function AdminEnrollments() {
                         </button>
                     </form>
                 </div>
-            )}
-
-            {/* CSV Upload */}
-            {activeTab === 'csv' && (
-                <div className="glass-card" style={{ padding: '24px', marginBottom: '24px', borderTopLeftRadius: 0 }}>
-                    <h3 style={{ marginBottom: '4px', fontSize: '1.05rem' }}>Bulk Enroll via CSV File</h3>
-                    <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '16px' }}>
-                        Upload a CSV file to enroll multiple students. If an email doesn't have an account, one is created automatically (Password defaults to their Phone Number, or ProduitStudent123! if blank).
-                    </p>
-
-                    <div style={{ background: 'var(--card-bg)', border: '1px dashed var(--card-border)', borderRadius: '8px', padding: '14px', marginBottom: '16px' }}>
-                        <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: '8px', fontWeight: 600 }}>CSV Format - You can include up to 7 columns (in exact order, headers are ignored):</p>
-                        <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: '8px' }}>
-                            <strong>Format:</strong> Email, First Name, Last Name, Phone, Address, Class, School
-                        </p>
-                        <code style={{ display: 'block', background: 'rgba(0,0,0,0.04)', padding: '10px 14px', borderRadius: '6px', fontSize: '0.82rem', lineHeight: '1.7', color: 'var(--text-primary)', whiteSpace: 'pre-wrap' }}>
-                            student1@example.com, student1, student1, 9876543210, 123 Main St, 10th Grade, St Marys<br />
-                            student2@example.com<br />
-                            student3@example.com, student3, student3
-                        </code>
-                        <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '8px' }}>
-                            Note: Only Email is required. You can leave other columns blank or omit them.
-                        </p>
-                    </div>
-
-                    <div className="form-group">
-                        <SearchableCourseSelect
-                            value={csvCourse}
-                            onChange={(id) => setCsvCourse(id ? String(id) : '')}
-                            label="Course *"
-                            required
-                            placeholder="Search or select a course..."
-                        />
-                    </div>
-                    <div className="responsive-grid-2">
-                        <div className="form-group">
-                            <label className="form-label">Assign Mentor (all students)</label>
-                            <select className="input-field" value={csvMentor} onChange={e => setCsvMentor(e.target.value)}>
-                                <option value="">None</option>
-                                {mentors.map(m => <option key={m.id} value={m.id}>{m.first_name} {m.last_name}</option>)}
-                            </select>
-                        </div>
-                        <div className="form-group">
-                            <label className="form-label">Assign Teacher (all students)</label>
-                            <select className="input-field" value={csvTeacher} onChange={e => setCsvTeacher(e.target.value)}>
-                                <option value="">None</option>
-                                {filteredCsvTeachers.map(t => <option key={t.id} value={t.id}>{t.first_name} {t.last_name}</option>)}
-                            </select>
-                        </div>
-                    </div>
-                    <div className="form-group">
-                        <label className="form-label">CSV File *</label>
-                        <input type="file" ref={fileRef} accept=".csv" className="input-field" style={{ padding: '10px' }} />
-                    </div>
-                    <button className="glass-btn primary" onClick={handleCSVUpload} disabled={uploading} style={{ width: '100%', padding: '12px' }}>
-                        {uploading ? 'Enrolling...' : 'Upload and Enroll'}
-                    </button>
-                </div>
-            )}
 
             {/* Enrollments Table */}
             {loading ? (
