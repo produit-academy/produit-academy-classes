@@ -4,6 +4,7 @@ import { withAuth, useAuth } from '../../lib/auth';
 import { apiGet, apiPost } from '../../lib/api';
 import DashboardLayout from '../../components/DashboardLayout';
 import StatCard from '../../components/StatCard';
+import SearchableCourseSelect from '../../components/SearchableCourseSelect';
 
 function MentorDashboard() {
     const { user } = useAuth();
@@ -11,7 +12,6 @@ function MentorDashboard() {
     const [loading, setLoading] = useState(true);
 
     // Schedule Demo state
-    const [courses, setCourses] = useState([]);
     const [teachers, setTeachers] = useState([]);
     const [demoForm, setDemoForm] = useState({ studentId: '', teacherId: '', courseId: '', scheduledTime: '' });
     const [demoSubmitting, setDemoSubmitting] = useState(false);
@@ -25,7 +25,6 @@ function MentorDashboard() {
             .catch(console.error)
             .finally(() => setLoading(false));
 
-        apiGet('/api/classes/courses/').then(setCourses).catch(() => {});
         apiGet('/api/classes/admin/staff/').then(list => {
             setTeachers((Array.isArray(list) ? list : []).filter(s => s.role === 'teacher'));
         }).catch(() => {});
@@ -125,13 +124,12 @@ function MentorDashboard() {
                                     </div>
                                     <div className="form-group">
                                         <label style={{ display: 'block', fontWeight: 600, marginBottom: '6px', fontSize: '0.88rem' }}>Course</label>
-                                        <select className="input-field" style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid var(--border-color, #e0e0e0)', fontSize: '0.92rem' }}
-                                            value={demoForm.courseId} onChange={(e) => setDemoForm({ ...demoForm, courseId: e.target.value })} required>
-                                            <option value="">Select course...</option>
-                                            {courses.map(c => (
-                                                <option key={c.id} value={c.id}>{c.name}</option>
-                                            ))}
-                                        </select>
+                                        <SearchableCourseSelect
+                                            value={demoForm.courseId}
+                                            onChange={(id) => setDemoForm({ ...demoForm, courseId: id ? String(id) : '' })}
+                                            placeholder="Search or select course..."
+                                            required
+                                        />
                                     </div>
                                     <div className="form-group">
                                         <label style={{ display: 'block', fontWeight: 600, marginBottom: '6px', fontSize: '0.88rem' }}>Date & Time</label>

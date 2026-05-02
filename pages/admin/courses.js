@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { withAuth } from '../../lib/auth';
 import { apiGet, apiPost, apiPut, apiDelete } from '../../lib/api';
 import DashboardLayout from '../../components/DashboardLayout';
@@ -12,16 +12,46 @@ function AdminCourses() {
     const [form, setForm] = useState({ name: '', description: '' });
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const [courseSearch, setCourseSearch] = useState('');
+    const [coursePage, setCoursePage] = useState(1);
+    const [courseHasNext, setCourseHasNext] = useState(false);
+    const [courseLoading, setCourseLoading] = useState(false);
+    const searchTimerRef = useRef(null);
 
-    const loadCourses = () => {
-        setLoading(true);
-        apiGet('/api/classes/admin/courses/')
-            .then(setCourses)
-            .catch(console.error)
-            .finally(() => setLoading(false));
+    const loadCourses = useCallback(async (page = 1, search = '', append = false) => {
+        if (page === 1) setLoading(true);
+        setCourseLoading(true);
+        try {
+            const params = new URLSearchParams({ page, page_size: 20 });
+            if (search) params.set('search', search);
+            const data = await apiGet(`/api/classes/courses/?${params}`);
+            const results = data.results || [];
+            setCourses(prev => append ? [...prev, ...results] : results);
+            setCoursePage(data.page || page);
+            setCourseHasNext(data.has_next || false);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoading(false);
+            setCourseLoading(false);
+        }
+    }, []);
+
+    useEffect(() => { loadCourses(1, ''); }, [loadCourses]);
+
+    const handleCourseSearch = (val) => {
+        setCourseSearch(val);
+        clearTimeout(searchTimerRef.current);
+        searchTimerRef.current = setTimeout(() => {
+            loadCourses(1, val, false);
+        }, 350);
     };
 
-    useEffect(() => { loadCourses(); }, []);
+    const loadMoreCourses = () => {
+        if (courseHasNext && !courseLoading) {
+            loadCourses(coursePage + 1, courseSearch, true);
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -38,7 +68,7 @@ function AdminCourses() {
                 setShowForm(false);
                 setEditId(null);
                 setForm({ name: '', description: '' });
-                loadCourses();
+                loadCourses(1, courseSearch);
                 setTimeout(() => setSuccess(''), 3000);
             } else {
                 const data = await res.json();
@@ -61,7 +91,7 @@ function AdminCourses() {
             const res = await apiDelete(`/api/classes/admin/courses/${id}/`);
             if (res.ok) {
                 setSuccess('Course deleted.');
-                loadCourses();
+                loadCourses(1, courseSearch);
                 setTimeout(() => setSuccess(''), 3000);
             }
         } catch {
@@ -126,9 +156,22 @@ function AdminCourses() {
                 </div>
             )}
 
+            {/* Search Bar */}
+            <div style={{ marginBottom: '16px' }}>
+                <input
+                    type="text"
+                    className="input-field"
+                    placeholder="Search courses..."
+                    value={courseSearch}
+                    onChange={(e) => handleCourseSearch(e.target.value)}
+                    style={{ maxWidth: '400px' }}
+                />
+            </div>
+
             {loading ? (
                 <div className="loading-container"><div className="loading-spinner" /></div>
             ) : courses.length > 0 ? (
+                <>
                 <div className="glass-card data-table-wrapper">
                     <table className="data-table">
                         <thead>
@@ -169,10 +212,25 @@ function AdminCourses() {
                         </tbody>
                     </table>
                 </div>
+
+                {/* Load More */}
+                {courseHasNext && (
+                    <div style={{ textAlign: 'center', marginTop: '16px' }}>
+                        <button
+                            className="glass-btn"
+                            onClick={loadMoreCourses}
+                            disabled={courseLoading}
+                            style={{ padding: '10px 28px' }}
+                        >
+                            {courseLoading ? 'Loading...' : 'Load More Courses'}
+                        </button>
+                    </div>
+                )}
+            </>
             ) : (
                 <div className="glass-card empty-state">
-                    <h3>No courses yet</h3>
-                    <p>Create your first course to get started.</p>
+                    <h3>{courseSearch ? 'No courses found' : 'No courses yet'}</h3>
+                    <p>{courseSearch ? 'Try a different search term.' : 'Create your first course to get started.'}</p>
                 </div>
             )}
         </DashboardLayout>

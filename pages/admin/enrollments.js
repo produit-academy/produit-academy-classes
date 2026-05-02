@@ -4,11 +4,11 @@ import { useRouter } from 'next/router';
 import { withAuth } from '../../lib/auth';
 import { apiGet, apiPost, apiPut, apiDelete } from '../../lib/api';
 import DashboardLayout from '../../components/DashboardLayout';
+import SearchableCourseSelect from '../../components/SearchableCourseSelect';
 
 function AdminEnrollments() {
     const [enrollments, setEnrollments] = useState([]);
     const router = useRouter();
-    const [courses, setCourses] = useState([]);
     const [staff, setStaff] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -43,12 +43,10 @@ function AdminEnrollments() {
     useEffect(() => {
         Promise.all([
             apiGet('/api/classes/admin/enrollments/list/'),
-            apiGet('/api/classes/admin/courses/'),
             apiGet('/api/classes/admin/staff/'),
         ])
-            .then(([enr, crs, stf]) => {
+            .then(([enr, stf]) => {
                 setEnrollments(enr);
-                setCourses(crs);
                 setStaff(stf);
             })
             .catch(console.error)
@@ -372,11 +370,13 @@ function AdminEnrollments() {
                         <hr style={{ border: 'none', borderTop: '1px solid var(--card-border)', margin: '16px 0' }} />
 
                         <div className="form-group">
-                            <label className="form-label">Enroll in Course *</label>
-                            <select className="input-field" value={manualCourse} onChange={e => setManualCourse(e.target.value)} required>
-                                <option value="">Select a course</option>
-                                {courses.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                            </select>
+                            <SearchableCourseSelect
+                                value={manualCourse}
+                                onChange={(id) => setManualCourse(id ? String(id) : '')}
+                                label="Enroll in Course *"
+                                required
+                                placeholder="Search or select a course..."
+                            />
                         </div>
 
                         <div className="responsive-grid-2">
@@ -427,11 +427,13 @@ function AdminEnrollments() {
                     </div>
 
                     <div className="form-group">
-                        <label className="form-label">Course *</label>
-                        <select className="input-field" value={csvCourse} onChange={e => setCsvCourse(e.target.value)}>
-                            <option value="">Select a course</option>
-                            {courses.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                        </select>
+                        <SearchableCourseSelect
+                            value={csvCourse}
+                            onChange={(id) => setCsvCourse(id ? String(id) : '')}
+                            label="Course *"
+                            required
+                            placeholder="Search or select a course..."
+                        />
                     </div>
                     <div className="responsive-grid-2">
                         <div className="form-group">

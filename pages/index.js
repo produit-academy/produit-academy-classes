@@ -17,9 +17,9 @@ export default function Home() {
   const [courses, setCourses] = useState([]);
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/classes/courses/`)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/classes/courses/?page_size=200`)
       .then(res => res.json())
-      .then(data => setCourses(data))
+      .then(data => setCourses(data.results || data || []))
       .catch(err => console.error("Failed to fetch courses", err));
   }, []);
 
