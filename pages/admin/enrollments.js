@@ -322,6 +322,7 @@ function AdminEnrollments() {
                                 label="Enroll in Course *"
                                 required
                                 placeholder="Search or select a course..."
+                                apiEndpoint="/api/classes/admin/courses/"
                             />
                         </div>
 

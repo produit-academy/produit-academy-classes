@@ -24,7 +24,7 @@ function AdminCourses() {
         try {
             const params = new URLSearchParams({ page, page_size: 20 });
             if (search) params.set('search', search);
-            const data = await apiGet(`/api/classes/courses/?${params}`);
+            const data = await apiGet(`/api/classes/admin/courses/?${params}`);
             const results = data.results || [];
             setCourses(prev => append ? [...prev, ...results] : results);
             setCoursePage(data.page || page);
