@@ -120,9 +120,9 @@ export default function InstallPrompt() {
 
         {/* Benefits */}
         <div style={styles.benefits}>
-          <span style={styles.benefit}>⚡ Instant access</span>
-          <span style={styles.benefit}>📱 Works offline</span>
-          <span style={styles.benefit}>🔔 Full screen</span>
+          <span style={styles.benefit}>Instant access</span>
+          <span style={styles.benefit}>Offline access</span>
+          <span style={styles.benefit}>Full screen</span>
         </div>
       </div>
     </>
