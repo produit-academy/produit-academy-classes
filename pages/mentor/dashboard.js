@@ -218,6 +218,56 @@ function MentorDashboard() {
                             <p>Ask your admin to assign students to you.</p>
                         </div>
                     )}
+
+                    {/* Cancelled Sessions */}
+                    {data.cancelled_sessions?.length > 0 && (
+                        <>
+                            <h3 className="section-heading" style={{ marginTop: '8px' }}>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-red)" strokeWidth="2">
+                                    <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+                                </svg>
+                                Recently Cancelled Classes
+                            </h3>
+                            <div style={{ display: 'grid', gap: '10px' }}>
+                                {data.cancelled_sessions.map((s) => (
+                                    <div key={s.id} className="glass-card" style={{ padding: '16px', borderLeft: '3px solid var(--accent-red)' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '8px' }}>
+                                            <div>
+                                                <h4 style={{ marginBottom: '4px' }}>{s.title}</h4>
+                                                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>
+                                                    {s.course_name} &middot; Student: {s.student_name}
+                                                </p>
+                                                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                                                    Scheduled: {new Date(s.scheduled_time).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })}
+                                                </p>
+                                            </div>
+                                            <span style={{
+                                                fontSize: '0.75rem',
+                                                background: 'rgba(231,76,60,0.1)',
+                                                color: 'var(--accent-red)',
+                                                padding: '4px 12px',
+                                                borderRadius: '20px',
+                                                fontWeight: 600,
+                                                whiteSpace: 'nowrap'
+                                            }}>
+                                                Cancelled by {s.cancelled_by_role}
+                                            </span>
+                                        </div>
+                                        <div style={{
+                                            marginTop: '10px',
+                                            padding: '10px 14px',
+                                            background: 'rgba(231,76,60,0.05)',
+                                            borderRadius: '8px',
+                                            fontSize: '0.88rem',
+                                            color: 'var(--text-primary)'
+                                        }}>
+                                            <strong>Reason:</strong> {s.cancel_reason || 'No reason provided'}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </>
+                    )}
                 </>
             ) : (
                 <div className="alert alert-error">Failed to load dashboard data.</div>

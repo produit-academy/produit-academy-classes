@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import { withAuth, useAuth } from '../../lib/auth';
-import { apiGet, apiPatch } from '../../lib/api';
+import { apiGet, apiPatch, apiPost } from '../../lib/api';
 import DashboardLayout from '../../components/DashboardLayout';
 import StatCard from '../../components/StatCard';
 
@@ -11,6 +11,11 @@ function TeacherDashboard() {
     const [loading, setLoading] = useState(true);
     const [demoLink, setDemoLink] = useState('');
     const [submittingLinkId, setSubmittingLinkId] = useState(null);
+
+    // Cancel modal
+    const [cancelId, setCancelId] = useState(null);
+    const [cancelReason, setCancelReason] = useState('');
+    const [cancelling, setCancelling] = useState(false);
 
     const loadData = () => {
         setLoading(true);
@@ -35,6 +40,29 @@ function TeacherDashboard() {
             console.error('Failed to submit link', error);
         } finally {
             setSubmittingLinkId(null);
+        }
+    };
+
+    const handleCancelSession = async () => {
+        if (!cancelReason.trim()) {
+            alert('Please provide a reason for cancellation.');
+            return;
+        }
+        setCancelling(true);
+        try {
+            const res = await apiPost(`/api/classes/session/${cancelId}/cancel/`, { reason: cancelReason });
+            const d = await res.json();
+            if (res.ok) {
+                setCancelId(null);
+                setCancelReason('');
+                loadData();
+            } else {
+                alert(d.error || 'Failed to cancel session.');
+            }
+        } catch {
+            alert('Network error.');
+        } finally {
+            setCancelling(false);
         }
     };
 
@@ -94,32 +122,41 @@ function TeacherDashboard() {
                                             <span className="class-time">
                                                 {formatDate(cls.scheduled_time)} &middot; {formatTime(cls.scheduled_time)}
                                             </span>
-                                            {cls.meeting_link ? (
-                                                <a href={cls.meeting_link} target="_blank" rel="noopener noreferrer" className="glass-btn primary" style={{ fontSize: '0.85rem', padding: '8px 16px' }}>
-                                                    Start Class
-                                                </a>
-                                            ) : cls.is_demo ? (
-                                                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                                                    <input 
-                                                        type="text" 
-                                                        placeholder="Paste Google Meet Link" 
-                                                        value={submittingLinkId === cls.id ? '' : demoLink}
-                                                        onChange={(e) => setDemoLink(e.target.value)}
-                                                        className="glass-input"
-                                                        style={{ padding: '6px 12px', fontSize: '0.85rem', width: '200px' }}
-                                                    />
-                                                    <button 
-                                                        onClick={() => submitMeetingLink(cls.id)}
-                                                        disabled={submittingLinkId === cls.id}
-                                                        className="glass-btn primary" 
-                                                        style={{ fontSize: '0.85rem', padding: '6px 12px' }}
-                                                    >
-                                                        {submittingLinkId === cls.id ? 'Saving...' : 'Save Link'}
-                                                    </button>
-                                                </div>
-                                            ) : (
-                                                <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>No link provided</span>
-                                            )}
+                                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                                {cls.meeting_link ? (
+                                                    <a href={cls.meeting_link} target="_blank" rel="noopener noreferrer" className="glass-btn primary" style={{ fontSize: '0.85rem', padding: '8px 16px' }}>
+                                                        Start Class
+                                                    </a>
+                                                ) : cls.is_demo ? (
+                                                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                                        <input 
+                                                            type="text" 
+                                                            placeholder="Paste Google Meet Link" 
+                                                            value={submittingLinkId === cls.id ? '' : demoLink}
+                                                            onChange={(e) => setDemoLink(e.target.value)}
+                                                            className="glass-input"
+                                                            style={{ padding: '6px 12px', fontSize: '0.85rem', width: '200px' }}
+                                                        />
+                                                        <button 
+                                                            onClick={() => submitMeetingLink(cls.id)}
+                                                            disabled={submittingLinkId === cls.id}
+                                                            className="glass-btn primary" 
+                                                            style={{ fontSize: '0.85rem', padding: '6px 12px' }}
+                                                        >
+                                                            {submittingLinkId === cls.id ? 'Saving...' : 'Save Link'}
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>No link provided</span>
+                                                )}
+                                                <button
+                                                    onClick={() => setCancelId(cls.id)}
+                                                    className="glass-btn"
+                                                    style={{ fontSize: '0.8rem', padding: '6px 12px', color: 'var(--accent-red)', borderColor: 'rgba(231,76,60,0.3)' }}
+                                                >
+                                                    Cancel
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 ))
@@ -197,6 +234,42 @@ function TeacherDashboard() {
                             </div>
                         </>
                     )}
+
+                    {/* Cancel Session Modal */}
+                    {cancelId && (
+                        <div className="modal-overlay" onClick={() => setCancelId(null)}>
+                            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '460px' }}>
+                                <h3 style={{ color: 'var(--accent-red)' }}>Cancel Class</h3>
+                                <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem', fontSize: '0.9rem' }}>
+                                    Please provide a reason for cancellation. The student's mentor will be notified.
+                                </p>
+                                <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+                                    <label>Reason</label>
+                                    <textarea
+                                        className="input-field"
+                                        rows={3}
+                                        placeholder="e.g. Personal emergency, schedule conflict, illness..."
+                                        value={cancelReason}
+                                        onChange={e => setCancelReason(e.target.value)}
+                                        style={{ resize: 'vertical' }}
+                                        required
+                                    />
+                                </div>
+                                <div className="modal-actions">
+                                    <button type="button" className="glass-btn outline" onClick={() => { setCancelId(null); setCancelReason(''); }}>Go Back</button>
+                                    <button
+                                        type="button"
+                                        className="glass-btn primary"
+                                        disabled={cancelling || !cancelReason.trim()}
+                                        onClick={handleCancelSession}
+                                        style={{ background: 'var(--accent-red)' }}
+                                    >
+                                        {cancelling ? 'Cancelling...' : 'Confirm Cancellation'}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </>
             ) : (
                 <div className="alert alert-error">Failed to load dashboard data.</div>
@@ -206,3 +279,4 @@ function TeacherDashboard() {
 }
 
 export default withAuth(TeacherDashboard, ['teacher', 'admin']);
+

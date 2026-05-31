@@ -15,6 +15,16 @@ function StudentDashboard() {
     const [bookingTime, setBookingTime] = useState('');
     const [booking, setBooking] = useState(false);
 
+    // Teacher availability slots
+    const [teacherSlots, setTeacherSlots] = useState([]);
+    const [teacherName, setTeacherName] = useState('');
+    const [selectedSlot, setSelectedSlot] = useState(null);
+
+    // Cancel modal
+    const [cancelId, setCancelId] = useState(null);
+    const [cancelReason, setCancelReason] = useState('');
+    const [cancelling, setCancelling] = useState(false);
+
     const loadData = () => {
         setLoading(true);
         apiGet('/api/classes/student/dashboard/')
@@ -25,6 +35,17 @@ function StudentDashboard() {
 
     useEffect(() => { loadData(); }, []);
 
+    // Load teacher slots when opening the booking modal
+    const openBookModal = () => {
+        setShowBookModal(true);
+        apiGet('/api/classes/student/teacher-slots/')
+            .then(res => {
+                setTeacherSlots(res.slots || []);
+                setTeacherName(res.teacher_name || '');
+            })
+            .catch(() => setTeacherSlots([]));
+    };
+
     const handleAcceptDemo = async (demoId) => {
         setAcceptingId(demoId);
         try {
@@ -32,7 +53,8 @@ function StudentDashboard() {
             if (res.ok) {
                 loadData();
             } else {
-                alert(res.data?.error || 'Failed to accept demo');
+                const d = await res.json();
+                alert(d.error || 'Failed to accept demo');
             }
         } catch (err) {
             console.error('Failed to accept demo', err);
@@ -49,7 +71,8 @@ function StudentDashboard() {
             if (res.ok) {
                 loadData();
             } else {
-                alert(res.data?.error || 'Failed to reject demo');
+                const d = await res.json();
+                alert(d.error || 'Failed to reject demo');
             }
         } catch (err) {
             console.error('Failed to reject demo', err);
@@ -60,25 +83,61 @@ function StudentDashboard() {
 
     const handleBookSession = async (e) => {
         e.preventDefault();
+
+        let scheduledTime = bookingTime;
+        if (selectedSlot && !bookingTime) {
+            scheduledTime = `${selectedSlot.date}T${selectedSlot.start_time}`;
+        }
+
+        if (!scheduledTime) {
+            alert('Please select a date and time.');
+            return;
+        }
+
         setBooking(true);
         try {
-            const res = await apiPost('/api/classes/book/', {
+            const res = await apiPost('/api/classes/student/book-session/', {
                 course_id: bookingCourseId,
-                scheduled_time: new Date(bookingTime).toISOString(),
+                scheduled_time: new Date(scheduledTime).toISOString(),
             });
+            const d = await res.json();
             if (res.ok) {
                 setShowBookModal(false);
                 setBookingTime('');
                 setBookingCourseId('');
+                setSelectedSlot(null);
                 loadData();
             } else {
-                alert('Failed to book session: ' + (res.data?.error || 'Unknown error'));
+                alert('Failed to book session: ' + (d.error || 'Unknown error'));
             }
         } catch (err) {
             console.error(err);
             alert('A network error occurred.');
         } finally {
             setBooking(false);
+        }
+    };
+
+    const handleCancelSession = async () => {
+        if (!cancelReason.trim()) {
+            alert('Please provide a reason for cancellation.');
+            return;
+        }
+        setCancelling(true);
+        try {
+            const res = await apiPost(`/api/classes/session/${cancelId}/cancel/`, { reason: cancelReason });
+            const d = await res.json();
+            if (res.ok) {
+                setCancelId(null);
+                setCancelReason('');
+                loadData();
+            } else {
+                alert(d.error || 'Failed to cancel session.');
+            }
+        } catch {
+            alert('Network error.');
+        } finally {
+            setCancelling(false);
         }
     };
 
@@ -90,6 +149,18 @@ function StudentDashboard() {
     const formatTime = (dateStr) => {
         const d = new Date(dateStr);
         return d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+    };
+
+    const formatSlotDate = (dateStr) => {
+        const d = new Date(dateStr + 'T00:00:00');
+        return d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
+    };
+
+    const formatSlotTime = (timeStr) => {
+        const [h, m] = timeStr.split(':');
+        const date = new Date();
+        date.setHours(parseInt(h), parseInt(m));
+        return date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
     };
 
     return (
@@ -188,7 +259,7 @@ function StudentDashboard() {
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                             Upcoming Classes
                         </h3>
-                        <button onClick={() => setShowBookModal(true)} className="glass-btn primary" style={{ padding: '8px 16px', fontSize: '0.85rem' }}>
+                        <button onClick={openBookModal} className="glass-btn primary" style={{ padding: '8px 16px', fontSize: '0.85rem' }}>
                             + Book a Class
                         </button>
                     </div>
@@ -208,11 +279,20 @@ function StudentDashboard() {
                                     <span className="class-time">
                                         {formatDate(cls.scheduled_time)} &middot; {formatTime(cls.scheduled_time)}
                                     </span>
-                                    {cls.meeting_link && (
-                                        <a href={cls.meeting_link} target="_blank" rel="noopener noreferrer" className="glass-btn primary" style={{ fontSize: '0.85rem', padding: '8px 16px' }}>
-                                            Join Class
-                                        </a>
-                                    )}
+                                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                        {cls.meeting_link && (
+                                            <a href={cls.meeting_link} target="_blank" rel="noopener noreferrer" className="glass-btn primary" style={{ fontSize: '0.85rem', padding: '8px 16px' }}>
+                                                Join Class
+                                            </a>
+                                        )}
+                                        <button
+                                            onClick={() => setCancelId(cls.id)}
+                                            className="glass-btn"
+                                            style={{ fontSize: '0.8rem', padding: '6px 12px', color: 'var(--accent-red)', borderColor: 'rgba(231,76,60,0.3)' }}
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         ))
@@ -244,9 +324,50 @@ function StudentDashboard() {
                     {/* Book Session Modal */}
                     {showBookModal && (
                         <div className="modal-overlay" onClick={() => setShowBookModal(false)}>
-                            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '520px' }}>
                                 <h3>Book a New Session</h3>
-                                <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem', fontSize: '0.9rem' }}>Select a course and schedule your next 1-to-1 session.</p>
+                                {teacherName && (
+                                    <p style={{ color: 'var(--text-secondary)', marginBottom: '0.5rem', fontSize: '0.9rem' }}>
+                                        Teacher: <strong>{teacherName}</strong>
+                                    </p>
+                                )}
+
+                                {teacherSlots.length > 0 ? (
+                                    <>
+                                        <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem', fontSize: '0.88rem' }}>
+                                            Select an available time slot from your teacher's schedule:
+                                        </p>
+                                        <div style={{ maxHeight: '200px', overflowY: 'auto', marginBottom: '16px', display: 'grid', gap: '8px' }}>
+                                            {teacherSlots.map(slot => (
+                                                <div
+                                                    key={slot.id}
+                                                    onClick={() => {
+                                                        setSelectedSlot(slot);
+                                                        setBookingTime(`${slot.date}T${slot.start_time}`);
+                                                    }}
+                                                    style={{
+                                                        padding: '12px 16px',
+                                                        borderRadius: '10px',
+                                                        border: selectedSlot?.id === slot.id ? '2px solid var(--accent-green)' : '1px solid var(--border-color, #e0e0e0)',
+                                                        background: selectedSlot?.id === slot.id ? 'rgba(46,204,113,0.08)' : 'transparent',
+                                                        cursor: 'pointer',
+                                                        transition: 'all 0.2s',
+                                                    }}
+                                                >
+                                                    <div style={{ fontWeight: 600, fontSize: '0.92rem' }}>{formatSlotDate(slot.date)}</div>
+                                                    <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                                                        {formatSlotTime(slot.start_time)} — {formatSlotTime(slot.end_time)}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div className="alert alert-warning" style={{ marginBottom: '16px' }}>
+                                        Your teacher has not set availability yet. You can still book manually, but it may be outside their schedule.
+                                    </div>
+                                )}
+
                                 <form onSubmit={handleBookSession}>
                                     <div className="form-group" style={{ marginBottom: '1rem' }}>
                                         <label>Select Course</label>
@@ -262,23 +383,75 @@ function StudentDashboard() {
                                             ))}
                                         </select>
                                     </div>
-                                    <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                                        <label>Select Date & Time</label>
-                                        <input 
-                                            type="datetime-local" 
-                                            className="input-field"
-                                            value={bookingTime}
-                                            onChange={e => setBookingTime(e.target.value)}
-                                            required
-                                        />
-                                    </div>
+                                    {selectedSlot && (
+                                        <div className="form-group" style={{ marginBottom: '1rem' }}>
+                                            <label>Exact Time (within selected slot)</label>
+                                            <input 
+                                                type="datetime-local" 
+                                                className="input-field"
+                                                value={bookingTime}
+                                                min={`${selectedSlot.date}T${selectedSlot.start_time}`}
+                                                max={`${selectedSlot.date}T${selectedSlot.end_time}`}
+                                                onChange={e => setBookingTime(e.target.value)}
+                                                required
+                                            />
+                                        </div>
+                                    )}
+                                    {!selectedSlot && teacherSlots.length === 0 && (
+                                        <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+                                            <label>Select Date & Time</label>
+                                            <input 
+                                                type="datetime-local" 
+                                                className="input-field"
+                                                value={bookingTime}
+                                                onChange={e => setBookingTime(e.target.value)}
+                                                required
+                                            />
+                                        </div>
+                                    )}
                                     <div className="modal-actions">
-                                        <button type="button" className="glass-btn outline" onClick={() => setShowBookModal(false)}>Cancel</button>
+                                        <button type="button" className="glass-btn outline" onClick={() => { setShowBookModal(false); setSelectedSlot(null); }}>Cancel</button>
                                         <button type="submit" className="glass-btn primary" disabled={booking || !bookingCourseId || !bookingTime}>
                                             {booking ? 'Booking...' : 'Confirm Booking'}
                                         </button>
                                     </div>
                                 </form>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Cancel Session Modal */}
+                    {cancelId && (
+                        <div className="modal-overlay" onClick={() => setCancelId(null)}>
+                            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '460px' }}>
+                                <h3 style={{ color: 'var(--accent-red)' }}>Cancel Class</h3>
+                                <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem', fontSize: '0.9rem' }}>
+                                    Please provide a reason for cancellation. Your mentor will be notified.
+                                </p>
+                                <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+                                    <label>Reason</label>
+                                    <textarea
+                                        className="input-field"
+                                        rows={3}
+                                        placeholder="e.g. Family function, health issue, exam preparation..."
+                                        value={cancelReason}
+                                        onChange={e => setCancelReason(e.target.value)}
+                                        style={{ resize: 'vertical' }}
+                                        required
+                                    />
+                                </div>
+                                <div className="modal-actions">
+                                    <button type="button" className="glass-btn outline" onClick={() => { setCancelId(null); setCancelReason(''); }}>Go Back</button>
+                                    <button
+                                        type="button"
+                                        className="glass-btn primary"
+                                        disabled={cancelling || !cancelReason.trim()}
+                                        onClick={handleCancelSession}
+                                        style={{ background: 'var(--accent-red)' }}
+                                    >
+                                        {cancelling ? 'Cancelling...' : 'Confirm Cancellation'}
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     )}
@@ -291,4 +464,3 @@ function StudentDashboard() {
 }
 
 export default withAuth(StudentDashboard, ['student']);
-
