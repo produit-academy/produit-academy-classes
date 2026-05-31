@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /mentor/
+Disallow: /student/
+Disallow: /teacher/
+
+Sitemap: https://classes.produitacademy.com/sitemap.xml
