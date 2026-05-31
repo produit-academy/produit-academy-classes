@@ -214,6 +214,7 @@ function TeacherDashboard() {
                                         <tr>
                                             <th>Student</th>
                                             <th>Email</th>
+                                            <th>Courses</th>
                                             <th>Attendance</th>
                                         </tr>
                                     </thead>
@@ -222,6 +223,9 @@ function TeacherDashboard() {
                                             <tr key={s.id}>
                                                 <td><strong>{s.first_name} {s.last_name}</strong></td>
                                                 <td style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>{s.email}</td>
+                                                <td style={{ fontSize: '0.85rem' }}>
+                                                    {s.courses?.length > 0 ? s.courses.join(', ') : '—'}
+                                                </td>
                                                 <td>
                                                     <span style={{ color: s.attendance_percentage >= 75 ? 'var(--accent-green)' : 'var(--accent-red)', fontWeight: 600 }}>
                                                         {s.attendance_percentage}%

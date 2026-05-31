@@ -15,10 +15,12 @@ function StudentDashboard() {
     const [bookingTime, setBookingTime] = useState('');
     const [booking, setBooking] = useState(false);
 
-    // Teacher availability slots
+    // Teacher availability slots (per-course)
     const [teacherSlots, setTeacherSlots] = useState([]);
+    const [bookedRanges, setBookedRanges] = useState([]);
     const [teacherName, setTeacherName] = useState('');
     const [selectedSlot, setSelectedSlot] = useState(null);
+    const [slotsLoading, setSlotsLoading] = useState(false);
 
     // Cancel modal
     const [cancelId, setCancelId] = useState(null);
@@ -35,15 +37,44 @@ function StudentDashboard() {
 
     useEffect(() => { loadData(); }, []);
 
-    // Load teacher slots when opening the booking modal
-    const openBookModal = () => {
-        setShowBookModal(true);
-        apiGet('/api/classes/student/teacher-slots/')
+    // Load teacher slots when a course is selected in booking modal
+    const loadTeacherSlots = (courseId) => {
+        if (!courseId) {
+            setTeacherSlots([]);
+            setTeacherName('');
+            setBookedRanges([]);
+            return;
+        }
+        setSlotsLoading(true);
+        apiGet(`/api/classes/student/teacher-slots/?course_id=${courseId}`)
             .then(res => {
                 setTeacherSlots(res.slots || []);
                 setTeacherName(res.teacher_name || '');
+                setBookedRanges(res.booked_ranges || []);
             })
-            .catch(() => setTeacherSlots([]));
+            .catch(() => {
+                setTeacherSlots([]);
+                setTeacherName('');
+                setBookedRanges([]);
+            })
+            .finally(() => setSlotsLoading(false));
+    };
+
+    const openBookModal = () => {
+        setShowBookModal(true);
+        setBookingCourseId('');
+        setBookingTime('');
+        setSelectedSlot(null);
+        setTeacherSlots([]);
+        setTeacherName('');
+        setBookedRanges([]);
+    };
+
+    const handleCourseChange = (courseId) => {
+        setBookingCourseId(courseId);
+        setSelectedSlot(null);
+        setBookingTime('');
+        loadTeacherSlots(courseId);
     };
 
     const handleAcceptDemo = async (demoId) => {
@@ -141,6 +172,14 @@ function StudentDashboard() {
         }
     };
 
+    // Check if a slot is fully booked
+    const isSlotBooked = (slot) => {
+        return bookedRanges.some(b => {
+            const bDate = typeof b.date === 'string' ? b.date : '';
+            return bDate === slot.date && b.start === slot.start_time;
+        });
+    };
+
     const formatDate = (dateStr) => {
         const d = new Date(dateStr);
         return d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
@@ -182,10 +221,11 @@ function StudentDashboard() {
                     </div>
 
                     {/* Assigned Staff */}
-                    {(data.assigned_mentor || data.assigned_teacher) && (
-                        <div className="stats-grid" style={{ marginBottom: '4px' }}>
+                    {(data.assigned_mentor || data.assigned_teachers?.length > 0) && (
+                        <div style={{ marginBottom: '4px' }}>
+                            {/* Mentor */}
                             {data.assigned_mentor && (
-                                <div className="glass-card" style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <div className="glass-card" style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px' }}>
                                     <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(155,89,182,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#8e44ad', fontWeight: 700, fontSize: '1.1rem', flexShrink: 0 }}>
                                         {data.assigned_mentor.name[0]}
                                     </div>
@@ -196,16 +236,24 @@ function StudentDashboard() {
                                     </div>
                                 </div>
                             )}
-                            {data.assigned_teacher && (
-                                <div className="glass-card" style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                    <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(52,152,219,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2980b9', fontWeight: 700, fontSize: '1.1rem', flexShrink: 0 }}>
-                                        {data.assigned_teacher.name[0]}
-                                    </div>
-                                    <div>
-                                        <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Your Teacher</div>
-                                        <div style={{ fontWeight: 600 }}>{data.assigned_teacher.name}</div>
-                                        <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>{data.assigned_teacher.email}</div>
-                                    </div>
+
+                            {/* Per-Course Teachers */}
+                            {data.assigned_teachers?.length > 0 && (
+                                <div className="stats-grid">
+                                    {data.assigned_teachers.map((t, i) => (
+                                        <div key={i} className="glass-card" style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                            <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(52,152,219,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2980b9', fontWeight: 700, fontSize: '1.1rem', flexShrink: 0 }}>
+                                                {t.name?.[0] || 'T'}
+                                            </div>
+                                            <div>
+                                                <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                                    Teacher · {t.course_name}
+                                                </div>
+                                                <div style={{ fontWeight: 600 }}>{t.name}</div>
+                                                <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>{t.email}</div>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
                             )}
                         </div>
@@ -326,96 +374,135 @@ function StudentDashboard() {
                         <div className="modal-overlay" onClick={() => setShowBookModal(false)}>
                             <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '520px' }}>
                                 <h3>Book a New Session</h3>
-                                {teacherName && (
-                                    <p style={{ color: 'var(--text-secondary)', marginBottom: '0.5rem', fontSize: '0.9rem' }}>
-                                        Teacher: <strong>{teacherName}</strong>
-                                    </p>
-                                )}
 
-                                {teacherSlots.length > 0 ? (
+                                {/* Step 1: Select Course */}
+                                <div className="form-group" style={{ marginBottom: '1rem' }}>
+                                    <label>Select Course</label>
+                                    <select 
+                                        className="input-field" 
+                                        value={bookingCourseId} 
+                                        onChange={e => handleCourseChange(e.target.value)}
+                                        required
+                                    >
+                                        <option value="" disabled>-- Select Course --</option>
+                                        {data.courses?.map(c => (
+                                            <option key={c.id} value={c.id}>{c.name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                {/* Step 2: Show teacher info + available slots */}
+                                {bookingCourseId && (
                                     <>
-                                        <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem', fontSize: '0.88rem' }}>
-                                            Select an available time slot from your teacher's schedule:
-                                        </p>
-                                        <div style={{ maxHeight: '200px', overflowY: 'auto', marginBottom: '16px', display: 'grid', gap: '8px' }}>
-                                            {teacherSlots.map(slot => (
-                                                <div
-                                                    key={slot.id}
-                                                    onClick={() => {
-                                                        setSelectedSlot(slot);
-                                                        setBookingTime(`${slot.date}T${slot.start_time}`);
-                                                    }}
-                                                    style={{
-                                                        padding: '12px 16px',
-                                                        borderRadius: '10px',
-                                                        border: selectedSlot?.id === slot.id ? '2px solid var(--accent-green)' : '1px solid var(--border-color, #e0e0e0)',
-                                                        background: selectedSlot?.id === slot.id ? 'rgba(46,204,113,0.08)' : 'transparent',
-                                                        cursor: 'pointer',
-                                                        transition: 'all 0.2s',
-                                                    }}
-                                                >
-                                                    <div style={{ fontWeight: 600, fontSize: '0.92rem' }}>{formatSlotDate(slot.date)}</div>
-                                                    <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                                                        {formatSlotTime(slot.start_time)} — {formatSlotTime(slot.end_time)}
+                                        {slotsLoading ? (
+                                            <div style={{ textAlign: 'center', padding: '20px' }}>
+                                                <div className="loading-spinner" style={{ width: '24px', height: '24px', margin: '0 auto' }} />
+                                                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '8px' }}>Loading teacher schedule...</p>
+                                            </div>
+                                        ) : teacherName ? (
+                                            <>
+                                                <p style={{ color: 'var(--text-secondary)', marginBottom: '0.5rem', fontSize: '0.9rem' }}>
+                                                    Teacher: <strong>{teacherName}</strong>
+                                                </p>
+
+                                                {teacherSlots.length > 0 ? (
+                                                    <>
+                                                        <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem', fontSize: '0.88rem' }}>
+                                                            Select an available time slot:
+                                                        </p>
+                                                        <div style={{ maxHeight: '200px', overflowY: 'auto', marginBottom: '16px', display: 'grid', gap: '8px' }}>
+                                                            {teacherSlots.map(slot => {
+                                                                const booked = isSlotBooked(slot);
+                                                                return (
+                                                                    <div
+                                                                        key={slot.id}
+                                                                        onClick={() => {
+                                                                            if (booked) return;
+                                                                            setSelectedSlot(slot);
+                                                                            setBookingTime(`${slot.date}T${slot.start_time}`);
+                                                                        }}
+                                                                        style={{
+                                                                            padding: '12px 16px',
+                                                                            borderRadius: '10px',
+                                                                            border: selectedSlot?.id === slot.id ? '2px solid var(--accent-green)' : '1px solid var(--border-color, #e0e0e0)',
+                                                                            background: booked ? 'rgba(231,76,60,0.06)' : selectedSlot?.id === slot.id ? 'rgba(46,204,113,0.08)' : 'transparent',
+                                                                            cursor: booked ? 'not-allowed' : 'pointer',
+                                                                            opacity: booked ? 0.6 : 1,
+                                                                            transition: 'all 0.2s',
+                                                                        }}
+                                                                    >
+                                                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                                            <div>
+                                                                                <div style={{ fontWeight: 600, fontSize: '0.92rem' }}>{formatSlotDate(slot.date)}</div>
+                                                                                <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                                                                                    {formatSlotTime(slot.start_time)} — {formatSlotTime(slot.end_time)}
+                                                                                </div>
+                                                                            </div>
+                                                                            {booked && (
+                                                                                <span style={{ fontSize: '0.72rem', background: 'rgba(231,76,60,0.1)', color: 'var(--accent-red)', padding: '2px 8px', borderRadius: '12px', fontWeight: 600 }}>
+                                                                                    Booked
+                                                                                </span>
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    </>
+                                                ) : (
+                                                    <div className="alert alert-warning" style={{ marginBottom: '16px' }}>
+                                                        Your teacher has not set availability yet. You can still book manually.
                                                     </div>
+                                                )}
+                                            </>
+                                        ) : (
+                                            <div className="alert alert-warning" style={{ marginBottom: '16px' }}>
+                                                No teacher assigned for this course yet. Please contact your admin.
+                                            </div>
+                                        )}
+
+                                        <form onSubmit={handleBookSession}>
+                                            {selectedSlot && (
+                                                <div className="form-group" style={{ marginBottom: '1rem' }}>
+                                                    <label>Exact Time (within selected slot)</label>
+                                                    <input 
+                                                        type="datetime-local" 
+                                                        className="input-field"
+                                                        value={bookingTime}
+                                                        min={`${selectedSlot.date}T${selectedSlot.start_time}`}
+                                                        max={`${selectedSlot.date}T${selectedSlot.end_time}`}
+                                                        onChange={e => setBookingTime(e.target.value)}
+                                                        required
+                                                    />
                                                 </div>
-                                            ))}
-                                        </div>
+                                            )}
+                                            {!selectedSlot && teacherSlots.length === 0 && teacherName && (
+                                                <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+                                                    <label>Select Date & Time</label>
+                                                    <input 
+                                                        type="datetime-local" 
+                                                        className="input-field"
+                                                        value={bookingTime}
+                                                        onChange={e => setBookingTime(e.target.value)}
+                                                        required
+                                                    />
+                                                </div>
+                                            )}
+                                            <div className="modal-actions">
+                                                <button type="button" className="glass-btn outline" onClick={() => { setShowBookModal(false); setSelectedSlot(null); }}>Cancel</button>
+                                                <button type="submit" className="glass-btn primary" disabled={booking || !bookingCourseId || !bookingTime}>
+                                                    {booking ? 'Booking...' : 'Confirm Booking'}
+                                                </button>
+                                            </div>
+                                        </form>
                                     </>
-                                ) : (
-                                    <div className="alert alert-warning" style={{ marginBottom: '16px' }}>
-                                        Your teacher has not set availability yet. You can still book manually, but it may be outside their schedule.
-                                    </div>
                                 )}
 
-                                <form onSubmit={handleBookSession}>
-                                    <div className="form-group" style={{ marginBottom: '1rem' }}>
-                                        <label>Select Course</label>
-                                        <select 
-                                            className="input-field" 
-                                            value={bookingCourseId} 
-                                            onChange={e => setBookingCourseId(e.target.value)}
-                                            required
-                                        >
-                                            <option value="" disabled>-- Select Course --</option>
-                                            {data.courses?.map(c => (
-                                                <option key={c.id} value={c.id}>{c.name}</option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                    {selectedSlot && (
-                                        <div className="form-group" style={{ marginBottom: '1rem' }}>
-                                            <label>Exact Time (within selected slot)</label>
-                                            <input 
-                                                type="datetime-local" 
-                                                className="input-field"
-                                                value={bookingTime}
-                                                min={`${selectedSlot.date}T${selectedSlot.start_time}`}
-                                                max={`${selectedSlot.date}T${selectedSlot.end_time}`}
-                                                onChange={e => setBookingTime(e.target.value)}
-                                                required
-                                            />
-                                        </div>
-                                    )}
-                                    {!selectedSlot && teacherSlots.length === 0 && (
-                                        <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                                            <label>Select Date & Time</label>
-                                            <input 
-                                                type="datetime-local" 
-                                                className="input-field"
-                                                value={bookingTime}
-                                                onChange={e => setBookingTime(e.target.value)}
-                                                required
-                                            />
-                                        </div>
-                                    )}
+                                {!bookingCourseId && (
                                     <div className="modal-actions">
-                                        <button type="button" className="glass-btn outline" onClick={() => { setShowBookModal(false); setSelectedSlot(null); }}>Cancel</button>
-                                        <button type="submit" className="glass-btn primary" disabled={booking || !bookingCourseId || !bookingTime}>
-                                            {booking ? 'Booking...' : 'Confirm Booking'}
-                                        </button>
+                                        <button type="button" className="glass-btn outline" onClick={() => setShowBookModal(false)}>Close</button>
                                     </div>
-                                </form>
+                                )}
                             </div>
                         </div>
                     )}
