@@ -285,7 +285,7 @@ function StudentDashboard() {
                                             className="glass-btn primary"
                                             style={{ fontSize: '0.85rem', padding: '8px 20px', marginRight: '8px' }}
                                         >
-                                            {acceptingId === demo.id ? 'Processing...' : '✓ Accept Teacher'}
+                                            {acceptingId === demo.id ? 'Processing...' : <><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" style={{verticalAlign:'middle',marginRight:'4px'}}><polyline points="20 6 9 17 4 12"/></svg>Accept Teacher</>}
                                         </button>
                                         <button
                                             onClick={() => handleRejectDemo(demo.id)}
@@ -326,6 +326,9 @@ function StudentDashboard() {
                                 <div className="class-card-meta">
                                     <span className="class-time">
                                         {formatDate(cls.scheduled_time)} &middot; {formatTime(cls.scheduled_time)}
+                                        <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                                            Teacher: {cls.teacher_name}
+                                        </div>
                                     </span>
                                     <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                                         {cls.meeting_link && (

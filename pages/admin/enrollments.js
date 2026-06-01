@@ -45,8 +45,8 @@ function AdminEnrollments() {
             .finally(() => setLoading(false));
     }, []);
 
-    const mentors = staff.filter(s => s.role === 'mentor');
-    const teachers = staff.filter(s => s.role === 'teacher');
+    const mentors = staff.filter(s => s.role === 'mentor' && s.is_approved);
+    const teachers = staff.filter(s => s.role === 'teacher' && s.is_approved);
 
     const filteredManualTeachers = manualCourse ? teachers.filter(t => t.subjects && t.subjects.includes(parseInt(manualCourse))) : teachers;
 
@@ -326,21 +326,12 @@ function AdminEnrollments() {
                             />
                         </div>
 
-                        <div className="responsive-grid-2">
-                            <div className="form-group">
-                                <label className="form-label">Assign Mentor</label>
-                                <select className="input-field" value={manualMentor} onChange={e => setManualMentor(e.target.value)}>
-                                    <option value="">None</option>
-                                    {mentors.map(m => <option key={m.id} value={m.id}>{m.first_name} {m.last_name}</option>)}
-                                </select>
-                            </div>
-                            <div className="form-group">
-                                <label className="form-label">Assign Teacher</label>
-                                <select className="input-field" value={manualTeacher} onChange={e => setManualTeacher(e.target.value)}>
-                                    <option value="">None</option>
-                                    {filteredManualTeachers.map(t => <option key={t.id} value={t.id}>{t.first_name} {t.last_name}</option>)}
-                                </select>
-                            </div>
+                        <div className="form-group">
+                            <label className="form-label">Assign Mentor</label>
+                            <select className="input-field" value={manualMentor} onChange={e => setManualMentor(e.target.value)}>
+                                <option value="">None</option>
+                                {mentors.map(m => <option key={m.id} value={m.id}>{m.first_name} {m.last_name}</option>)}
+                            </select>
                         </div>
 
                         <button type="submit" className="glass-btn primary" disabled={enrolling} style={{ width: '100%', padding: '12px' }}>

@@ -193,7 +193,7 @@ export default function SearchableCourseSelect({
                                 onMouseEnter={(e) => { if (parseInt(value) !== c.id) e.target.style.background = 'rgba(0,0,0,0.03)'; }}
                                 onMouseLeave={(e) => { if (parseInt(value) !== c.id) e.target.style.background = 'transparent'; }}
                             >
-                                {parseInt(value) === c.id ? '✓ ' : ''}{c.name}
+                                {parseInt(value) === c.id ? <><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" style={{verticalAlign:'middle',marginRight:'4px'}}><polyline points="20 6 9 17 4 12"/></svg></> : ''}{c.name}
                             </div>
                         ))}
                         {loading && (

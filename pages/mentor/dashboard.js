@@ -4,7 +4,6 @@ import { withAuth, useAuth } from '../../lib/auth';
 import { apiGet, apiPost } from '../../lib/api';
 import DashboardLayout from '../../components/DashboardLayout';
 import StatCard from '../../components/StatCard';
-import SearchableCourseSelect from '../../components/SearchableCourseSelect';
 
 function MentorDashboard() {
     const { user } = useAuth();
@@ -25,10 +24,46 @@ function MentorDashboard() {
             .catch(console.error)
             .finally(() => setLoading(false));
 
-        apiGet('/api/classes/admin/staff/').then(list => {
+        apiGet('/api/classes/admin/staff/?approved_only=true').then(list => {
             setTeachers((Array.isArray(list) ? list : []).filter(s => s.role === 'teacher'));
         }).catch(() => {});
     }, []);
+
+    // Derived: courses for selected student
+    const selectedStudent = data?.all_students?.find(s => String(s.id) === demoForm.studentId);
+    const studentCourses = selectedStudent?.enrolled_courses || [];
+
+    // Derived: teachers filtered by selected course (via subjects_detail) and NOT rejected by student
+    const filteredTeachers = demoForm.courseId
+        ? teachers.filter(t => {
+            const teachesCourse = t.subjects_detail && t.subjects_detail.some(sub => String(sub.id) === demoForm.courseId);
+            const isRejected = data?.action_required_demos?.some(d => 
+                String(d.student_id) === demoForm.studentId && 
+                String(d.course_id) === demoForm.courseId && 
+                String(d.rejected_teacher_id) === String(t.id)
+            );
+            return teachesCourse && !isRejected;
+        })
+        : [];
+
+    const handleBookNewDemo = (demo) => {
+        setDemoForm({
+            studentId: String(demo.student_id),
+            courseId: String(demo.course_id),
+            teacherId: '',
+            scheduledTime: ''
+        });
+        setShowDemoForm(true);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handleStudentChange = (studentId) => {
+        setDemoForm({ studentId, teacherId: '', courseId: '', scheduledTime: demoForm.scheduledTime });
+    };
+
+    const handleCourseChange = (courseId) => {
+        setDemoForm({ ...demoForm, courseId, teacherId: '' });
+    };
 
     const handleScheduleDemo = async (e) => {
         e.preventDefault();
@@ -74,7 +109,45 @@ function MentorDashboard() {
                     <div className="stats-grid">
                         <StatCard label="Assigned Students" value={data.total_students} color="var(--accent-blue)" />
                         <StatCard label="At-Risk Students" value={data.at_risk_students?.length || 0} color={data.at_risk_students?.length > 0 ? 'var(--accent-red)' : 'var(--accent-green)'} />
+                        <StatCard label={`Earnings This Month (${data.hourly_rate > 0 ? `\u20B9${data.hourly_rate}/hr` : 'Rate not set'})`} value={`\u20B9${data.this_month_earnings}`} color="var(--accent-purple)" />
+                        <StatCard label="Total Earnings" value={`\u20B9${data.total_earnings}`} color="var(--accent-gold, #d4a017)" />
                     </div>
+
+                    {/* Action Required Demos */}
+                    {data.action_required_demos?.length > 0 && (
+                        <div style={{ marginBottom: '28px' }}>
+                            <h3 className="section-heading" style={{ color: 'var(--accent-red)' }}>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '8px' }}>
+                                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                                </svg>
+                                Demo Follow-ups Required
+                            </h3>
+                            <div style={{ display: 'grid', gap: '12px' }}>
+                                {data.action_required_demos.map(demo => (
+                                    <div key={demo.id} className="glass-card" style={{ padding: '16px', borderLeft: '3px solid var(--accent-red)' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+                                            <div>
+                                                <h4 style={{ margin: '0 0 4px', fontSize: '1rem' }}>{demo.student_name}</h4>
+                                                <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                                                    Requested a new teacher for <strong>{demo.course_name}</strong>.
+                                                </p>
+                                                <p style={{ margin: '2px 0 0', fontSize: '0.8rem', color: 'var(--accent-red)' }}>
+                                                    Rejected: {demo.rejected_teacher_name}
+                                                </p>
+                                            </div>
+                                            <button 
+                                                className="glass-btn danger" 
+                                                style={{ fontSize: '0.85rem', padding: '8px 16px' }}
+                                                onClick={() => handleBookNewDemo(demo)}
+                                            >
+                                                Book New Demo
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
                     {/* Schedule Demo Toggle */}
                     <div style={{ marginBottom: '20px' }}>
@@ -102,35 +175,54 @@ function MentorDashboard() {
                             {demoErr && <div className="alert alert-error">{demoErr}</div>}
                             <form onSubmit={handleScheduleDemo}>
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+                                    {/* Step 1: Student */}
                                     <div className="form-group">
                                         <label style={{ display: 'block', fontWeight: 600, marginBottom: '6px', fontSize: '0.88rem' }}>Student</label>
                                         <select className="input-field" style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid var(--border-color, #e0e0e0)', fontSize: '0.92rem' }}
-                                            value={demoForm.studentId} onChange={(e) => setDemoForm({ ...demoForm, studentId: e.target.value })} required>
+                                            value={demoForm.studentId} onChange={(e) => handleStudentChange(e.target.value)} required>
                                             <option value="">Select student...</option>
                                             {data.all_students?.map(s => (
                                                 <option key={s.id} value={s.id}>{s.first_name} {s.last_name} ({s.email})</option>
                                             ))}
                                         </select>
                                     </div>
+
+                                    {/* Step 2: Course (filtered by student's enrollments) */}
+                                    <div className="form-group">
+                                        <label style={{ display: 'block', fontWeight: 600, marginBottom: '6px', fontSize: '0.88rem' }}>Course</label>
+                                        <select className="input-field" style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid var(--border-color, #e0e0e0)', fontSize: '0.92rem' }}
+                                            value={demoForm.courseId} onChange={(e) => handleCourseChange(e.target.value)} required
+                                            disabled={!demoForm.studentId}>
+                                            <option value="">{demoForm.studentId ? 'Select course...' : 'Select student first...'}</option>
+                                            {studentCourses.map(c => (
+                                                <option key={c.id} value={c.id}>{c.name}</option>
+                                            ))}
+                                        </select>
+                                        {demoForm.studentId && studentCourses.length === 0 && (
+                                            <div style={{ fontSize: '0.8rem', color: 'var(--accent-red)', marginTop: '4px' }}>
+                                                This student has no enrolled courses.
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Step 3: Teacher (filtered by course subjects) */}
                                     <div className="form-group">
                                         <label style={{ display: 'block', fontWeight: 600, marginBottom: '6px', fontSize: '0.88rem' }}>Teacher</label>
                                         <select className="input-field" style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid var(--border-color, #e0e0e0)', fontSize: '0.92rem' }}
-                                            value={demoForm.teacherId} onChange={(e) => setDemoForm({ ...demoForm, teacherId: e.target.value })} required>
-                                            <option value="">Select teacher...</option>
-                                            {teachers.map(t => (
+                                            value={demoForm.teacherId} onChange={(e) => setDemoForm({ ...demoForm, teacherId: e.target.value })} required
+                                            disabled={!demoForm.courseId}>
+                                            <option value="">{demoForm.courseId ? 'Select teacher...' : 'Select course first...'}</option>
+                                            {filteredTeachers.map(t => (
                                                 <option key={t.id} value={t.id}>{t.first_name} {t.last_name} ({t.email})</option>
                                             ))}
                                         </select>
+                                        {demoForm.courseId && filteredTeachers.length === 0 && (
+                                            <div style={{ fontSize: '0.8rem', color: 'var(--accent-red)', marginTop: '4px' }}>
+                                                No qualified teachers for this course.
+                                            </div>
+                                        )}
                                     </div>
-                                    <div className="form-group">
-                                        <label style={{ display: 'block', fontWeight: 600, marginBottom: '6px', fontSize: '0.88rem' }}>Course</label>
-                                        <SearchableCourseSelect
-                                            value={demoForm.courseId}
-                                            onChange={(id) => setDemoForm({ ...demoForm, courseId: id ? String(id) : '' })}
-                                            placeholder="Search or select course..."
-                                            required
-                                        />
-                                    </div>
+
                                     <div className="form-group">
                                         <label style={{ display: 'block', fontWeight: 600, marginBottom: '6px', fontSize: '0.88rem' }}>Date & Time</label>
                                         <input className="input-field" type="datetime-local" style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid var(--border-color, #e0e0e0)', fontSize: '0.92rem' }}

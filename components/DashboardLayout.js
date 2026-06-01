@@ -9,12 +9,16 @@ const NAV_ITEMS = {
     ],
     teacher: [
         { label: 'Dashboard', href: '/teacher/dashboard', icon: 'grid' },
+        { label: 'Student Analysis', href: '/analysis', icon: 'activity' },
         { label: 'My Availability', href: '/teacher/availability', icon: 'calendar' },
         { label: 'Create Class', href: '/teacher/create-class', icon: 'plus' },
+        { label: 'My Wallet', href: '/wallet', icon: 'wallet' },
         { label: 'My Profile', href: '/teacher/profile', icon: 'profile' },
     ],
     mentor: [
         { label: 'Dashboard', href: '/mentor/dashboard', icon: 'grid' },
+        { label: 'Student Analysis', href: '/analysis', icon: 'activity' },
+        { label: 'My Wallet', href: '/wallet', icon: 'wallet' },
         { label: 'My Profile', href: '/mentor/profile', icon: 'profile' },
     ],
     admin: [
@@ -60,6 +64,18 @@ const ICONS = {
     close: (
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+    ),
+    activity: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+        </svg>
+    ),
+    wallet: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4" />
+            <path d="M4 6v12c0 1.1.9 2 2 2h14v-4" />
+            <path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4z" />
         </svg>
     ),
     mail: (

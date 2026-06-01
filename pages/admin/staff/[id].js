@@ -76,20 +76,54 @@ function StaffProfile() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                     
                     {user.role === 'teacher' && (
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
-                            <div className="glass-card" style={{ padding: '20px', textAlign: 'center' }}>
-                                <h3 style={{ fontSize: '2rem', color: 'var(--accent)', margin: 0 }}>{analytics.total_teaching_hours}h</h3>
-                                <p style={{ color: 'var(--text-secondary)', margin: '8px 0 0', fontSize: '0.9rem' }}>Total Teaching Hours</p>
+                        <>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
+                                <div className="glass-card" style={{ padding: '20px', textAlign: 'center' }}>
+                                    <h3 style={{ fontSize: '2rem', color: 'var(--accent)', margin: 0 }}>{analytics.total_teaching_hours}h</h3>
+                                    <p style={{ color: 'var(--text-secondary)', margin: '8px 0 0', fontSize: '0.9rem' }}>Total Teaching Hours</p>
+                                </div>
+                                <div className="glass-card" style={{ padding: '20px', textAlign: 'center' }}>
+                                    <h3 style={{ fontSize: '2rem', color: 'var(--green)', margin: 0 }}>{analytics.classes_taught}</h3>
+                                    <p style={{ color: 'var(--text-secondary)', margin: '8px 0 0', fontSize: '0.9rem' }}>Classes Completed</p>
+                                </div>
+                                <div className="glass-card" style={{ padding: '20px', textAlign: 'center' }}>
+                                    <h3 style={{ fontSize: '2rem', color: 'var(--accent-purple)', margin: 0 }}>₹{analytics.this_month_earnings}</h3>
+                                    <p style={{ color: 'var(--text-secondary)', margin: '8px 0 0', fontSize: '0.9rem' }}>Earnings This Month</p>
+                                </div>
+                                <div className="glass-card" style={{ padding: '20px', textAlign: 'center' }}>
+                                    <h3 style={{ fontSize: '2rem', color: 'var(--accent-gold)', margin: 0 }}>₹{analytics.total_earnings}</h3>
+                                    <p style={{ color: 'var(--text-secondary)', margin: '8px 0 0', fontSize: '0.9rem' }}>Total Earnings (₹{analytics.hourly_rate}/hr)</p>
+                                </div>
                             </div>
-                            <div className="glass-card" style={{ padding: '20px', textAlign: 'center' }}>
-                                <h3 style={{ fontSize: '2rem', color: 'var(--green)', margin: 0 }}>{analytics.classes_taught}</h3>
-                                <p style={{ color: 'var(--text-secondary)', margin: '8px 0 0', fontSize: '0.9rem' }}>Classes Completed</p>
-                            </div>
-                            <div className="glass-card" style={{ padding: '20px', textAlign: 'center' }}>
-                                <h3 style={{ fontSize: '2rem', color: 'var(--text)', margin: 0 }}>{analytics.avg_student_attendance_rate}%</h3>
-                                <p style={{ color: 'var(--text-secondary)', margin: '8px 0 0', fontSize: '0.9rem' }}>Avg. Student Attendance</p>
-                            </div>
-                        </div>
+                            
+                            {analytics.student_breakdown?.length > 0 && (
+                                <div className="glass-card" style={{ marginTop: '24px' }}>
+                                    <h3 style={{ padding: '20px 20px 0', margin: 0 }}>Student Breakdown</h3>
+                                    <div className="table-wrapper">
+                                        <table className="data-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Student</th>
+                                                    <th>Course</th>
+                                                    <th>Hours Taught</th>
+                                                    <th>Earnings Generated</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {analytics.student_breakdown.map((s, idx) => (
+                                                    <tr key={idx}>
+                                                        <td><strong>{s.student_name}</strong></td>
+                                                        <td>{s.course_name}</td>
+                                                        <td>{s.hours}h</td>
+                                                        <td>₹{s.earned}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            )}
+                        </>
                     )}
 
                     {user.role === 'mentor' && (

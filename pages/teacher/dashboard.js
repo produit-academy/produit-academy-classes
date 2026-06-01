@@ -88,8 +88,9 @@ function TeacherDashboard() {
                 <>
                     <div className="stats-grid">
                         <StatCard label="Total Classes Held" value={data.total_classes_held} color="var(--accent-green)" />
-                        <StatCard label="Assigned Students" value={data.total_students} color="var(--accent-blue)" />
-                        <StatCard label="My Courses" value={data.courses?.length || 0} color="var(--accent-purple)" />
+                        <StatCard label="Total Hours Taught" value={data.total_hours_worked} color="var(--accent-blue)" />
+                        <StatCard label={`Earnings This Month (₹${data.hourly_rate}/hr)`} value={`₹${data.this_month_earnings}`} color="var(--accent-purple)" />
+                        <StatCard label="Total Earnings" value={`₹${data.total_earnings}`} color="var(--accent-gold)" />
                         <StatCard
                             label="Pending Attendance"
                             value={data.pending_attendance?.length || 0}
@@ -116,7 +117,7 @@ function TeacherDashboard() {
                                     <div key={cls.id} className="class-card glass-card">
                                         <div className="class-card-info">
                                             <h4>{cls.title}</h4>
-                                            <p>{cls.course_name}</p>
+                                            <p>{cls.course_name} • {cls.student_name}</p>
                                         </div>
                                         <div className="class-card-meta">
                                             <span className="class-time">
@@ -180,7 +181,7 @@ function TeacherDashboard() {
                                     <div key={cls.id} className="class-card glass-card">
                                         <div className="class-card-info">
                                             <h4>{cls.title}</h4>
-                                            <p>{cls.course_name}</p>
+                                            <p>{cls.course_name} • {cls.student_name}</p>
                                         </div>
                                         <div className="class-card-meta">
                                             <span className="class-time">

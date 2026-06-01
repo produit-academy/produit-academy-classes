@@ -141,12 +141,12 @@ export default function ProfilePage({ pageTitle, allowedRole }) {
                                 {!editing && (
                                     <button className="glass-btn primary" style={{ padding: '10px 20px', fontSize: '0.88rem' }}
                                         onClick={startEditing}>
-                                        ✏️ Edit Profile
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{verticalAlign:'middle',marginRight:'6px'}}><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> Edit Profile
                                     </button>
                                 )}
                                 <button className="glass-btn" style={{ padding: '10px 20px', fontSize: '0.88rem', borderColor: 'var(--card-border)' }}
                                     onClick={() => { setPwMsg(null); setPwErr(null); setShowPwModal(true); }}>
-                                    🔒 Change Password
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{verticalAlign:'middle',marginRight:'6px'}}><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Change Password
                                 </button>
                             </div>
                         </div>
@@ -280,7 +280,7 @@ export default function ProfilePage({ pageTitle, allowedRole }) {
                                             background: c.is_completed ? 'rgba(51,174,120,0.12)' : 'rgba(52,152,219,0.12)',
                                             color: c.is_completed ? '#228B22' : '#2980b9',
                                         }}>
-                                            {c.is_completed ? '✓ Completed' : 'Active'}
+                                            {c.is_completed ? <><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" style={{verticalAlign:'middle',marginRight:'3px'}}><polyline points="20 6 9 17 4 12"/></svg>Completed</> : 'Active'}
                                         </span>
                                     </div>
                                 ))}

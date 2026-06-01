@@ -67,8 +67,16 @@ function StudentProfile() {
                             <div style={{ fontWeight: '500' }}>{user.mentor || 'Unassigned'}</div>
                         </div>
                         <div>
-                            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Assigned Teacher</span>
-                            <div style={{ fontWeight: '500' }}>{user.teacher || 'Unassigned'}</div>
+                            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Assigned Teachers</span>
+                            {user.teachers && user.teachers.length > 0 ? (
+                                <ul style={{ margin: '4px 0 0', paddingLeft: '16px', fontWeight: '500' }}>
+                                    {user.teachers.map((t, idx) => (
+                                        <li key={idx}>{t.name} <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>({t.course})</span></li>
+                                    ))}
+                                </ul>
+                            ) : (
+                                <div style={{ fontWeight: '500' }}>Unassigned</div>
+                            )}
                         </div>
                     </div>
                 </div>

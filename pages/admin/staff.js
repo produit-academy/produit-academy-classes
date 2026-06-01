@@ -11,7 +11,7 @@ function AdminStaff() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    apiGet('/api/classes/admin/staff/')
+    apiGet('/api/classes/admin/staff/?approved_only=true')
       .then(setStaffList)
       .catch(console.error)
       .finally(() => setLoading(false));
@@ -77,9 +77,20 @@ function AdminStaff() {
                     <span className="badge" style={{
                       background: staff.role === 'teacher' ? 'rgba(52,152,219,0.1)' : 'rgba(155,89,182,0.1)',
                       color: staff.role === 'teacher' ? '#2980b9' : '#8e44ad',
-                      border: 'none', textTransform: 'capitalize'
+                      border: 'none', textTransform: 'capitalize', marginRight: '6px'
                     }}>
                       {staff.role}
+                    </span>
+                    <span className="badge" style={{
+                      background: staff.is_approved ? 'rgba(46, 204, 113, 0.1)' : 'rgba(241, 196, 15, 0.1)',
+                      color: staff.is_approved ? '#27ae60' : '#f39c12',
+                      border: 'none', textTransform: 'capitalize'
+                    }}>
+                      {staff.is_approved ? (
+                        <><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" style={{verticalAlign:'middle',marginRight:'3px'}}><polyline points="20 6 9 17 4 12"/></svg>Approved</>
+                      ) : (
+                        <><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{verticalAlign:'middle',marginRight:'3px'}}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Pending</>
+                      )}
                     </span>
                   </td>
                   <td style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{staff.email}</td>
