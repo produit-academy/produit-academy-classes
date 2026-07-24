@@ -5,27 +5,27 @@ import { useState } from 'react';
 const NAV_ITEMS = {
     student: [
         { label: 'Dashboard', href: '/student/dashboard', icon: 'grid' },
+        { label: 'Browse Classes', href: '/courses', icon: 'book' },
+        { label: 'My Bookings', href: '/student/bookings', icon: 'calendar' },
+        { label: 'Payments', href: '/student/payments', icon: 'wallet' },
         { label: 'My Profile', href: '/student/profile', icon: 'profile' },
+        { label: 'Help Center', href: '/help-center', icon: 'mail' },
     ],
     teacher: [
         { label: 'Dashboard', href: '/teacher/dashboard', icon: 'grid' },
-        { label: 'Student Analysis', href: '/analysis', icon: 'activity' },
+        { label: 'Manage Profile', href: '/teacher/manage-profile', icon: 'profile' },
         { label: 'My Availability', href: '/teacher/availability', icon: 'calendar' },
-        { label: 'Create Class', href: '/teacher/create-class', icon: 'plus' },
-        { label: 'My Wallet', href: '/wallet', icon: 'wallet' },
-        { label: 'My Profile', href: '/teacher/profile', icon: 'profile' },
-    ],
-    mentor: [
-        { label: 'Dashboard', href: '/mentor/dashboard', icon: 'grid' },
+        { label: 'My Bookings', href: '/teacher/bookings', icon: 'book' },
         { label: 'Student Analysis', href: '/analysis', icon: 'activity' },
         { label: 'My Wallet', href: '/wallet', icon: 'wallet' },
-        { label: 'My Profile', href: '/mentor/profile', icon: 'profile' },
     ],
     admin: [
         { label: 'Dashboard', href: '/admin/dashboard', icon: 'grid' },
+        { label: 'Students', href: '/admin/students', icon: 'users' },
         { label: 'Courses', href: '/admin/courses', icon: 'book' },
+        { label: 'Bookings', href: '/admin/bookings', icon: 'calendar' },
+        { label: 'Teachers', href: '/admin/staff', icon: 'users' },
         { label: 'Enrollments', href: '/admin/enrollments', icon: 'users' },
-        { label: 'Staff', href: '/admin/staff', icon: 'users' },
         { label: 'Enquiries', href: '/admin/contacts', icon: 'mail' },
     ],
 };
@@ -98,7 +98,6 @@ const ICONS = {
 const ROLE_LABELS = {
     student: 'Student',
     teacher: 'Teacher',
-    mentor: 'Mentor',
     admin: 'Administrator',
 };
 
@@ -163,10 +162,12 @@ export default function DashboardLayout({ children, title }) {
                 <div className="sidebar-footer">
                     <div className="sidebar-user">
                         <div className="sidebar-avatar">
-                            {(user?.username || 'U')[0].toUpperCase()}
+                            {(user?.first_name || user?.username || 'U')[0].toUpperCase()}
                         </div>
                         <div className="sidebar-user-info">
-                            <span className="sidebar-username">{user?.username}</span>
+                            <span className="sidebar-username">
+                                {user?.first_name ? `${user.first_name} ${user.last_name || ''}`.trim() : (user?.username?.split('@')[0])}
+                            </span>
                         </div>
                     </div>
                     <button className="sidebar-logout" onClick={handleLogout}>

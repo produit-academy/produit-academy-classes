@@ -13,12 +13,8 @@ function Analysis() {
     useEffect(() => {
         const fetchAnalysis = async () => {
             try {
-                let data;
-                if (user?.role === 'mentor') {
-                    data = await apiGet('/api/classes/mentor/dashboard/');
-                    setStudents(data.all_students || []);
-                } else if (user?.role === 'teacher') {
-                    data = await apiGet('/api/classes/teacher/dashboard/');
+                if (user?.role === 'teacher') {
+                    const data = await apiGet('/api/classes/teacher/dashboard/');
                     setStudents(data.assigned_students || []);
                 }
             } catch (err) {
@@ -38,7 +34,7 @@ function Analysis() {
     );
 
     return (
-        <DashboardLayout>
+        <DashboardLayout title="Student Analysis">
             <Head><title>Student Analysis | Produit Classes</title></Head>
 
             <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '20px 0' }}>
@@ -62,7 +58,7 @@ function Analysis() {
 
                 <div className="glass-card" style={{ padding: '0' }}>
                     {loading ? (
-                        <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}><div className="spinner" /></div>
+                        <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}><div className="loading-spinner" /></div>
                     ) : filteredStudents.length > 0 ? (
                         <div className="data-table-wrapper">
                             <table className="data-table">
@@ -79,9 +75,7 @@ function Analysis() {
                                     {filteredStudents.map(student => {
                                         const attendance = parseFloat(student.attendance_percentage || 0);
                                         const isAtRisk = attendance < 75;
-                                        const courseList = user?.role === 'mentor' 
-                                            ? (student.enrolled_courses || []).map(c => c.name).join(', ')
-                                            : (student.courses || []).join(', ');
+                                        const courseList = (student.courses || []).join(', ');
 
                                         return (
                                             <tr key={student.id}>
@@ -140,4 +134,4 @@ function Analysis() {
     );
 }
 
-export default withAuth(Analysis, ['teacher', 'mentor']);
+export default withAuth(Analysis, ['teacher']);

@@ -50,9 +50,13 @@ function StaffProfile() {
                 {/* Profile Card */}
                 <div className="glass-card" style={{ padding: '24px' }}>
                     <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-                        <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'var(--primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', margin: '0 auto 16px' }}>
-                            {user.name.charAt(0)}
-                        </div>
+                        {user.profile_picture_base64 ? (
+                            <img src={user.profile_picture_base64} alt={user.name} style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', margin: '0 auto 16px', display: 'block' }} />
+                        ) : (
+                            <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'var(--primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', margin: '0 auto 16px' }}>
+                                {user.name.charAt(0)}
+                            </div>
+                        )}
                         <h2 style={{ margin: 0 }}>{user.name}</h2>
                         <p style={{ color: 'var(--text-secondary)', margin: '4px 0 0' }}>{user.email}</p>
                         <span className="badge" style={{ marginTop: '12px', background: 'var(--accent-light)', color: 'var(--accent)' }}>
@@ -65,7 +69,7 @@ function StaffProfile() {
                             <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Phone Number</span>
                             <div style={{ fontWeight: '500' }}>{user.phone || 'N/A'}</div>
                         </div>
-                        <div>
+                        <div style={{ marginBottom: '12px' }}>
                             <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Joined Date</span>
                             <div style={{ fontWeight: '500' }}>{new Date(user.joined).toLocaleDateString()}</div>
                         </div>
@@ -94,6 +98,83 @@ function StaffProfile() {
                                     <h3 style={{ fontSize: '2rem', color: 'var(--accent-gold)', margin: 0 }}>₹{analytics.total_earnings}</h3>
                                     <p style={{ color: 'var(--text-secondary)', margin: '8px 0 0', fontSize: '0.9rem' }}>Total Earnings (₹{analytics.hourly_rate}/hr)</p>
                                 </div>
+                            </div>
+                            
+                            <div className="glass-card" style={{ padding: '24px' }}>
+                                <h3 style={{ margin: '0 0 20px 0' }}>Profile Details</h3>
+                                
+                                {user.bio && (
+                                    <div style={{ marginBottom: '20px' }}>
+                                        <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Bio</span>
+                                        <div style={{ fontWeight: '500', fontSize: '0.95rem', whiteSpace: 'pre-wrap', lineHeight: '1.5' }}>{user.bio}</div>
+                                    </div>
+                                )}
+
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '20px' }}>
+                                    {user.qualification && (
+                                        <div>
+                                            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Qualifications</span>
+                                            <div style={{ fontWeight: '500' }}>{user.qualification}</div>
+                                        </div>
+                                    )}
+                                    {user.experience && (
+                                        <div>
+                                            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Experience</span>
+                                            <div style={{ fontWeight: '500' }}>{user.experience}</div>
+                                        </div>
+                                    )}
+                                    {user.languages && (
+                                        <div>
+                                            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Languages</span>
+                                            <div style={{ fontWeight: '500' }}>{user.languages}</div>
+                                        </div>
+                                    )}
+                                    {user.skills && (
+                                        <div>
+                                            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Skills</span>
+                                            <div style={{ fontWeight: '500' }}>{user.skills}</div>
+                                        </div>
+                                    )}
+                                    {user.certifications && (
+                                        <div>
+                                            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Certifications</span>
+                                            <div style={{ fontWeight: '500' }}>{user.certifications}</div>
+                                        </div>
+                                    )}
+                                    {user.google_meet_link && (
+                                        <div>
+                                            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Google Meet</span>
+                                            <div style={{ fontWeight: '500' }}>
+                                                <a href={user.google_meet_link?.startsWith('http') ? user.google_meet_link : `https://${user.google_meet_link}`} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)', textDecoration: 'underline' }}>Join Link</a>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                                
+                                {(user.courses?.length > 0 || user.taught_subjects?.length > 0) && (
+                                    <div style={{ marginTop: '20px', borderTop: '1px solid var(--border)', paddingTop: '20px', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '20px' }}>
+                                        {user.courses?.length > 0 && (
+                                            <div>
+                                                <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '8px' }}>Courses</span>
+                                                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                                                    {user.courses.map((c, i) => (
+                                                        <span key={i} className="badge" style={{ background: 'var(--bg-secondary)', padding: '6px 12px' }}>{c}</span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                        {user.taught_subjects?.length > 0 && (
+                                            <div>
+                                                <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '8px' }}>Subjects</span>
+                                                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                                                    {user.taught_subjects.map((s, i) => (
+                                                        <span key={i} className="badge" style={{ background: 'var(--accent-light)', color: 'var(--accent)', padding: '6px 12px' }}>{s}</span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                             
                             {analytics.student_breakdown?.length > 0 && (
@@ -126,20 +207,7 @@ function StaffProfile() {
                         </>
                     )}
 
-                    {user.role === 'mentor' && (
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
-                            <div className="glass-card" style={{ padding: '20px', textAlign: 'center' }}>
-                                <h3 style={{ fontSize: '2.5rem', color: 'var(--accent)', margin: 0 }}>{analytics.assigned_students}</h3>
-                                <p style={{ color: 'var(--text-secondary)', margin: '8px 0 0', fontSize: '1rem' }}>Total Assigned Students</p>
-                            </div>
-                            <div className="glass-card" style={{ padding: '20px', textAlign: 'center', background: analytics.at_risk_students > 0 ? 'var(--red-light)' : 'var(--card-bg)' }}>
-                                <h3 style={{ fontSize: '2.5rem', color: analytics.at_risk_students > 0 ? 'var(--red)' : 'var(--green)', margin: 0 }}>
-                                    {analytics.at_risk_students}
-                                </h3>
-                                <p style={{ color: 'var(--text-secondary)', margin: '8px 0 0', fontSize: '1rem' }}>At-Risk Students (&lt; 75% Attendance)</p>
-                            </div>
-                        </div>
-                    )}
+
                 </div>
             </div>
         </DashboardLayout>

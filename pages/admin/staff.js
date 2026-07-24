@@ -18,7 +18,6 @@ function AdminStaff() {
   }, []);
 
   const teachers = staffList.filter(s => s.role === 'teacher');
-  const mentors = staffList.filter(s => s.role === 'mentor');
 
   return (
     <DashboardLayout title="Staff Directory">
@@ -37,10 +36,6 @@ function AdminStaff() {
         <div className="glass-card" style={{ padding: '16px', textAlign: 'center' }}>
           <div style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--accent-blue)' }}>{teachers.length}</div>
           <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Teachers</div>
-        </div>
-        <div className="glass-card" style={{ padding: '16px', textAlign: 'center' }}>
-          <div style={{ fontSize: '2rem', fontWeight: 700, color: '#8e44ad' }}>{mentors.length}</div>
-          <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Mentors</div>
         </div>
       </div>
 
@@ -107,7 +102,7 @@ function AdminStaff() {
       ) : (
         <div className="glass-card empty-state">
           <h3>No staff accounts yet</h3>
-          <p>HR will onboard teachers and mentors through the Staff Portal.</p>
+          <p>HR will onboard teachers through the Staff Portal.</p>
         </div>
       )}
     </DashboardLayout>

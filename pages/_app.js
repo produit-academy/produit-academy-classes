@@ -27,18 +27,6 @@ function MyApp({ Component, pageProps }) {
           }
         `}</style>
       </Head>
-      <ul className="floating-elements">
-        <li>📚</li>
-        <li>✨</li>
-        <li>🎓</li>
-        <li>💻</li>
-        <li>🧠</li>
-        <li>✏️</li>
-        <li>🎯</li>
-        <li>🚀</li>
-        <li>💡</li>
-        <li>🌍</li>
-      </ul>
       <Component {...pageProps} />
       <InstallPrompt />
     </AuthProvider>

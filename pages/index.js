@@ -75,7 +75,7 @@ export default function Home() {
                 <span className={styles.heroHighlight}>Reimagined.</span>
               </motion.h1>
               <motion.p className={styles.heroSubtitle} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }}>
-                Join live classes, track your academic progress, and stay connected with your teachers &mdash; all from one unified portal.
+                Join live classes, track your academic progress, and stay connected with your teachers - all from one unified portal.
               </motion.p>
               <motion.div className={styles.heroActions} initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5, delay: 0.4 }}>
                 <a href="/login" className={`glass-btn primary ${styles.heroBtn}`}>
@@ -105,7 +105,7 @@ export default function Home() {
             <motion.div variants={itemVariants} className={styles.heroStatDivider} />
             <motion.div variants={itemVariants} className={styles.heroStat}>
               <span className={styles.heroStatValue}>Expert</span>
-              <span className={styles.heroStatLabel}>Mentorship Support</span>
+              <span className={styles.heroStatLabel}>Self-Service Booking</span>
             </motion.div>
             <motion.div variants={itemVariants} className={styles.heroStatDivider} />
             <motion.div variants={itemVariants} className={styles.heroStat}>
@@ -145,8 +145,37 @@ export default function Home() {
                 <div className={styles.featureIcon} style={{ background: 'rgba(241, 196, 15, 0.1)', color: '#b7950b' }}>
                   <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
                 </div>
-                <h3>Mentor Oversight</h3>
-                <p>Dedicated mentor dashboards to monitor teacher compliance and identify at-risk students early.</p>
+                <h3>Secure Payments</h3>
+                <p>Easy, transparent fee structure with safe transactions for every booked session.</p>
+              </motion.div>
+            </motion.div>
+          </div>
+        </section>
+
+        <section className={styles.howItWorksSection} style={{ padding: '80px 0', background: 'var(--background-white)' }}>
+          <div className="container">
+            <motion.div variants={slideInUp} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.5 }} style={{ textAlign: 'center', marginBottom: '40px' }}>
+              <h2 className={styles.sectionTitle}>How It Works</h2>
+              <p className={styles.sectionSubtitle}>Start learning in three simple steps</p>
+            </motion.div>
+
+            <motion.div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '30px' }} variants={containerVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }}>
+              <motion.div variants={itemVariants} className="glass-card" style={{ padding: '30px', textAlign: 'center' }}>
+                <div style={{ width: '50px', height: '50px', borderRadius: '50%', background: 'var(--accent-green)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: 700, margin: '0 auto 20px' }}>1</div>
+                <h3 style={{ marginBottom: '10px', fontSize: '1.2rem', fontWeight: 600 }}>Choose a Course</h3>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>Browse our selection of specialized courses taught by expert educators.</p>
+              </motion.div>
+
+              <motion.div variants={itemVariants} className="glass-card" style={{ padding: '30px', textAlign: 'center' }}>
+                <div style={{ width: '50px', height: '50px', borderRadius: '50%', background: 'var(--accent-blue)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: 700, margin: '0 auto 20px' }}>2</div>
+                <h3 style={{ marginBottom: '10px', fontSize: '1.2rem', fontWeight: 600 }}>Book a Teacher</h3>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>Select your preferred teacher and schedule classes at your convenience.</p>
+              </motion.div>
+
+              <motion.div variants={itemVariants} className="glass-card" style={{ padding: '30px', textAlign: 'center' }}>
+                <div style={{ width: '50px', height: '50px', borderRadius: '50%', background: 'var(--accent-purple)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: 700, margin: '0 auto 20px' }}>3</div>
+                <h3 style={{ marginBottom: '10px', fontSize: '1.2rem', fontWeight: 600 }}>Start Learning</h3>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>Join live interactive sessions and track your progress through the dashboard.</p>
               </motion.div>
             </motion.div>
           </div>

@@ -56,9 +56,15 @@ export default function ProfilePage({ pageTitle, allowedRole }) {
             const res = await apiPatch('/api/classes/profile/', editForm);
             const data = await res.json();
             if (res.ok) {
-                setMessage(data.message || 'Profile updated!');
-                setEditing(false);
-                loadProfile();
+                if (data.access) {
+                    localStorage.setItem('access_token', data.access);
+                    if (data.refresh) localStorage.setItem('refresh_token', data.refresh);
+                    window.location.reload(); // Reload to refresh auth context with new name
+                } else {
+                    setMessage(data.message || 'Profile updated!');
+                    setEditing(false);
+                    loadProfile();
+                }
             } else {
                 setError(data.error || 'Failed to update.');
             }
@@ -100,7 +106,7 @@ export default function ProfilePage({ pageTitle, allowedRole }) {
         }
     };
 
-    const roleLabel = profile?.role === 'teacher' ? 'Teacher' : profile?.role === 'mentor' ? 'Mentor' : profile?.role === 'admin' ? 'Admin' : 'Student';
+    const roleLabel = profile?.role === 'teacher' ? 'Teacher' : profile?.role === 'admin' ? 'Admin' : 'Student';
 
     return (
         <DashboardLayout title={pageTitle}>
@@ -209,13 +215,13 @@ export default function ProfilePage({ pageTitle, allowedRole }) {
                         ) : (
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0' }}>
                                 <DetailRow label="Email" value={profile.email} />
-                                <DetailRow label="Phone" value={profile.phone_number || '—'} />
+                                <DetailRow label="Phone" value={profile.phone_number || '-'} />
                                 <DetailRow label="Member Since" value={new Date(profile.date_joined).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' })} />
                                 {profile.role === 'student' && (
                                     <>
-                                        <DetailRow label="College" value={profile.college || '—'} />
-                                        <DetailRow label="School" value={profile.school_name || '—'} />
-                                        <DetailRow label="Class / Year" value={profile.current_class || '—'} />
+                                        <DetailRow label="College" value={profile.college || '-'} />
+                                        <DetailRow label="School" value={profile.school_name || '-'} />
+                                        <DetailRow label="Class / Year" value={profile.current_class || '-'} />
                                     </>
                                 )}
                                 {profile.address && <DetailRow label="Address" value={profile.address} />}
@@ -224,7 +230,7 @@ export default function ProfilePage({ pageTitle, allowedRole }) {
                     </div>
 
                     {/* Assigned Staff (Students only) */}
-                    {profile.role === 'student' && (profile.teacher || profile.mentor) && (
+                    {profile.role === 'student' && profile.teacher && (
                         <div className="glass-card" style={{ padding: '24px', marginBottom: '20px' }}>
                             <h3 className="section-heading" style={{ marginBottom: '16px' }}>
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
@@ -234,9 +240,7 @@ export default function ProfilePage({ pageTitle, allowedRole }) {
                                 {profile.teacher && (
                                     <StaffCard label="Teacher" name={profile.teacher.name} email={profile.teacher.email} color="var(--accent-blue)" />
                                 )}
-                                {profile.mentor && (
-                                    <StaffCard label="Mentor" name={profile.mentor.name} email={profile.mentor.email} color="var(--accent-purple)" />
-                                )}
+
                             </div>
                         </div>
                     )}

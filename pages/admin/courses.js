@@ -177,6 +177,7 @@ function AdminCourses() {
                         <thead>
                             <tr>
                                 <th>Course Name</th>
+                                <th>Subjects</th>
                                 <th>Students</th>
                                 <th>Status</th>
                                 <th>Actions</th>
@@ -191,7 +192,8 @@ function AdminCourses() {
                                             <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{c.description.substring(0, 60)}</div>
                                         )}
                                     </td>
-                                    <td>{c.student_count}</td>
+                                    <td>{c.subject_count || 0}</td>
+                                    <td>{c.student_count || 0}</td>
                                     <td>
                                         <span className={`badge ${c.is_active ? 'badge-active' : 'badge-cancelled'}`}>
                                             {c.is_active ? 'Active' : 'Inactive'}
@@ -199,6 +201,9 @@ function AdminCourses() {
                                     </td>
                                     <td>
                                         <div style={{ display: 'flex', gap: '6px' }}>
+                                            <a href={`/admin/subjects?course_id=${c.id}`} className="glass-btn primary" style={{ fontSize: '0.8rem', padding: '4px 12px', textDecoration: 'none' }}>
+                                                Subjects
+                                            </a>
                                             <button className="glass-btn" onClick={() => handleEdit(c)} style={{ fontSize: '0.8rem', padding: '4px 12px' }}>
                                                 Edit
                                             </button>

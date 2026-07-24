@@ -16,14 +16,14 @@ function Wallet() {
     }, []);
 
     return (
-        <DashboardLayout>
+        <DashboardLayout title="My Wallet">
             <Head><title>My Wallet | Produit Classes</title></Head>
 
             <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '20px 0' }}>
                 <h2 style={{ marginBottom: '24px', fontSize: '1.5rem', fontWeight: 600 }}>My Wallet</h2>
 
                 {loading ? (
-                    <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}><div className="spinner" /></div>
+                    <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}><div className="loading-spinner" /></div>
                 ) : wallet ? (
                     <>
                         {/* Header & Actions */}
@@ -106,4 +106,4 @@ function Wallet() {
     );
 }
 
-export default withAuth(Wallet, ['teacher', 'mentor']);
+export default withAuth(Wallet, ['teacher']);

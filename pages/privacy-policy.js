@@ -34,7 +34,7 @@ export default function PrivacyPolicy() {
                             <ul style={{ color: 'var(--text-secondary)', lineHeight: '1.6', paddingLeft: '20px', marginBottom: '15px', textAlign: 'justify' }}>
                                 <li>To register you as a new student.</li>
                                 <li>To manage your enrollment in active courses and track attendance.</li>
-                                <li>To provide mentor oversight capabilities on your academic progress.</li>
+                                <li>To support and process your bookings and schedules.</li>
                             </ul>
 
                             <h3 style={{ marginTop: '20px', marginBottom: '10px', color: 'var(--text-primary)' }}>4. Data Security</h3>

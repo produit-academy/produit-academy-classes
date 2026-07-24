@@ -62,10 +62,6 @@ function StudentProfile() {
                             <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Phone Number</span>
                             <div style={{ fontWeight: '500' }}>{user.phone || 'N/A'}</div>
                         </div>
-                        <div style={{ marginBottom: '12px' }}>
-                            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Assigned Mentor</span>
-                            <div style={{ fontWeight: '500' }}>{user.mentor || 'Unassigned'}</div>
-                        </div>
                         <div>
                             <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Assigned Teachers</span>
                             {user.teachers && user.teachers.length > 0 ? (

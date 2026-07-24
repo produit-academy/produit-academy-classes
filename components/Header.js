@@ -81,9 +81,9 @@ export default function Header() {
               <div className={styles.dropdown}>
                 <button className={styles.dropdownBtn}>
                   <div className={styles.avatar}>
-                    {(user.username || 'U')[0].toUpperCase()}
+                    {(user.first_name || user.username || 'U')[0].toUpperCase()}
                   </div>
-                  {user.username} <span>&#9662;</span>
+                  {user.first_name || user.username} <span>&#9662;</span>
                 </button>
                 <div className={styles.dropdownContent}>
                   <Link href={dashboardUrl}>Dashboard</Link>

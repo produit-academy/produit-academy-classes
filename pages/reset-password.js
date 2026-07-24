@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 import styles from '../styles/Auth.module.css';
 
 export default function ResetPassword() {
@@ -11,6 +12,7 @@ export default function ResetPassword() {
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (router.query.email) {
@@ -21,6 +23,7 @@ export default function ResetPassword() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setMessage(''); setError('');
+        setLoading(true);
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/password-reset-confirm/`, {
                 method: 'POST',
@@ -35,6 +38,7 @@ export default function ResetPassword() {
                 setError(data.detail || 'Failed to reset password.');
             }
         } catch (err) { setError('An error occurred.'); }
+        finally { setLoading(false); }
     };
 
     return (
@@ -48,12 +52,15 @@ export default function ResetPassword() {
                     <form className={styles.authForm} onSubmit={handleSubmit}>
                         <input type="text" placeholder="Enter OTP" maxLength="6" required value={otp} onChange={(e) => setOtp(e.target.value)} />
                         <input type="password" placeholder="Enter New Password" required value={password} onChange={(e) => setPassword(e.target.value)} />
-                        <button type="submit" className="glass-btn primary">Reset Password</button>
+                        <button type="submit" className={`glass-btn primary ${styles.ctaBtn}`} disabled={loading}>
+                            {loading ? 'Resetting...' : 'Reset Password'}
+                        </button>
                         {message && <p style={{ color: 'green', marginTop: '1rem' }}>{message}</p>}
                         {error && <p className={styles.authError}>{error}</p>}
                     </form>
                 </div>
             </main>
+            <Footer />
         </div>
     );
 }

@@ -77,7 +77,7 @@ function TeacherDashboard() {
     };
 
     return (
-        <DashboardLayout title={`Welcome, ${user?.first_name || user?.username || 'Teacher'}`}>
+        <DashboardLayout title={`Welcome, ${user?.first_name ? user.first_name : (user?.username?.split('@')[0] || 'Teacher')}`}>
             <Head>
                 <title>Teacher Dashboard | Produit Classes</title>
             </Head>
@@ -89,21 +89,7 @@ function TeacherDashboard() {
                     <div className="stats-grid">
                         <StatCard label="Total Classes Held" value={data.total_classes_held} color="var(--accent-green)" />
                         <StatCard label="Total Hours Taught" value={data.total_hours_worked} color="var(--accent-blue)" />
-                        <StatCard label={`Earnings This Month (₹${data.hourly_rate}/hr)`} value={`₹${data.this_month_earnings}`} color="var(--accent-purple)" />
-                        <StatCard label="Total Earnings" value={`₹${data.total_earnings}`} color="var(--accent-gold)" />
-                        <StatCard
-                            label="Pending Attendance"
-                            value={data.pending_attendance?.length || 0}
-                            color={data.pending_attendance?.length > 0 ? 'var(--accent-red)' : 'var(--accent-green)'}
-                        />
                     </div>
-
-                    {/* Pending Attendance Alert */}
-                    {data.pending_attendance?.length > 0 && (
-                        <div className="alert alert-warning" style={{ marginBottom: '20px' }}>
-                            <strong>Action Required:</strong> You have {data.pending_attendance.length} class(es) with pending attendance.
-                        </div>
-                    )}
 
                     <div className="dashboard-grid">
                         {/* Upcoming Classes */}
@@ -164,39 +150,7 @@ function TeacherDashboard() {
                             ) : (
                                 <div className="glass-card empty-state">
                                     <h3>No upcoming classes</h3>
-                                    <p>Create a new class to get started.</p>
-                                    <a href="/teacher/create-class" className="glass-btn primary" style={{ marginTop: '12px' }}>Create Class</a>
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Pending Attendance */}
-                        <div>
-                            <h3 className="section-heading">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-red)" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="18" y1="8" x2="23" y2="13"/><line x1="23" y1="8" x2="18" y2="13"/></svg>
-                                Attendance Pending
-                            </h3>
-                            {data.pending_attendance?.length > 0 ? (
-                                data.pending_attendance.map((cls) => (
-                                    <div key={cls.id} className="class-card glass-card">
-                                        <div className="class-card-info">
-                                            <h4>{cls.title}</h4>
-                                            <p>{cls.course_name} • {cls.student_name}</p>
-                                        </div>
-                                        <div className="class-card-meta">
-                                            <span className="class-time">
-                                                {formatDate(cls.scheduled_time)}
-                                            </span>
-                                            <a href={`/teacher/attendance/${cls.id}`} className="glass-btn" style={{ fontSize: '0.85rem', padding: '8px 16px' }}>
-                                                Take Attendance
-                                            </a>
-                                        </div>
-                                    </div>
-                                ))
-                            ) : (
-                                <div className="glass-card empty-state">
-                                    <h3>All caught up</h3>
-                                    <p>No pending attendance to submit.</p>
+                                    <p>You have no scheduled sessions.</p>
                                 </div>
                             )}
                         </div>
@@ -225,7 +179,7 @@ function TeacherDashboard() {
                                                 <td><strong>{s.first_name} {s.last_name}</strong></td>
                                                 <td style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>{s.email}</td>
                                                 <td style={{ fontSize: '0.85rem' }}>
-                                                    {s.courses?.length > 0 ? s.courses.join(', ') : '—'}
+                                                    {s.courses?.length > 0 ? s.courses.join(', ') : '-'}
                                                 </td>
                                                 <td>
                                                     <span style={{ color: s.attendance_percentage >= 75 ? 'var(--accent-green)' : 'var(--accent-red)', fontWeight: 600 }}>
@@ -246,7 +200,7 @@ function TeacherDashboard() {
                             <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '460px' }}>
                                 <h3 style={{ color: 'var(--accent-red)' }}>Cancel Class</h3>
                                 <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem', fontSize: '0.9rem' }}>
-                                    Please provide a reason for cancellation. The student's mentor will be notified.
+                                    Please provide a reason for cancellation. The student will be notified.
                                 </p>
                                 <div className="form-group" style={{ marginBottom: '1.5rem' }}>
                                     <label>Reason</label>

@@ -29,7 +29,7 @@ function AdminDashboard() {
                     <div className="stats-grid">
                         <StatCard label="Total Students" value={stats.total_students} color="var(--accent-green)" />
                         <StatCard label="Total Teachers" value={stats.total_teachers} color="var(--accent-blue)" />
-                        <StatCard label="Total Mentors" value={stats.total_mentors} color="var(--accent-purple)" />
+                        <StatCard label="Total Bookings" value={stats.total_bookings} color="var(--accent-purple)" />
                         <StatCard label="Active Courses" value={stats.total_courses} color="var(--accent-yellow)" />
                     </div>
 
@@ -45,31 +45,31 @@ function AdminDashboard() {
                         Quick Actions
                     </h3>
                     <div className="stats-grid">
+                        <a href="/admin/bookings" style={{ textDecoration: 'none' }}>
+                            <div className="glass-card" style={{ padding: '24px', textAlign: 'center', cursor: 'pointer' }}>
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent-purple)" strokeWidth="2" style={{ marginBottom: '10px' }}>
+                                    <path d="M19 4h-1V3a1 1 0 0 0-2 0v1H8V3a1 1 0 0 0-2 0v1H5C3.895 4 3 4.895 3 6v14c0 1.105.895 2 2 2h14c1.105 0 2-.895 2-2V6c0-1.105-.895-2-2-2Zm0 16H5V10h14v10Z"/>
+                                </svg>
+                                <h4 style={{ fontWeight: 600, marginBottom: '4px' }}>View Bookings</h4>
+                                <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>Track student payments & schedules</p>
+                            </div>
+                        </a>
                         <a href="/admin/courses" style={{ textDecoration: 'none' }}>
                             <div className="glass-card" style={{ padding: '24px', textAlign: 'center', cursor: 'pointer' }}>
                                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" strokeWidth="2" style={{ marginBottom: '10px' }}>
                                     <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
                                 </svg>
                                 <h4 style={{ fontWeight: 600, marginBottom: '4px' }}>Manage Courses</h4>
-                                <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>Create, edit, or assign courses</p>
-                            </div>
-                        </a>
-                        <a href="/admin/enrollments" style={{ textDecoration: 'none' }}>
-                            <div className="glass-card" style={{ padding: '24px', textAlign: 'center', cursor: 'pointer' }}>
-                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" strokeWidth="2" style={{ marginBottom: '10px' }}>
-                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                                </svg>
-                                <h4 style={{ fontWeight: 600, marginBottom: '4px' }}>Manage Enrollments</h4>
-                                <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>Enroll students via CSV or manual</p>
+                                <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>Create courses and subjects</p>
                             </div>
                         </a>
                         <a href="/admin/staff" style={{ textDecoration: 'none' }}>
                             <div className="glass-card" style={{ padding: '24px', textAlign: 'center', cursor: 'pointer' }}>
-                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent-purple)" strokeWidth="2" style={{ marginBottom: '10px' }}>
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" strokeWidth="2" style={{ marginBottom: '10px' }}>
                                     <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="11" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
                                 </svg>
-                                <h4 style={{ fontWeight: 600, marginBottom: '4px' }}>Manage Staff</h4>
-                                <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>Create teacher and mentor accounts</p>
+                                <h4 style={{ fontWeight: 600, marginBottom: '4px' }}>Manage Teachers</h4>
+                                <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>Approve and assign teachers</p>
                             </div>
                         </a>
                     </div>

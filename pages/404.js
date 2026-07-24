@@ -1,45 +1,35 @@
 import React from "react";
-import Image from 'next/image';
 import { useRouter } from 'next/router';
+import Head from 'next/head';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 
 export default function Custom404() {
   const router = useRouter();
 
   return (
-    <div className="App" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', backgroundColor: '#f7f8fa', color: '#333', fontFamily: 'sans-serif' }}>
-
-      <div style={{ textAlign: 'center', maxWidth: '600px', padding: '20px' }}>
-        <Image
-          src="/work-in-progress.png"
-          alt="Page Not Found"
-          width={500}
-          height={400}
-          style={{ maxWidth: '100%', height: 'auto', marginBottom: '30px' }}
-        />
-
-        <h1 style={{ fontSize: '2.5rem', marginBottom: '1rem', color: '#33ae78' }}>Page Not Found</h1>
-        <p style={{ fontSize: '1.2rem', color: '#228B22', marginBottom: '2rem' }}>
-          We couldn't find the page you're looking for. It might be under construction or removed.
-        </p>
-
-        <button
-          onClick={() => router.push('/')}
-          style={{
-            padding: '12px 30px',
-            fontSize: '1rem',
-            backgroundColor: '#33ae78',
-            color: 'white',
-            border: 'none',
-            borderRadius: '5px',
-            cursor: 'pointer',
-            transition: 'background 0.3s ease'
-          }}
-          onMouseOver={(e) => e.target.style.backgroundColor = '#003820ff'}
-          onMouseOut={(e) => e.target.style.backgroundColor = '#33ae78'}
-        >
-          Go Home
-        </button>
-      </div>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      <Head>
+        <title>404 - Page Not Found | Produit Classes</title>
+      </Head>
+      <Header />
+      <main className="main-content" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div className="glass-card" style={{ textAlign: 'center', maxWidth: '500px', width: '100%', padding: '40px 20px', margin: '20px' }}>
+          <h1 style={{ fontSize: '4rem', marginBottom: '0.5rem', color: 'var(--accent-green)', fontWeight: 700 }}>404</h1>
+          <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: 'var(--text-primary)' }}>Page Not Found</h2>
+          <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '2rem' }}>
+            We couldn't find the page you're looking for. It might be under construction or have been removed.
+          </p>
+          <button
+            onClick={() => router.push('/')}
+            className="glass-btn primary"
+            style={{ padding: '12px 30px' }}
+          >
+            Go to Homepage
+          </button>
+        </div>
+      </main>
+      <Footer />
     </div>
   );
 }

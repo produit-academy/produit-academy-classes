@@ -28,13 +28,10 @@ export default function FAQs() {
 
                             <div className="glass-card" style={{ padding: '30px', background: 'var(--background-white)', textAlign: 'left' }}>
                                 <h3 style={{ marginBottom: '10px', color: 'var(--text-primary)' }}>What if I miss a live class?</h3>
-                                <p style={{ color: 'var(--text-secondary)', lineHeight: '1.6' }}>If you miss a live class, your attendance status will be marked as "Absent". Discuss with your mentor or teacher to catch up on the missed syllabus subject.</p>
+                                <p style={{ color: 'var(--text-secondary)', lineHeight: '1.6' }}>If you miss a live class, your attendance status will be marked as "Absent". Discuss with your teacher to catch up on the missed syllabus subject.</p>
                             </div>
 
-                            <div className="glass-card" style={{ padding: '30px', background: 'var(--background-white)', textAlign: 'left' }}>
-                                <h3 style={{ marginBottom: '10px', color: 'var(--text-primary)' }}>How do I contact my mentor?</h3>
-                                <p style={{ color: 'var(--text-secondary)', lineHeight: '1.6' }}>Your assigned mentor monitors your progress automatically. For specific queries, reach out to them via the "Contact to Enroll" channels or via the internal dashboard messaging if enabled.</p>
-                            </div>
+
                         </div>
                     </section>
                 </div>

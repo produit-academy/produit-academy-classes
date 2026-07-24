@@ -23,7 +23,7 @@ function AdminEnrollments() {
     const [manualAddress, setManualAddress] = useState('');
     const [manualCurrentClass, setManualCurrentClass] = useState('');
     const [manualSchool, setManualSchool] = useState('');
-    const [manualMentor, setManualMentor] = useState('');
+
     const [manualTeacher, setManualTeacher] = useState('');
     const [enrolling, setEnrolling] = useState(false);
 
@@ -45,7 +45,7 @@ function AdminEnrollments() {
             .finally(() => setLoading(false));
     }, []);
 
-    const mentors = staff.filter(s => s.role === 'mentor' && s.is_approved);
+
     const teachers = staff.filter(s => s.role === 'teacher' && s.is_approved);
 
     const filteredManualTeachers = manualCourse ? teachers.filter(t => t.subjects && t.subjects.includes(parseInt(manualCourse))) : teachers;
@@ -85,7 +85,7 @@ function AdminEnrollments() {
                 address: manualAddress || undefined,
                 current_class: manualCurrentClass || undefined,
                 school_name: manualSchool || undefined,
-                mentor_id: manualMentor || undefined,
+
                 teacher_id: manualTeacher || undefined,
             });
             const data = await res.json();
@@ -327,11 +327,6 @@ function AdminEnrollments() {
                         </div>
 
                         <div className="form-group">
-                            <label className="form-label">Assign Mentor</label>
-                            <select className="input-field" value={manualMentor} onChange={e => setManualMentor(e.target.value)}>
-                                <option value="">None</option>
-                                {mentors.map(m => <option key={m.id} value={m.id}>{m.first_name} {m.last_name}</option>)}
-                            </select>
                         </div>
 
                         <button type="submit" className="glass-btn primary" disabled={enrolling} style={{ width: '100%', padding: '12px' }}>
@@ -355,7 +350,7 @@ function AdminEnrollments() {
                                     <th>Student</th>
                                     <th>Status</th>
                                     <th>Course</th>
-                                    <th>Mentor</th>
+
                                     <th>Teacher</th>
                                     <th>Action</th>
                                 </tr>
@@ -378,7 +373,7 @@ function AdminEnrollments() {
                                             </span>
                                         </td>
                                         <td>{e.course_name}</td>
-                                        <td style={{ fontSize: '0.85rem' }}>{e.mentor_name || '--'}</td>
+
                                         <td style={{ fontSize: '0.85rem' }}>{e.teacher_name || '--'}</td>
                                         <td>
                                             <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>

@@ -21,7 +21,7 @@ export default function Footer() {
           <ul className={styles.footerLinks}>
             <li><Link href="/#features">Live Classes</Link></li>
             <li><Link href="/#features">Visual Analytics</Link></li>
-            <li><Link href="/#features">Mentor Oversight</Link></li>
+
           </ul>
         </div>
 
@@ -54,7 +54,7 @@ export default function Footer() {
 
       <div className={styles.footerBottom}>
         <div className={`container ${styles.footerBottomContainer}`}>
-          <p>Copyright @ 2025. All rights reserved.</p>
+          <p>Copyright @ {new Date().getFullYear()}. All rights reserved.</p>
         </div>
       </div>
     </footer>
