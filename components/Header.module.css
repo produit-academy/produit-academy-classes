@@ -4,23 +4,23 @@
   left: 0;
   width: 100%;
   z-index: 1000;
-  padding: 1rem 0;
-  padding-top: calc(1rem + env(safe-area-inset-top));
+  padding: 0.3rem 0;
+  padding-top: calc(0.3rem + env(safe-area-inset-top));
   height: auto;
-  background-color: rgba(255, 255, 255, 0.5);
+  background-color: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .header.scrolled {
-  background-color: rgba(255, 255, 255, 0.8);
-  padding: 0.8rem 0;
-  padding-top: calc(0.8rem + env(safe-area-inset-top));
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+  background-color: rgba(255, 255, 255, 0.95);
+  padding: 0.2rem 0;
+  padding-top: calc(0.2rem + env(safe-area-inset-top));
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid rgba(226, 232, 240, 1);
   backdrop-filter: blur(20px);
 }
 
@@ -33,21 +33,34 @@
 .logo {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   text-decoration: none;
-  transition: transform 0.3s ease;
+  transition: transform 0.2s ease;
 }
 
 .logo:hover {
-  transform: scale(1.02);
+  transform: scale(1.01);
 }
 
 .logoText {
   font-family: var(--font-serif, 'Lora', serif);
-  font-size: 1.8rem;
+  font-size: 1.15rem;
   font-weight: 700;
   color: var(--text-primary);
-  letter-spacing: -0.5px;
+  letter-spacing: -0.3px;
+}
+
+.avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 0px;
+  background: #0f172a;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.8rem;
 }
 
 /* Hamburger Menu Button */
@@ -58,9 +71,9 @@
   background: none;
   border: none;
   cursor: pointer;
-  padding: 8px;
+  padding: 6px;
   z-index: 1001;
-  border-radius: 50%;
+  border-radius: 0px;
   transition: background-color 0.3s ease;
 }
 

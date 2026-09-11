@@ -239,7 +239,7 @@ function TeacherAvailability() {
                             {selectedDate && (
                                 <div style={{ marginBottom: '20px' }}>
                                     <label style={{ display: 'block', fontWeight: 700, marginBottom: '10px', fontSize: '0.9rem', color: '#0f172a' }}>
-                                        2. Select Available Hours (9 AM – 9 PM)
+                                        2. Select Available Hours (9 AM - 9 PM)
                                     </label>
                                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '10px' }}>
                                         {HOUR_SLOTS.map(slot => {
@@ -315,7 +315,7 @@ function TeacherAvailability() {
                                                 display: 'flex', alignItems: 'center', gap: '8px',
                                             }}>
                                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                                                {formatTime(slot.start_time).toLowerCase()} – {formatTime(slot.end_time).toLowerCase()}
+                                                {formatTime(slot.start_time).toLowerCase()} - {formatTime(slot.end_time).toLowerCase()}
                                             </div>
                                         ))}
                                     </div>
@@ -352,7 +352,7 @@ function TeacherAvailability() {
                                                 display: 'flex', alignItems: 'center', gap: '8px',
                                             }}>
                                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                                                {formatTime(slot.start_time).toLowerCase()} – {formatTime(slot.end_time).toLowerCase()}
+                                                {formatTime(slot.start_time).toLowerCase()} - {formatTime(slot.end_time).toLowerCase()}
                                                 <button
                                                     onClick={() => handleDeleteSlot(slot.id)}
                                                     title="Remove slot"

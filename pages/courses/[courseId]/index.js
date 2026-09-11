@@ -1,4 +1,4 @@
-// pages/courses/[courseId]/index.js - Subjects within a class (Crisp Square Architectural Aesthetic)
+// pages/courses/[courseId]/index.js - Subjects within a class (70% Minimalist + 20% Futuristic + 10% Playful, Zero Emojis)
 import { useState, useEffect, useMemo } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
@@ -9,7 +9,8 @@ import { apiGet } from '../../../lib/api';
 import {
     Calculator, FlaskConical, Globe, BookOpen,
     ArrowLeft, ChevronRight, Users, Sparkles, Search,
-    CheckCircle2, Video
+    CheckCircle2, Video, Atom, Binary, Compass, Languages,
+    TrendingUp, Cpu
 } from 'lucide-react';
 
 const SUBJECT_THEMES = {
@@ -19,20 +20,26 @@ const SUBJECT_THEMES = {
         bg: '#eff6ff',
         border: '#bfdbfe',
         gradient: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+        cardClass: 'math-geometric-card',
+        genre: 'GEOMETRIC & ANALYTICAL',
     },
     'science': {
-        icon: FlaskConical,
+        icon: Atom,
         color: '#7c3aed',
         bg: '#f5f3ff',
         border: '#ddd6fe',
         gradient: 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)',
+        cardClass: 'science-futuristic-card',
+        genre: 'FUTURISTIC & EXPERIMENTAL',
     },
     'physics': {
-        icon: FlaskConical,
+        icon: Atom,
         color: '#0284c7',
         bg: '#f0f9ff',
         border: '#bae6fd',
         gradient: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+        cardClass: 'science-futuristic-card',
+        genre: 'QUANTUM & KINETIC',
     },
     'chemistry': {
         icon: FlaskConical,
@@ -40,13 +47,17 @@ const SUBJECT_THEMES = {
         bg: '#fffbeb',
         border: '#fde68a',
         gradient: 'linear-gradient(135deg, #d97706 0%, #b45309 100%)',
+        cardClass: 'science-futuristic-card',
+        genre: 'MOLECULAR & LAB',
     },
     'biology': {
-        icon: FlaskConical,
+        icon: Compass,
         color: '#059669',
         bg: '#ecfdf5',
         border: '#a7f3d0',
         gradient: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+        cardClass: 'science-futuristic-card',
+        genre: 'BIOLOGICAL SCIENCES',
     },
     'social': {
         icon: Globe,
@@ -54,20 +65,26 @@ const SUBJECT_THEMES = {
         bg: '#f0fdfa',
         border: '#99f6e4',
         gradient: 'linear-gradient(135deg, #0d9488 0%, #0f766e 100%)',
+        cardClass: '',
+        genre: 'GLOBAL EXPLORATION',
     },
     'history': {
-        icon: Globe,
+        icon: Compass,
         color: '#9333ea',
         bg: '#faf5ff',
         border: '#e9d5ff',
         gradient: 'linear-gradient(135deg, #9333ea 0%, #7e22ce 100%)',
+        cardClass: '',
+        genre: 'CHRONICLES & CIVILIZATION',
     },
     'language': {
-        icon: BookOpen,
+        icon: Languages,
         color: '#e11d48',
         bg: '#fff1f2',
         border: '#fecdd3',
         gradient: 'linear-gradient(135deg, #e11d48 0%, #be123c 100%)',
+        cardClass: '',
+        genre: 'LINGUISTIC LITERACY',
     },
     'english': {
         icon: BookOpen,
@@ -75,20 +92,26 @@ const SUBJECT_THEMES = {
         bg: '#fdf4ff',
         border: '#f5d0fe',
         gradient: 'linear-gradient(135deg, #c026d3 0%, #a21caf 100%)',
+        cardClass: '',
+        genre: 'LITERATURE & RHETORIC',
     },
     'commerce': {
-        icon: Calculator,
+        icon: TrendingUp,
         color: '#059669',
         bg: '#ecfdf5',
         border: '#a7f3d0',
         gradient: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+        cardClass: 'math-geometric-card',
+        genre: 'FINANCIAL DYNAMICS',
     },
-    'economics': {
-        icon: Globe,
-        color: '#ea580c',
-        bg: '#fff7ed',
-        border: '#fed7aa',
-        gradient: 'linear-gradient(135deg, #ea580c 0%, #c2410c 100%)',
+    'computer': {
+        icon: Cpu,
+        color: '#0284c7',
+        bg: '#f0f9ff',
+        border: '#bae6fd',
+        gradient: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+        cardClass: 'science-futuristic-card',
+        genre: 'COMPUTATION & CODE',
     },
 };
 
@@ -103,6 +126,8 @@ function getSubjectTheme(name = '') {
         bg: '#f0f9ff',
         border: '#bae6fd',
         gradient: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+        cardClass: '',
+        genre: 'ACADEMIC SYLLABUS',
     };
 }
 
@@ -135,7 +160,7 @@ export default function SubjectsPage() {
     return (
         <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: 'linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%)' }}>
             <Head>
-                <title>{courseName} Subjects | Produit Academy Classes</title>
+                <title>{courseName} Subjects | Produit Academy</title>
                 <meta name="description" content={`Explore expert tutors and comprehensive syllabi for ${courseName}.`} />
             </Head>
             <Header />
@@ -143,76 +168,71 @@ export default function SubjectsPage() {
             <main className="main-content" style={{ paddingTop: '108px', paddingBottom: '80px' }}>
                 <div className="container" style={{ maxWidth: '1080px', margin: '0 auto', padding: '0 24px' }}>
                     
-                    {/* Breadcrumbs Navigation */}
+                    {/* Minimal Breadcrumb Trail */}
                     <nav style={{
                         display: 'flex', alignItems: 'center', gap: '8px',
-                        fontSize: '0.88rem', color: '#64748b', marginBottom: '28px'
+                        fontSize: '0.85rem', color: '#64748b', marginBottom: '24px'
                     }}>
                         <Link href="/courses" style={{
-                            color: 'var(--accent-green-dark)', fontWeight: 600,
+                            color: 'var(--accent-green-dark)', fontWeight: 700,
                             display: 'inline-flex', alignItems: 'center', gap: '4px'
                         }}>
-                            <ArrowLeft size={16} /> All Classes
+                            <ArrowLeft size={15} /> All Classes
                         </Link>
                         <span style={{ color: '#cbd5e1' }}>/</span>
-                        <span style={{ color: '#0f172a', fontWeight: 700 }}>{courseName}</span>
+                        <span style={{ color: '#0f172a', fontWeight: 800 }}>{courseName}</span>
                     </nav>
 
-                    {/* Class Banner Header */}
+                    {/* Class Curriculum Banner */}
                     <div style={{
                         background: '#ffffff',
                         border: '1px solid #e2e8f0',
                         borderRadius: '0px',
-                        padding: '36px 32px',
-                        boxShadow: '0 2px 10px rgba(15, 23, 42, 0.04)',
-                        marginBottom: '36px',
+                        padding: '32px',
+                        boxShadow: '0 2px 10px rgba(15, 23, 42, 0.03)',
+                        marginBottom: '32px',
                         display: 'flex',
                         justifyContent: 'space-between',
                         alignItems: 'center',
                         flexWrap: 'wrap',
-                        gap: '24px'
+                        gap: '20px'
                     }}>
                         <div style={{ maxWidth: '640px' }}>
-                            <div style={{
-                                display: 'inline-flex', alignItems: 'center', gap: '6px',
-                                background: '#eaf7f0', color: 'var(--accent-green-dark)',
-                                padding: '5px 12px', borderRadius: '0px',
-                                borderLeft: '3px solid var(--accent-green-dark)',
-                                fontSize: '0.82rem', fontWeight: 800, textTransform: 'uppercase',
-                                letterSpacing: '0.5px', marginBottom: '12px'
-                            }}>
-                                <Sparkles size={14} />
-                                <span>Academic Curriculum</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                                <span className="telemetry-chip live">
+                                    <span className="live-pulse-dot" style={{ width: '6px', height: '6px', borderRadius: '0px' }} />
+                                    <span>CURRICULUM ARCHITECTURE // {courseName.toUpperCase()}</span>
+                                </span>
                             </div>
 
                             <h1 style={{
                                 fontFamily: "'Lora', serif",
-                                fontSize: 'clamp(1.8rem, 3.5vw, 2.5rem)',
+                                fontSize: 'clamp(1.8rem, 3.5vw, 2.4rem)',
                                 fontWeight: 700,
                                 color: '#0f172a',
                                 lineHeight: 1.25,
-                                marginBottom: '10px'
+                                marginBottom: '8px'
                             }}>
                                 {courseName} Subjects
                             </h1>
-                            <p style={{ color: '#64748b', fontSize: '1.05rem', lineHeight: 1.6, margin: 0 }}>
-                                Select a subject to browse verified faculty, watch sample demo lectures, and schedule 1-on-1 personalized sessions.
+                            <p style={{ color: '#64748b', fontSize: '1.02rem', lineHeight: 1.6, margin: 0 }}>
+                                Select a discipline to connect with faculty specialists, inspect lesson schedules, and book 1-on-1 sessions.
                             </p>
                         </div>
 
-                        {/* Search subject quickly if multiple */}
+                        {/* Search subject if multiple */}
                         {subjects.length > 4 && (
                             <div style={{ position: 'relative', width: '100%', maxWidth: '280px' }}>
-                                <Search size={17} color="#94a3b8" style={{ position: 'absolute', left: '14px', top: '14px' }} />
+                                <Search size={16} color="#94a3b8" style={{ position: 'absolute', left: '14px', top: '13px' }} />
                                 <input
                                     type="text"
-                                    placeholder="Filter subject..."
+                                    placeholder="Filter discipline..."
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     style={{
                                         width: '100%',
-                                        padding: '11px 16px 11px 40px',
-                                        fontSize: '0.92rem',
+                                        padding: '10px 16px 10px 38px',
+                                        fontSize: '0.9rem',
                                         borderRadius: '0px',
                                         border: '1px solid #cbd5e1',
                                         background: '#f8fafc',
@@ -224,7 +244,7 @@ export default function SubjectsPage() {
                         )}
                     </div>
 
-                    {/* Subjects Grid */}
+                    {/* Subjects Grid with Custom Subject Personalities */}
                     {loading ? (
                         <div className="loading-container" style={{ minHeight: '300px' }}>
                             <div className="loading-spinner" />
@@ -235,14 +255,13 @@ export default function SubjectsPage() {
                             border: '1px solid #e2e8f0',
                             borderRadius: '0px',
                             padding: '60px 24px',
-                            textAlign: 'center',
-                            boxShadow: '0 2px 10px rgba(15, 23, 42, 0.04)'
+                            textAlign: 'center'
                         }}>
                             <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}>
-                                No subjects available yet
+                                No subjects registered yet
                             </h3>
                             <p style={{ color: '#64748b', fontSize: '0.95rem' }}>
-                                Subjects for {courseName} are being updated by academic administrators. Please check back soon!
+                                Disciplines for {courseName} are being compiled. Please return shortly.
                             </p>
                         </div>
                     ) : (
@@ -260,45 +279,39 @@ export default function SubjectsPage() {
                                     <div
                                         key={subject.id}
                                         onClick={() => router.push(`/courses/${courseId}/${subject.id}/teachers`)}
-                                        className="pro-card-hover"
+                                        className={`pro-card-hover ${theme.cardClass}`}
                                         style={{
-                                            background: '#ffffff',
                                             borderRadius: '0px',
                                             border: '1px solid #e2e8f0',
-                                            padding: '28px 24px',
+                                            padding: '26px 22px',
                                             cursor: 'pointer',
                                             display: 'flex',
                                             flexDirection: 'column',
-                                            boxShadow: '0 2px 8px rgba(15, 23, 42, 0.04)',
+                                            boxShadow: '0 2px 8px rgba(15, 23, 42, 0.03)',
                                             position: 'relative'
                                         }}
                                     >
-                                        {/* Square Icon & Teacher Badge */}
+                                        {/* Genre Tag + Teacher Count */}
                                         <div style={{
                                             display: 'flex',
                                             justifyContent: 'space-between',
-                                            alignItems: 'flex-start',
-                                            marginBottom: '20px'
+                                            alignItems: 'center',
+                                            marginBottom: '16px'
                                         }}>
-                                            <div style={{
-                                                width: '56px',
-                                                height: '56px',
-                                                borderRadius: '0px',
-                                                background: theme.bg,
-                                                border: `1px solid ${theme.border}`,
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                color: theme.color,
-                                                boxShadow: `0 4px 10px -2px ${theme.color}25`
+                                            <span style={{
+                                                fontSize: '0.68rem',
+                                                fontWeight: 800,
+                                                letterSpacing: '0.06em',
+                                                fontFamily: 'ui-monospace, monospace',
+                                                color: theme.color
                                             }}>
-                                                <IconComp size={28} strokeWidth={1.8} />
-                                            </div>
+                                                {`// ${theme.genre}`}
+                                            </span>
 
                                             <div style={{
-                                                padding: '5px 10px',
+                                                padding: '3px 8px',
                                                 borderRadius: '0px',
-                                                fontSize: '0.78rem',
+                                                fontSize: '0.74rem',
                                                 fontWeight: 700,
                                                 background: teacherCount > 0 ? '#ecfdf5' : '#f8fafc',
                                                 color: teacherCount > 0 ? '#047857' : '#64748b',
@@ -307,69 +320,86 @@ export default function SubjectsPage() {
                                                 alignItems: 'center',
                                                 gap: '5px'
                                             }}>
-                                                {teacherCount > 0 && <span className="live-pulse-dot" style={{ width: '6px', height: '6px' }} />}
-                                                <span>{teacherCount} {teacherCount === 1 ? 'Teacher' : 'Teachers'}</span>
+                                                {teacherCount > 0 && <span className="live-pulse-dot" style={{ width: '5px', height: '5px', borderRadius: '0px' }} />}
+                                                <span>{teacherCount} {teacherCount === 1 ? 'Faculty' : 'Faculty'}</span>
                                             </div>
+                                        </div>
+
+                                        {/* Square Icon Capsule */}
+                                        <div style={{
+                                            width: '52px',
+                                            height: '52px',
+                                            borderRadius: '0px',
+                                            background: theme.bg,
+                                            border: `1px solid ${theme.border}`,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            color: theme.color,
+                                            marginBottom: '16px',
+                                            boxShadow: `0 4px 10px -2px ${theme.color}25`
+                                        }}>
+                                            <IconComp size={26} strokeWidth={1.8} />
                                         </div>
 
                                         {/* Subject Title */}
                                         <h3 style={{
-                                            fontSize: '1.3rem',
+                                            fontSize: '1.25rem',
                                             fontWeight: 800,
                                             color: '#0f172a',
-                                            marginBottom: '8px',
+                                            marginBottom: '6px',
                                             lineHeight: 1.3
                                         }}>
                                             {subject.name}
                                         </h3>
 
                                         <p style={{
-                                            fontSize: '0.9rem',
+                                            fontSize: '0.88rem',
                                             color: '#64748b',
-                                            marginBottom: '24px',
+                                            marginBottom: '20px',
                                             lineHeight: 1.5,
                                             flex: 1
                                         }}>
-                                            {subject.description || `Comprehensive concepts, practice problem-solving & exam mastery for ${subject.name}.`}
+                                            {subject.description || `Structured curriculum mastery, targeted problem solving, and personalized doubt sessions in ${subject.name}.`}
                                         </p>
 
-                                        {/* Perks Row */}
+                                        {/* Highlights Row */}
                                         <div style={{
                                             display: 'flex',
                                             gap: '12px',
-                                            fontSize: '0.82rem',
+                                            fontSize: '0.78rem',
                                             color: '#475569',
                                             fontWeight: 600,
-                                            marginBottom: '20px',
-                                            paddingTop: '16px',
+                                            marginBottom: '18px',
+                                            paddingTop: '14px',
                                             borderTop: '1px dashed #e2e8f0'
                                         }}>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                                <CheckCircle2 size={15} color="#059669" />
-                                                <span>Live Classes</span>
+                                                <CheckCircle2 size={13} color="#059669" />
+                                                <span>1-on-1 Sessions</span>
                                             </div>
-                                            <span>•</span>
+                                            <span>&middot;</span>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                                <Video size={15} color="#2563eb" />
-                                                <span>Demo Videos</span>
+                                                <Video size={13} color="#2563eb" />
+                                                <span>Demo Lectures</span>
                                             </div>
                                         </div>
 
-                                        {/* Square Action Button */}
+                                        {/* Action Button */}
                                         <div style={{
                                             display: 'flex',
                                             alignItems: 'center',
                                             justifyContent: 'space-between',
-                                            padding: '11px 16px',
+                                            padding: '10px 14px',
                                             borderRadius: '0px',
                                             background: '#f8fafc',
                                             border: '1px solid #e2e8f0',
-                                            fontSize: '0.9rem',
+                                            fontSize: '0.85rem',
                                             fontWeight: 700,
                                             color: 'var(--accent-green-dark)',
                                         }}>
-                                            <span>Browse Teachers</span>
-                                            <ChevronRight size={17} />
+                                            <span>Browse Faculty</span>
+                                            <ChevronRight size={16} />
                                         </div>
                                     </div>
                                 );

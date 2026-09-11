@@ -1,9 +1,14 @@
-// pages/student/bookings.js - Student bookings list with cancel capability
+// pages/student/bookings.js - Student Bookings Dossier (70% Minimalist + 20% Futuristic + 10% Playful, Zero Emojis)
 import Head from 'next/head';
+import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { withAuth } from '../../lib/auth';
 import { apiGet, apiPost } from '../../lib/api';
 import DashboardLayout from '../../components/DashboardLayout';
+import {
+    Calendar, Video, Clock, CheckCircle2, AlertCircle,
+    X, ArrowRight, UserCheck, CreditCard
+} from 'lucide-react';
 
 function StudentBookings() {
     const [bookings, setBookings] = useState([]);
@@ -34,104 +39,177 @@ function StudentBookings() {
                 setCancelReason('');
                 loadBookings();
             }
-        } catch (e) {
+        } catch {
             alert('Failed to cancel.');
         }
         setCancelling(false);
     };
 
-    const statusColors = {
-        confirmed: 'var(--accent-green, #22c55e)',
-        pending: 'var(--accent-gold, #d4a017)',
-        completed: 'var(--accent-blue)',
-        cancelled: 'var(--accent-red, #ef4444)',
+    const statusBadge = (status) => {
+        const s = (status || '').toLowerCase();
+        if (s === 'confirmed') {
+            return <span className="telemetry-chip live" style={{ fontSize: '0.68rem', padding: '2px 8px' }}>[CONFIRMED]</span>;
+        }
+        if (s === 'completed') {
+            return <span className="telemetry-chip cyan" style={{ fontSize: '0.68rem', padding: '2px 8px' }}>[COMPLETED]</span>;
+        }
+        if (s === 'cancelled') {
+            return <span className="telemetry-chip" style={{ fontSize: '0.68rem', padding: '2px 8px', color: '#dc2626', borderColor: '#fca5a5', background: '#fef2f2' }}>[CANCELLED]</span>;
+        }
+        return <span className="telemetry-chip" style={{ fontSize: '0.68rem', padding: '2px 8px' }}>[{s.toUpperCase()}]</span>;
     };
 
     return (
         <DashboardLayout title="My Bookings">
-            <Head><title>My Bookings | Produit Classes</title></Head>
+            <Head><title>My Bookings | Produit Academy</title></Head>
 
             {loading ? (
-                <div className="loading-container"><div className="loading-spinner" /></div>
+                <div className="loading-container" style={{ minHeight: '320px' }}>
+                    <div className="loading-spinner" />
+                </div>
             ) : bookings.length === 0 ? (
-                <div className="glass-card empty-state" style={{ textAlign: 'center', padding: '60px 20px' }}>
-                    <h3>No bookings yet</h3>
-                    <p>Browse courses and book a teacher to get started!</p>
-                    <a href="/courses" className="glass-btn primary" style={{ marginTop: '16px', display: 'inline-block' }}>Browse Courses</a>
+                <div style={{
+                    background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '0px',
+                    textAlign: 'center', padding: '60px 24px', boxShadow: '0 2px 8px rgba(15, 23, 42, 0.03)'
+                }}>
+                    <Calendar size={32} color="#94a3b8" style={{ margin: '0 auto 12px', display: 'block' }} />
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}>
+                        No bookings on record
+                    </h3>
+                    <p style={{ color: '#64748b', fontSize: '0.92rem', marginBottom: '20px' }}>
+                        Explore academic curriculums and schedule 1-on-1 sessions with verified teachers.
+                    </p>
+                    <Link
+                        href="/courses"
+                        style={{
+                            background: 'var(--accent-green)', color: '#ffffff',
+                            padding: '10px 20px', borderRadius: '0px', fontSize: '0.9rem',
+                            fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '6px'
+                        }}
+                    >
+                        <span>Browse Courses</span>
+                        <ArrowRight size={14} />
+                    </Link>
                 </div>
             ) : (
                 <div style={{ display: 'grid', gap: '20px' }}>
-                    {bookings.map(b => (
-                        <div key={b.id} className="glass-card" style={{ padding: '24px', borderRadius: '16px', borderLeft: `4px solid ${statusColors[b.booking_status] || '#ccc'}` }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px', marginBottom: '16px' }}>
+                    {bookings.map((b) => (
+                        <div
+                            key={b.id}
+                            style={{
+                                background: '#ffffff',
+                                border: '1px solid #e2e8f0',
+                                borderRadius: '0px',
+                                padding: '24px',
+                                boxShadow: '0 2px 8px rgba(15, 23, 42, 0.03)',
+                                borderLeft: b.booking_status === 'confirmed' ? '4px solid var(--accent-green)' : '4px solid #cbd5e1'
+                            }}
+                            className="pro-card-hover"
+                        >
+                            <div style={{
+                                display: 'flex', justifyContent: 'space-between',
+                                alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px', marginBottom: '16px'
+                            }}>
                                 <div>
-                                    <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '4px' }}>
-                                        {b.subject_name} - {b.course_name}
+                                    <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0f172a', margin: '0 0 4px' }}>
+                                        {b.subject_name} &middot; {b.course_name}
                                     </h3>
-                                    <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                                        Teacher: <strong>{b.teacher_name}</strong>
+                                    <p style={{ fontSize: '0.88rem', color: '#64748b', margin: 0 }}>
+                                        Assigned Faculty: <strong style={{ color: '#334155' }}>{b.teacher_name}</strong>
                                     </p>
                                 </div>
-                                <span style={{
-                                    fontSize: '0.8rem', fontWeight: 600, padding: '4px 14px', borderRadius: '20px',
-                                    background: `${statusColors[b.booking_status]}15`,
-                                    color: statusColors[b.booking_status],
-                                    textTransform: 'capitalize',
-                                }}>
-                                    {b.booking_status}
-                                </span>
+                                <div>
+                                    {statusBadge(b.booking_status)}
+                                </div>
                             </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px', marginBottom: '16px' }}>
-                                <div><span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Classes</span><br /><strong>{b.num_classes}</strong></div>
-                                <div><span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Total</span><br /><strong>₹{b.total_amount}</strong></div>
-                                <div><span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Paid</span><br /><strong>₹{b.advance_amount}</strong></div>
-                                <div><span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Remaining</span><br /><strong>₹{b.remaining_amount}</strong></div>
+                            {/* Telemetry Metric Columns */}
+                            <div style={{
+                                display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
+                                gap: '12px', background: '#f8fafc', padding: '12px 16px',
+                                border: '1px solid #e2e8f0', borderRadius: '0px', marginBottom: '16px'
+                            }}>
+                                <div>
+                                    <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Classes</span>
+                                    <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a' }}>{b.num_classes}</div>
+                                </div>
+                                <div>
+                                    <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Total Amount</span>
+                                    <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a' }}>₹{b.total_amount}</div>
+                                </div>
+                                <div>
+                                    <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Advance Paid</span>
+                                    <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#059669' }}>₹{b.advance_amount}</div>
+                                </div>
+                                <div>
+                                    <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Balance Due</span>
+                                    <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#d97706' }}>₹{b.remaining_amount}</div>
+                                </div>
                             </div>
 
                             {b.google_meet_link && (
                                 <div style={{ marginBottom: '16px' }}>
-                                    <div style={{ padding: '8px 16px', background: '#eff6ff', borderRadius: '8px', display: 'inline-block' }}>
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ verticalAlign: 'middle', marginRight: '6px' }}><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
-                                        <a href={b.google_meet_link?.startsWith('http') ? b.google_meet_link : `https://${b.google_meet_link}`} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-blue)', fontWeight: 600 }}>Join Google Meet</a>
-                                    </div>
+                                    <a
+                                        href={b.google_meet_link?.startsWith('http') ? b.google_meet_link : `https://${b.google_meet_link}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style={{
+                                            background: '#f0fdf4', border: '1px solid #a7f3d0',
+                                            color: '#047857', padding: '7px 14px', borderRadius: '0px',
+                                            fontSize: '0.82rem', fontWeight: 700, display: 'inline-flex',
+                                            alignItems: 'center', gap: '6px'
+                                        }}
+                                    >
+                                        <Video size={14} />
+                                        <span>Permanent Meet Room</span>
+                                    </a>
                                 </div>
                             )}
 
+                            {/* Class Schedule Matrix */}
                             {b.schedules?.length > 0 && (
-                                <div style={{ paddingTop: '12px', borderTop: '1px solid var(--card-border, #e0e0e0)' }}>
-                                    <h4 style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '10px' }}>Class Schedule</h4>
+                                <div style={{ paddingTop: '14px', borderTop: '1px dashed #e2e8f0' }}>
+                                    <h4 style={{ fontSize: '0.85rem', fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '10px' }}>
+                                        Session Timetable
+                                    </h4>
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                        {b.schedules.map(s => (
-                                            <div key={s.id} style={{
-                                                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                                                gap: '12px', flexWrap: 'wrap',
-                                                padding: '10px 14px', borderRadius: '10px',
-                                                background: s.status === 'cancelled' ? '#fef2f2' : s.status === 'completed' ? '#f0fdf4' : 'var(--background-light)',
-                                                border: `1px solid ${s.status === 'cancelled' ? '#fecaca' : s.status === 'completed' ? '#bbf7d0' : 'var(--card-border, #e0e0e0)'}`,
-                                                opacity: s.status === 'cancelled' ? 0.7 : 1,
-                                            }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, flexWrap: 'wrap' }}>
+                                        {b.schedules.map((s) => (
+                                            <div
+                                                key={s.id}
+                                                style={{
+                                                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                                    gap: '12px', flexWrap: 'wrap',
+                                                    padding: '10px 14px', borderRadius: '0px',
+                                                    background: s.status === 'cancelled' ? '#fef2f2' : s.status === 'completed' ? '#f0fdf4' : '#f8fafc',
+                                                    border: `1px solid ${s.status === 'cancelled' ? '#fecaca' : s.status === 'completed' ? '#bbf7d0' : '#e2e8f0'}`,
+                                                    opacity: s.status === 'cancelled' ? 0.75 : 1,
+                                                }}
+                                            >
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, flexWrap: 'wrap' }}>
                                                     <span style={{
-                                                        fontSize: '0.85rem', fontWeight: 600,
+                                                        fontSize: '0.88rem', fontWeight: 700,
                                                         textDecoration: s.status === 'cancelled' ? 'line-through' : 'none',
-                                                        color: s.status === 'cancelled' ? '#9ca3af' : 'var(--text-primary)',
+                                                        color: s.status === 'cancelled' ? '#94a3b8' : '#0f172a',
                                                     }}>
                                                         {new Date(s.date + 'T00:00:00').toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })}
-                                                        {' '}{s.start_time?.slice(0, 5)}
+                                                        {' '}&middot; {s.start_time?.slice(0, 5)}
                                                     </span>
-                                                    <span style={{
-                                                        fontSize: '0.7rem', fontWeight: 700, padding: '2px 8px', borderRadius: '4px',
-                                                        textTransform: 'uppercase', letterSpacing: '0.5px',
+
+                                                    <span className="telemetry-chip" style={{
+                                                        fontSize: '0.68rem', padding: '2px 6px',
                                                         background: s.status === 'cancelled' ? '#fee2e2' : s.status === 'completed' ? '#dcfce7' : '#f1f5f9',
                                                         color: s.status === 'cancelled' ? '#991b1b' : s.status === 'completed' ? '#166534' : '#475569',
-                                                    }}>{s.status}</span>
+                                                    }}>
+                                                        [{s.status.toUpperCase()}]
+                                                    </span>
+
                                                     {s.status === 'cancelled' && s.cancel_reason && (
-                                                        <span style={{ fontSize: '0.8rem', color: '#991b1b', fontStyle: 'italic' }}>
-                                                            {s.cancelled_by_name ? `Cancelled by ${s.cancelled_by_name}: ` : 'Reason: '}{s.cancel_reason}
+                                                        <span style={{ fontSize: '0.78rem', color: '#991b1b', fontStyle: 'italic' }}>
+                                                            {s.cancelled_by_name ? `By ${s.cancelled_by_name}: ` : 'Reason: '}{s.cancel_reason}
                                                         </span>
                                                     )}
                                                 </div>
+
                                                 {s.status === 'scheduled' && (
                                                     <button
                                                         onClick={(e) => {
@@ -143,15 +221,12 @@ function StudentBookings() {
                                                             });
                                                         }}
                                                         style={{
-                                                            background: 'none', border: '1px solid #fecaca', color: '#dc2626',
-                                                            padding: '6px 14px', borderRadius: '8px', fontSize: '0.78rem',
+                                                            background: 'none', border: '1px solid #fca5a5', color: '#dc2626',
+                                                            padding: '6px 12px', borderRadius: '0px', fontSize: '0.78rem',
                                                             fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap',
-                                                            transition: 'all 0.2s'
                                                         }}
-                                                        onMouseEnter={e => { e.target.style.background = '#fef2f2'; }}
-                                                        onMouseLeave={e => { e.target.style.background = 'none'; }}
                                                     >
-                                                        Cancel Class
+                                                        Cancel Session
                                                     </button>
                                                 )}
                                             </div>
@@ -171,44 +246,46 @@ function StudentBookings() {
                     background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center',
                     zIndex: 9999, padding: '20px',
                 }}>
-                    <div className="glass-card" style={{ maxWidth: '480px', width: '100%', padding: '32px', borderRadius: '20px' }}>
-                        <h3 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '8px' }}>Cancel Class</h3>
-                        <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '20px' }}>
+                    <div style={{ maxWidth: '460px', width: '100%', padding: '32px', background: '#ffffff', borderRadius: '0px', border: '1px solid #cbd5e1' }}>
+                        <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#dc2626', marginBottom: '8px' }}>
+                            Cancel Class Session
+                        </h3>
+                        <p style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: '20px', lineHeight: 1.6 }}>
                             You are cancelling the class on <strong>{cancelModal.date}</strong> at <strong>{cancelModal.time}</strong>.
-                            Your teacher will be notified via email.
+                            Your teacher will receive this notice.
                         </p>
-                        <label style={{ fontSize: '0.85rem', fontWeight: 600, display: 'block', marginBottom: '8px' }}>
+                        <label style={{ fontSize: '0.82rem', fontWeight: 700, display: 'block', marginBottom: '6px', color: '#334155' }}>
                             Reason for cancellation *
                         </label>
                         <textarea
                             value={cancelReason}
                             onChange={e => setCancelReason(e.target.value)}
-                            placeholder="e.g., Personal emergency, health issue, scheduling conflict..."
+                            placeholder="e.g., Schedule conflict, academic exam, personal reason..."
                             rows={3}
                             style={{
-                                width: '100%', padding: '12px', borderRadius: '10px',
-                                border: '1px solid var(--border)', fontSize: '0.9rem',
+                                width: '100%', padding: '10px 12px', borderRadius: '0px',
+                                border: '1px solid #cbd5e1', fontSize: '0.9rem',
                                 resize: 'vertical', marginBottom: '20px', fontFamily: 'inherit',
                             }}
                         />
-                        <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+                        <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
                             <button
                                 onClick={() => { setCancelModal(null); setCancelReason(''); }}
                                 className="glass-btn"
-                                style={{ padding: '10px 24px', borderRadius: '10px' }}
+                                style={{ padding: '9px 18px', borderRadius: '0px' }}
                             >
-                                Go Back
+                                Keep Class
                             </button>
                             <button
                                 onClick={handleCancel}
                                 disabled={cancelling || !cancelReason.trim()}
                                 style={{
-                                    padding: '10px 24px', borderRadius: '10px', fontWeight: 700,
+                                    padding: '9px 18px', borderRadius: '0px', fontWeight: 700,
                                     background: '#dc2626', color: '#fff', border: 'none', cursor: 'pointer',
                                     opacity: (cancelling || !cancelReason.trim()) ? 0.5 : 1,
                                 }}
                             >
-                                {cancelling ? 'Cancelling...' : 'Confirm Cancel'}
+                                {cancelling ? 'Cancelling...' : 'Confirm Cancellation'}
                             </button>
                         </div>
                     </div>

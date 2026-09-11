@@ -1,104 +1,44 @@
+// components/DashboardLayout.js - 70% Minimalist + 20% Futuristic + 10% Playful
 import { useAuth } from '../lib/auth';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
+import {
+    LayoutGrid, BookOpen, Calendar, Wallet, User,
+    LifeBuoy, LogOut, Menu, X, Activity, Users, Plus, ShieldCheck
+} from 'lucide-react';
 
 const NAV_ITEMS = {
     student: [
-        { label: 'Dashboard', href: '/student/dashboard', icon: 'grid' },
-        { label: 'Browse Classes', href: '/courses', icon: 'book' },
-        { label: 'My Bookings', href: '/student/bookings', icon: 'calendar' },
-        { label: 'Payments', href: '/student/payments', icon: 'wallet' },
-        { label: 'My Profile', href: '/student/profile', icon: 'profile' },
-        { label: 'Help Center', href: '/help-center', icon: 'mail' },
+        { label: 'Dashboard', href: '/student/dashboard', icon: LayoutGrid },
+        { label: 'Browse Classes', href: '/courses', icon: BookOpen },
+        { label: 'My Bookings', href: '/student/bookings', icon: Calendar },
+        { label: 'Payments', href: '/student/payments', icon: Wallet },
+        { label: 'My Profile', href: '/student/profile', icon: User },
+        { label: 'Help Center', href: '/help-center', icon: LifeBuoy },
     ],
     teacher: [
-        { label: 'Dashboard', href: '/teacher/dashboard', icon: 'grid' },
-        { label: 'Manage Profile', href: '/teacher/manage-profile', icon: 'profile' },
-        { label: 'My Availability', href: '/teacher/availability', icon: 'calendar' },
-        { label: 'My Bookings', href: '/teacher/bookings', icon: 'book' },
-        { label: 'Student Analysis', href: '/analysis', icon: 'activity' },
-        { label: 'My Wallet', href: '/wallet', icon: 'wallet' },
+        { label: 'Dashboard', href: '/teacher/dashboard', icon: LayoutGrid },
+        { label: 'Manage Profile', href: '/teacher/manage-profile', icon: User },
+        { label: 'My Availability', href: '/teacher/availability', icon: Calendar },
+        { label: 'My Bookings', href: '/teacher/bookings', icon: BookOpen },
+        { label: 'Student Analysis', href: '/analysis', icon: Activity },
+        { label: 'My Wallet', href: '/wallet', icon: Wallet },
     ],
     admin: [
-        { label: 'Dashboard', href: '/admin/dashboard', icon: 'grid' },
-        { label: 'Students', href: '/admin/students', icon: 'users' },
-        { label: 'Courses', href: '/admin/courses', icon: 'book' },
-        { label: 'Bookings', href: '/admin/bookings', icon: 'calendar' },
-        { label: 'Teachers', href: '/admin/staff', icon: 'users' },
-        { label: 'Enrollments', href: '/admin/enrollments', icon: 'users' },
-        { label: 'Enquiries', href: '/admin/contacts', icon: 'mail' },
+        { label: 'Dashboard', href: '/admin/dashboard', icon: LayoutGrid },
+        { label: 'Students', href: '/admin/students', icon: Users },
+        { label: 'Courses', href: '/admin/courses', icon: BookOpen },
+        { label: 'Bookings', href: '/admin/bookings', icon: Calendar },
+        { label: 'Teachers', href: '/admin/staff', icon: Users },
+        { label: 'Enrollments', href: '/admin/enrollments', icon: Users },
+        { label: 'Enquiries', href: '/admin/contacts', icon: LifeBuoy },
     ],
-};
-
-const ICONS = {
-    grid: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" />
-        </svg>
-    ),
-    plus: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-        </svg>
-    ),
-    book: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-        </svg>
-    ),
-    users: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
-        </svg>
-    ),
-    logout: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" />
-        </svg>
-    ),
-    menu: (
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="18" x2="21" y2="18" />
-        </svg>
-    ),
-    close: (
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-        </svg>
-    ),
-    activity: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
-        </svg>
-    ),
-    wallet: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4" />
-            <path d="M4 6v12c0 1.1.9 2 2 2h14v-4" />
-            <path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4z" />
-        </svg>
-    ),
-    mail: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" />
-        </svg>
-    ),
-    profile: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
-        </svg>
-    ),
-    calendar: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
-        </svg>
-    ),
 };
 
 const ROLE_LABELS = {
-    student: 'Student',
-    teacher: 'Teacher',
-    admin: 'Administrator',
+    student: 'Student // Portal',
+    teacher: 'Faculty // Portal',
+    admin: 'Admin // Control',
 };
 
 export default function DashboardLayout({ children, title }) {
@@ -121,8 +61,9 @@ export default function DashboardLayout({ children, title }) {
                 className="sidebar-toggle"
                 onClick={() => setSidebarOpen(!sidebarOpen)}
                 aria-label="Toggle sidebar"
+                style={{ borderRadius: '0px' }}
             >
-                {sidebarOpen ? ICONS.close : ICONS.menu}
+                {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
 
             {/* Sidebar overlay (mobile) */}
@@ -131,37 +72,70 @@ export default function DashboardLayout({ children, title }) {
             )}
 
             {/* Sidebar */}
-            <aside className={`dashboard-sidebar ${sidebarOpen ? 'open' : ''}`}>
+            <aside className={`dashboard-sidebar ${sidebarOpen ? 'open' : ''}`} style={{ borderRadius: '0px' }}>
                 <div className="sidebar-brand">
-                    <img src="/logo.png" alt="Produit Academy" width={36} height={36} style={{ borderRadius: '8px' }} />
-                    <span>Produit Classes</span>
+                    <div style={{
+                        width: '32px', height: '32px', borderRadius: '0px',
+                        background: 'var(--accent-green)', display: 'flex',
+                        alignItems: 'center', justifyContent: 'center', color: '#ffffff',
+                        fontWeight: 800, fontSize: '1rem'
+                    }}>
+                        P
+                    </div>
+                    <span style={{ fontWeight: 800, letterSpacing: '-0.3px' }}>Produit Classes</span>
                 </div>
 
-                <div className="sidebar-role-badge">
-                    {ROLE_LABELS[role]}
+                {/* Futuristic HUD Role Badge */}
+                <div style={{
+                    margin: '16px 20px 8px',
+                    padding: '6px 12px',
+                    background: '#f1f5f9',
+                    color: '#334155',
+                    borderRadius: '0px',
+                    fontFamily: 'ui-monospace, monospace',
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    letterSpacing: '0.08em',
+                    textTransform: 'uppercase',
+                    borderLeft: '3px solid var(--accent-green)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between'
+                }}>
+                    <span>{ROLE_LABELS[role]}</span>
+                    <span className="live-pulse-dot" style={{ width: '6px', height: '6px', borderRadius: '0px' }} />
                 </div>
 
                 <nav className="sidebar-nav">
-                    {navItems.map((item) => (
-                        <a
-                            key={item.href}
-                            href={item.href}
-                            className={`sidebar-link ${router.pathname === item.href ? 'active' : ''}`}
-                            onClick={(e) => {
-                                e.preventDefault();
-                                setSidebarOpen(false);
-                                router.push(item.href);
-                            }}
-                        >
-                            {ICONS[item.icon]}
-                            <span>{item.label}</span>
-                        </a>
-                    ))}
+                    {navItems.map((item) => {
+                        const IconComponent = item.icon;
+                        const isActive = router.pathname === item.href;
+                        return (
+                            <a
+                                key={item.href}
+                                href={item.href}
+                                className={`sidebar-link ${isActive ? 'active' : ''}`}
+                                style={{
+                                    borderRadius: '0px',
+                                    borderLeft: isActive ? '3px solid var(--accent-green-dark)' : '3px solid transparent',
+                                    transition: 'all 0.15s ease'
+                                }}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    setSidebarOpen(false);
+                                    router.push(item.href);
+                                }}
+                            >
+                                <IconComponent size={18} strokeWidth={isActive ? 2.2 : 1.8} />
+                                <span>{item.label}</span>
+                            </a>
+                        );
+                    })}
                 </nav>
 
-                <div className="sidebar-footer">
+                <div className="sidebar-footer" style={{ borderTop: '1px solid #e2e8f0', borderRadius: '0px' }}>
                     <div className="sidebar-user">
-                        <div className="sidebar-avatar">
+                        <div className="sidebar-avatar" style={{ borderRadius: '0px', background: '#0f172a', color: '#ffffff' }}>
                             {(user?.first_name || user?.username || 'U')[0].toUpperCase()}
                         </div>
                         <div className="sidebar-user-info">
@@ -170,8 +144,8 @@ export default function DashboardLayout({ children, title }) {
                             </span>
                         </div>
                     </div>
-                    <button className="sidebar-logout" onClick={handleLogout}>
-                        {ICONS.logout}
+                    <button className="sidebar-logout" onClick={handleLogout} style={{ borderRadius: '0px' }}>
+                        <LogOut size={16} />
                         <span>Logout</span>
                     </button>
                 </div>
@@ -179,8 +153,16 @@ export default function DashboardLayout({ children, title }) {
 
             {/* Main Content */}
             <main className="dashboard-main">
-                <div className="dashboard-header">
-                    <h1 className="dashboard-title">{title}</h1>
+                <div className="dashboard-header" style={{
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                    borderBottom: '1px solid #e2e8f0', paddingBottom: '18px', marginBottom: '24px'
+                }}>
+                    <h1 className="dashboard-title" style={{ fontFamily: "'Lora', serif", fontWeight: 700, margin: 0 }}>
+                        {title}
+                    </h1>
+                    <div className="telemetry-chip live" style={{ display: 'none' }}>
+                        <span>Academic Network Connected</span>
+                    </div>
                 </div>
                 <div className="dashboard-content">
                     {children}

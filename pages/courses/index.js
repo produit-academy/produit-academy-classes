@@ -133,16 +133,11 @@ export default function CoursesPage() {
                     
                     {/* Hero Header */}
                     <div style={{ textAlign: 'center', maxWidth: '760px', margin: '0 auto 40px' }}>
-                        <div style={{
-                            display: 'inline-flex', alignItems: 'center', gap: '8px',
-                            background: '#e0f2fe', color: '#0369a1',
-                            padding: '6px 14px', borderRadius: '0px',
-                            borderLeft: '3px solid #0284c7',
-                            fontSize: '0.82rem', fontWeight: 800, letterSpacing: '0.5px',
-                            marginBottom: '16px'
-                        }}>
-                            <Sparkles size={15} />
-                            <span>CURRICULUM ALIGNED • GRADES 6TH TO 12TH</span>
+                        <div style={{ marginBottom: '14px' }}>
+                            <span className="telemetry-chip live">
+                                <span className="live-pulse-dot" style={{ width: '6px', height: '6px', borderRadius: '0px' }} />
+                                <span>CURRICULUM ARCHITECTURE // GRADES 6 TO 12</span>
+                            </span>
                         </div>
 
                         <h1 style={{
@@ -389,7 +384,7 @@ export default function CoursesPage() {
                                     <div
                                         key={course.id}
                                         onClick={() => router.push(`/courses/${course.id}`)}
-                                        className="pro-card-hover"
+                                        className={`pro-card-hover ${isScience ? 'science-futuristic-card' : isCommerce ? 'math-geometric-card' : ''}`}
                                         style={{
                                             background: '#ffffff',
                                             borderRadius: '0px',

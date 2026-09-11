@@ -59,12 +59,10 @@ export default function Header() {
     <>
       <header ref={headerRef} className={styles.header}>
         <div className={`container ${styles.headerContent}`}>
-          <div className={styles.logo}>
-            <Link href="/" passHref>
-              <img src="/logo.png" alt="Produit Academy Logo" width={40} height={40} style={{ borderRadius: '8px' }} />
-            </Link>
+          <Link href="/" className={styles.logo}>
+            <img src="/logo.png" alt="Produit Academy Logo" width={26} height={26} style={{ borderRadius: '0px' }} />
             <span className={styles.logoText}>Produit Academy Classes</span>
-          </div>
+          </Link>
 
           <button className={styles.hamburger} onClick={toggleMenu} aria-label="Toggle menu">
             <span className={isMenuOpen ? styles.open : ''}></span>
@@ -79,19 +77,24 @@ export default function Header() {
           <div className={styles.authButtons}>
             {user ? (
               <div className={styles.dropdown}>
-                <button className={styles.dropdownBtn}>
+                <button className={styles.dropdownBtn} style={{ fontSize: '0.88rem', fontWeight: 600 }}>
                   <div className={styles.avatar}>
                     {(user.first_name || user.username || 'U')[0].toUpperCase()}
                   </div>
-                  {user.first_name || user.username} <span>&#9662;</span>
+                  <span>{user.first_name || user.username}</span>
+                  <span style={{ fontSize: '0.75rem' }}>&#9662;</span>
                 </button>
-                <div className={styles.dropdownContent}>
-                  <Link href={dashboardUrl}>Dashboard</Link>
-                  <a href="#" onClick={handleLogout}>Logout</a>
+                <div className={styles.dropdownContent} style={{ borderRadius: '0px' }}>
+                  <Link href={dashboardUrl} style={{ borderRadius: '0px' }}>Dashboard</Link>
+                  <a href="#" onClick={handleLogout} style={{ borderRadius: '0px' }}>Logout</a>
                 </div>
               </div>
             ) : (
-              <Link href="/login" passHref><button className="glass-btn primary">Login</button></Link>
+              <Link href="/login" passHref>
+                <button className="glass-btn primary" style={{ padding: '6px 16px', fontSize: '0.85rem', borderRadius: '0px' }}>
+                  Login
+                </button>
+              </Link>
             )}
           </div>
         </div>
@@ -104,7 +107,7 @@ export default function Header() {
       <div className={`${styles.sidebar} ${isMenuOpen ? styles.open : ''}`}>
         <div className={styles.sidebarContent}>
           <div className={styles.sidebarHeader}>
-            <img src="/logo.png" alt="Produit Academy Logo" width={40} height={40} style={{ borderRadius: '8px' }} />
+            <img src="/logo.png" alt="Produit Academy Logo" width={32} height={32} style={{ borderRadius: '0px' }} />
             <button className={styles.closeBtn} onClick={closeMenu}>&times;</button>
           </div>
 
