@@ -91,6 +91,108 @@ function TeacherDashboard() {
                         <StatCard label="Total Hours Taught" value={data.total_hours_worked} color="var(--accent-blue)" />
                     </div>
 
+                    {/* Assigned Subjects */}
+                    <div className="glass-card" style={{ padding: '20px 24px', marginBottom: '24px', borderLeft: '4px solid var(--accent-green)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', flexWrap: 'wrap', gap: '8px' }}>
+                            <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                                </svg>
+                                Assigned Subjects
+                            </h3>
+                            <span style={{ fontSize: '0.82rem', background: 'rgba(51, 174, 120, 0.1)', color: 'var(--accent-green)', padding: '3px 10px', borderRadius: '12px', fontWeight: 600 }}>
+                                {(data.assigned_subjects?.length || data.courses?.length || 0)} Subject{( (data.assigned_subjects?.length || data.courses?.length || 0) === 1 ? '' : 's')}
+                            </span>
+                        </div>
+
+                        {data.assigned_subjects?.length > 0 ? (
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                                {data.assigned_subjects.map((sub) => (
+                                    <div 
+                                        key={sub.id} 
+                                        style={{ 
+                                            background: '#f8fafc', 
+                                            border: '1px solid var(--border)', 
+                                            borderRadius: '10px', 
+                                            padding: '10px 16px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '12px'
+                                        }}
+                                    >
+                                        <div style={{
+                                            width: '32px',
+                                            height: '32px',
+                                            borderRadius: '8px',
+                                            background: 'rgba(51, 174, 120, 0.12)',
+                                            color: 'var(--accent-green)',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            fontSize: '0.9rem',
+                                            fontWeight: 700
+                                        }}>
+                                            {sub.name.charAt(0)}
+                                        </div>
+                                        <div>
+                                            <div style={{ fontWeight: 600, fontSize: '0.92rem', color: 'var(--text-primary)' }}>{sub.name}</div>
+                                            {sub.course_name && (
+                                                <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
+                                                    {sub.course_name} {sub.grade_level ? `• ${sub.grade_level}` : ''}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : data.courses?.length > 0 ? (
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                                {data.courses.map((crs) => (
+                                    <div 
+                                        key={crs.id} 
+                                        style={{ 
+                                            background: '#f8fafc', 
+                                            border: '1px solid var(--border)', 
+                                            borderRadius: '10px', 
+                                            padding: '10px 16px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '12px'
+                                        }}
+                                    >
+                                        <div style={{
+                                            width: '32px',
+                                            height: '32px',
+                                            borderRadius: '8px',
+                                            background: 'rgba(51, 174, 120, 0.12)',
+                                            color: 'var(--accent-green)',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            fontSize: '0.9rem',
+                                            fontWeight: 700
+                                        }}>
+                                            {crs.name.charAt(0)}
+                                        </div>
+                                        <div>
+                                            <div style={{ fontWeight: 600, fontSize: '0.92rem', color: 'var(--text-primary)' }}>{crs.name}</div>
+                                            {crs.grade_level && (
+                                                <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
+                                                    {crs.grade_level}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', padding: '6px 0' }}>
+                                No subjects have been assigned to your profile yet. Please contact an administrator to assign your teaching subjects.
+                            </div>
+                        )}
+                    </div>
+
                     <div className="dashboard-grid">
                         {/* Upcoming Classes */}
                         <div>
