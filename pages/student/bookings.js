@@ -17,6 +17,12 @@ function StudentBookings() {
     const [cancelReason, setCancelReason] = useState('');
     const [cancelling, setCancelling] = useState(false);
 
+    // Entire Booking Cancellation & Refund Modal state
+    const [cancelBookingModal, setCancelBookingModal] = useState(null);
+    const [cancelBookingReason, setCancelBookingReason] = useState('');
+    const [cancellingBooking, setCancellingBooking] = useState(false);
+    const [bannerMessage, setBannerMessage] = useState(null);
+
     const loadBookings = () => {
         apiGet('/api/classes/student/bookings/')
             .then(setBookings)
@@ -45,23 +51,81 @@ function StudentBookings() {
         setCancelling(false);
     };
 
-    const statusBadge = (status) => {
+    const handleCancelEntireBooking = async () => {
+        if (!cancelBookingModal) return;
+        setCancellingBooking(true);
+        setBannerMessage(null);
+        try {
+            const res = await apiPost(`/api/classes/student/bookings/${cancelBookingModal.id}/cancel/`, {
+                reason: cancelBookingReason.trim() || 'Cancelled by student'
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                alert(data.error || 'Failed to cancel booking.');
+            } else {
+                setBannerMessage({
+                    type: 'success',
+                    text: data.message || `Booking #${cancelBookingModal.id} cancelled successfully. Refund of ₹${data.refund_amount} initiated.`
+                });
+                setCancelBookingModal(null);
+                setCancelBookingReason('');
+                loadBookings();
+            }
+        } catch {
+            alert('Failed to cancel booking due to network or server issue.');
+        } finally {
+            setCancellingBooking(false);
+        }
+    };
+
+    const statusBadge = (status, paymentStatus) => {
         const s = (status || '').toLowerCase();
-        if (s === 'confirmed') {
-            return <span className="telemetry-chip live" style={{ fontSize: '0.68rem', padding: '2px 8px' }}>[CONFIRMED]</span>;
-        }
-        if (s === 'completed') {
-            return <span className="telemetry-chip cyan" style={{ fontSize: '0.68rem', padding: '2px 8px' }}>[COMPLETED]</span>;
-        }
-        if (s === 'cancelled') {
-            return <span className="telemetry-chip" style={{ fontSize: '0.68rem', padding: '2px 8px', color: '#dc2626', borderColor: '#fca5a5', background: '#fef2f2' }}>[CANCELLED]</span>;
-        }
-        return <span className="telemetry-chip" style={{ fontSize: '0.68rem', padding: '2px 8px' }}>[{s.toUpperCase()}]</span>;
+        const p = (paymentStatus || '').toLowerCase();
+        return (
+            <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
+                {s === 'confirmed' ? (
+                    <span className="telemetry-chip live" style={{ fontSize: '0.68rem', padding: '2px 8px' }}>[CONFIRMED]</span>
+                ) : s === 'completed' ? (
+                    <span className="telemetry-chip cyan" style={{ fontSize: '0.68rem', padding: '2px 8px' }}>[COMPLETED]</span>
+                ) : s === 'cancelled' ? (
+                    <span className="telemetry-chip" style={{ fontSize: '0.68rem', padding: '2px 8px', color: '#dc2626', borderColor: '#fca5a5', background: '#fef2f2' }}>[CANCELLED]</span>
+                ) : (
+                    <span className="telemetry-chip" style={{ fontSize: '0.68rem', padding: '2px 8px' }}>[{s.toUpperCase()}]</span>
+                )}
+                {p === 'refunded' && (
+                    <span className="telemetry-chip" style={{ fontSize: '0.68rem', padding: '2px 8px', color: '#059669', borderColor: '#a7f3d0', background: '#ecfdf5' }}>[REFUNDED]</span>
+                )}
+            </div>
+        );
     };
 
     return (
         <DashboardLayout title="My Bookings">
             <Head><title>My Bookings | Produit Academy</title></Head>
+
+            {bannerMessage && (
+                <div style={{
+                    padding: '14px 18px',
+                    marginBottom: '20px',
+                    borderRadius: '0px',
+                    border: bannerMessage.type === 'success' ? '1px solid #a7f3d0' : '1px solid #fecaca',
+                    background: bannerMessage.type === 'success' ? '#ecfdf5' : '#fef2f2',
+                    color: bannerMessage.type === 'success' ? '#065f46' : '#991b1b',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    fontSize: '0.9rem',
+                    fontWeight: 600,
+                }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <CheckCircle2 size={18} />
+                        <span>{bannerMessage.text}</span>
+                    </div>
+                    <button onClick={() => setBannerMessage(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit' }}>
+                        <X size={16} />
+                    </button>
+                </div>
+            )}
 
             {loading ? (
                 <div className="loading-container" style={{ minHeight: '320px' }}>
@@ -118,8 +182,31 @@ function StudentBookings() {
                                         Assigned Faculty: <strong style={{ color: '#334155' }}>{b.teacher_name}</strong>
                                     </p>
                                 </div>
-                                <div>
-                                    {statusBadge(b.booking_status)}
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                                    {statusBadge(b.booking_status, b.payment_status)}
+                                    {(b.booking_status === 'confirmed' || b.booking_status === 'pending') && (
+                                        <button
+                                            onClick={() => setCancelBookingModal(b)}
+                                            style={{
+                                                background: '#fff',
+                                                border: '1px solid #fca5a5',
+                                                color: '#dc2626',
+                                                padding: '5px 12px',
+                                                borderRadius: '0px',
+                                                fontSize: '0.78rem',
+                                                fontWeight: 700,
+                                                cursor: 'pointer',
+                                                display: 'inline-flex',
+                                                alignItems: 'center',
+                                                gap: '4px',
+                                                transition: 'all 0.15s'
+                                            }}
+                                            className="hover-danger-btn"
+                                        >
+                                            <X size={13} />
+                                            <span>Cancel &amp; Refund</span>
+                                        </button>
+                                    )}
                                 </div>
                             </div>
 
@@ -286,6 +373,94 @@ function StudentBookings() {
                                 }}
                             >
                                 {cancelling ? 'Cancelling...' : 'Confirm Cancellation'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {/* Cancel Entire Booking & Refund Modal */}
+            {cancelBookingModal && (
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                    background: 'rgba(0,0,0,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    zIndex: 9999, padding: '20px',
+                }}>
+                    <div style={{ maxWidth: '500px', width: '100%', padding: '32px', background: '#ffffff', borderRadius: '0px', border: '1px solid #cbd5e1', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+                            <div style={{ padding: '8px', background: '#fee2e2', color: '#dc2626' }}>
+                                <AlertCircle size={22} />
+                            </div>
+                            <div>
+                                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+                                    Cancel Booking &amp; Issue Refund
+                                </h3>
+                                <span style={{ fontSize: '0.8rem', color: '#64748b' }}>
+                                    Booking #{cancelBookingModal.id} &middot; {cancelBookingModal.subject_name}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div style={{
+                            background: '#f8fafc', border: '1px solid #e2e8f0', padding: '14px 16px',
+                            borderRadius: '0px', marginBottom: '18px', fontSize: '0.86rem', color: '#334155'
+                        }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                                <span style={{ color: '#64748b' }}>Faculty:</span>
+                                <strong>{cancelBookingModal.teacher_name}</strong>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                                <span style={{ color: '#64748b' }}>Number of Sessions:</span>
+                                <strong>{cancelBookingModal.num_classes} Classes</strong>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #e2e8f0', paddingTop: '6px' }}>
+                                <span style={{ color: '#64748b' }}>Refund Amount:</span>
+                                <strong style={{ color: '#059669', fontSize: '1rem' }}>₹{cancelBookingModal.total_amount}</strong>
+                            </div>
+                        </div>
+
+                        <div style={{
+                            background: '#eff6ff', border: '1px solid #bfdbfe', padding: '12px 14px',
+                            borderRadius: '0px', marginBottom: '18px', fontSize: '0.82rem', color: '#1e40af', lineHeight: 1.5
+                        }}>
+                            <strong>Refund Policy:</strong> In accordance with Produit Academy Refund Policy, full payment will be refunded directly to your original payment method (via Razorpay) within 5–7 business days. All scheduled sessions will be cancelled.
+                        </div>
+
+                        <label style={{ fontSize: '0.82rem', fontWeight: 700, display: 'block', marginBottom: '6px', color: '#334155' }}>
+                            Reason for cancellation (optional)
+                        </label>
+                        <textarea
+                            value={cancelBookingReason}
+                            onChange={e => setCancelBookingReason(e.target.value)}
+                            placeholder="e.g., Schedule conflict, requested change of tutor, personal emergency..."
+                            rows={3}
+                            style={{
+                                width: '100%', padding: '10px 12px', borderRadius: '0px',
+                                border: '1px solid #cbd5e1', fontSize: '0.88rem',
+                                resize: 'vertical', marginBottom: '22px', fontFamily: 'inherit',
+                            }}
+                        />
+
+                        <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+                            <button
+                                onClick={() => { setCancelBookingModal(null); setCancelBookingReason(''); }}
+                                style={{
+                                    padding: '9px 18px', borderRadius: '0px', border: '1px solid #cbd5e1',
+                                    background: '#fff', color: '#475569', fontWeight: 600, cursor: 'pointer'
+                                }}
+                            >
+                                Keep Booking
+                            </button>
+                            <button
+                                onClick={handleCancelEntireBooking}
+                                disabled={cancellingBooking}
+                                style={{
+                                    padding: '9px 20px', borderRadius: '0px', fontWeight: 700,
+                                    background: '#dc2626', color: '#fff', border: 'none', cursor: 'pointer',
+                                    opacity: cancellingBooking ? 0.6 : 1,
+                                    display: 'inline-flex', alignItems: 'center', gap: '6px'
+                                }}
+                            >
+                                {cancellingBooking ? 'Processing Refund...' : 'Confirm & Issue Refund'}
                             </button>
                         </div>
                     </div>

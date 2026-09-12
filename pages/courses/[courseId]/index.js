@@ -141,15 +141,23 @@ export default function SubjectsPage() {
 
     useEffect(() => {
         if (!courseId) return;
-        Promise.all([
-            apiGet(`/api/classes/subjects/?course_id=${courseId}`),
-            apiGet('/api/classes/courses/?page_size=200'),
-        ]).then(([subs, coursesData]) => {
-            setSubjects(Array.isArray(subs) ? subs : (subs?.results || []));
-            const coursesList = coursesData?.results || (Array.isArray(coursesData) ? coursesData : []);
-            const c = coursesList.find(c => String(c.id) === String(courseId));
-            setCourseName(c?.name || 'Class');
-        }).catch(console.error).finally(() => setLoading(false));
+        setLoading(true);
+
+        apiGet(`/api/classes/subjects/?course_id=${courseId}`)
+            .then(subs => {
+                const subList = Array.isArray(subs) ? subs : (subs?.results || []);
+                setSubjects(subList);
+                if (subList.length > 0 && subList[0].course_name) {
+                    setCourseName(subList[0].course_name);
+                } else {
+                    // Fallback to single course detail endpoint
+                    apiGet(`/api/classes/courses/${courseId}/`)
+                        .then(c => setCourseName(c?.name || 'Class'))
+                        .catch(() => setCourseName('Class'));
+                }
+            })
+            .catch(console.error)
+            .finally(() => setLoading(false));
     }, [courseId]);
 
     const filteredSubjects = useMemo(() => {

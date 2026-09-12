@@ -148,6 +148,78 @@ function StudentDashboard() {
                         </div>
                     </div>
 
+                    {/* Upcoming Class High-Priority Reminder Banner */}
+                    {data.upcoming_classes?.length > 0 && (() => {
+                        const nextClass = data.upcoming_classes[0];
+                        return (
+                            <div style={{
+                                background: '#f0fdf4',
+                                border: '1px solid #86efac',
+                                borderLeft: '5px solid #16a34a',
+                                padding: '18px 24px',
+                                marginBottom: '28px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                flexWrap: 'wrap',
+                                gap: '16px',
+                                boxShadow: '0 2px 8px rgba(22, 163, 74, 0.08)'
+                            }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                                    <div style={{
+                                        background: '#16a34a', color: '#fff', padding: '10px',
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                    }}>
+                                        <Video size={22} />
+                                    </div>
+                                    <div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                                            <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#15803d', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                                Upcoming Class Reminder
+                                            </span>
+                                            <span className="telemetry-chip live" style={{ padding: '1px 6px', fontSize: '0.65rem' }}>
+                                                Next Session
+                                            </span>
+                                        </div>
+                                        <h4 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0f172a', margin: '0 0 4px' }}>
+                                            {nextClass.title} &middot; {nextClass.course_name}
+                                        </h4>
+                                        <div style={{ fontSize: '0.85rem', color: '#475569', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                            <span>Faculty: <strong style={{ color: '#1e293b' }}>{nextClass.teacher_name}</strong></span>
+                                            <span>&bull;</span>
+                                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#15803d', fontWeight: 700 }}>
+                                                <Clock size={13} />
+                                                {formatDate(nextClass.scheduled_time)} at {formatTime(nextClass.scheduled_time)}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                {nextClass.meeting_link && (
+                                    <a
+                                        href={nextClass.meeting_link.startsWith('http') ? nextClass.meeting_link : `https://${nextClass.meeting_link}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style={{
+                                            background: '#16a34a',
+                                            color: '#fff',
+                                            padding: '10px 22px',
+                                            fontWeight: 700,
+                                            fontSize: '0.9rem',
+                                            textDecoration: 'none',
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            gap: '8px',
+                                            boxShadow: '0 2px 6px rgba(22, 163, 74, 0.25)'
+                                        }}
+                                    >
+                                        <Video size={16} />
+                                        <span>Join Google Meet</span>
+                                    </a>
+                                )}
+                            </div>
+                        );
+                    })()}
+
                     {/* Futuristic HUD Telemetry Stat Cards */}
                     <div style={{
                         display: 'grid',

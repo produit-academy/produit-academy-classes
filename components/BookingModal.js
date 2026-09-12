@@ -1,12 +1,15 @@
-// components/BookingModal.js - Booking flow with fee calculation + dummy payment (Crisp Square Aesthetic)
+// components/BookingModal.js - Booking flow with fee calculation + Razorpay Payment
 import { useState } from 'react';
 import { apiPost } from '../lib/api';
 import { useRouter } from 'next/router';
+import { loadRazorpayScript } from '../lib/razorpay';
+import { useAuth } from '../lib/auth';
 
 const PLATFORM_FEE = 50;
 
 export default function BookingModal({ teacher, subjectId, courseId, onClose }) {
     const router = useRouter();
+    const { user } = useAuth();
     const [step, setStep] = useState(1); // 1=form, 2=review, 3=success
     const [selectedSlots, setSelectedSlots] = useState([]);
     const [booking, setBooking] = useState(null);
@@ -20,6 +23,7 @@ export default function BookingModal({ teacher, subjectId, courseId, onClose }) 
     const availableSlots = teacher.availability_slots || [];
 
     const toggleSlot = (slot) => {
+        if (slot.is_booked) return;
         if (selectedSlots.find(s => s.id === slot.id)) {
             setSelectedSlots(selectedSlots.filter(s => s.id !== slot.id));
         } else {
@@ -75,18 +79,85 @@ export default function BookingModal({ teacher, subjectId, courseId, onClose }) 
         setLoading(true);
         setError('');
         try {
-            const res = await apiPost('/api/classes/student/pay/', {
+            // 1. Ensure Razorpay SDK is loaded
+            const isLoaded = await loadRazorpayScript();
+            if (!isLoaded) {
+                setError('Payment gateway SDK could not be loaded. Please check your internet connection.');
+                setLoading(false);
+                return;
+            }
+
+            // 2. Create Razorpay order on backend
+            const orderRes = await apiPost('/api/classes/student/razorpay/create-order/', {
                 booking_id: booking.booking_id,
             });
-            const data = await res.json();
-            if (res.ok) {
-                setStep(3);
-            } else {
-                setError(data.error || 'Payment failed.');
+            const orderData = await orderRes.json();
+
+            if (!orderRes.ok) {
+                setError(orderData.error || 'Failed to initialize payment.');
+                setLoading(false);
+                return;
             }
+
+            // 3. Launch Razorpay Checkout Modal
+            const options = {
+                key: orderData.key_id || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+                amount: orderData.amount,
+                currency: orderData.currency || 'INR',
+                name: 'Produit Academy',
+                description: `${booking.subject} with ${booking.teacher_name}`,
+                order_id: orderData.order_id,
+                prefill: {
+                    name: `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || user?.username || '',
+                    email: user?.email || '',
+                    contact: user?.phone || user?.phone_number || '',
+                },
+                notes: {
+                    booking_id: String(booking.booking_id),
+                },
+                theme: {
+                    color: '#0284c7',
+                },
+                modal: {
+                    ondismiss: function () {
+                        setLoading(false);
+                    },
+                },
+                handler: async function (response) {
+                    setLoading(true);
+                    try {
+                        const verifyRes = await apiPost('/api/classes/student/razorpay/verify/', {
+                            booking_id: booking.booking_id,
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature: response.razorpay_signature,
+                        });
+                        const verifyData = await verifyRes.json();
+
+                        if (verifyRes.ok) {
+                            setStep(3);
+                        } else {
+                            setError(verifyData.error || 'Payment signature verification failed.');
+                        }
+                    } catch {
+                        setError('Server error during payment verification. If money was debited, your booking will be confirmed automatically.');
+                    } finally {
+                        setLoading(false);
+                    }
+                },
+            };
+
+            const rzp = new window.Razorpay(options);
+
+            rzp.on('payment.failed', function (resp) {
+                setError(resp?.error?.description || 'Payment failed or cancelled.');
+                setLoading(false);
+            });
+
+            rzp.open();
+
         } catch {
-            setError('Network error.');
-        } finally {
+            setError('Network error initiating payment.');
             setLoading(false);
         }
     };
@@ -124,23 +195,52 @@ export default function BookingModal({ teacher, subjectId, courseId, onClose }) 
                                         </h4>
                                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                                             {slots.map(slot => {
+                                                const isBooked = !!slot.is_booked;
                                                 const isSelected = selectedSlots.find(s => s.id === slot.id);
                                                 return (
                                                     <div 
                                                         key={slot.id} 
-                                                        onClick={() => toggleSlot(slot)}
+                                                        onClick={() => !isBooked && toggleSlot(slot)}
+                                                        title={isBooked ? "This slot has already been reserved" : "Click to select slot"}
                                                         style={{
                                                             padding: '9px 14px', borderRadius: '0px',
-                                                            background: isSelected ? '#f0f9ff' : '#fff',
-                                                            border: isSelected ? '2px solid #0284c7' : '1px solid #cbd5e1',
+                                                            background: isBooked ? '#f1f5f9' : isSelected ? '#f0f9ff' : '#fff',
+                                                            border: isBooked 
+                                                                ? '1px dashed #cbd5e1' 
+                                                                : isSelected ? '2px solid #0284c7' : '1px solid #cbd5e1',
                                                             fontSize: '0.85rem', fontWeight: 600, 
-                                                            color: isSelected ? '#0284c7' : '#475569',
+                                                            color: isBooked ? '#94a3b8' : isSelected ? '#0284c7' : '#475569',
                                                             display: 'flex', alignItems: 'center', gap: '8px',
-                                                            cursor: 'pointer', transition: 'all 0.15s',
+                                                            cursor: isBooked ? 'not-allowed' : 'pointer', 
+                                                            transition: 'all 0.15s',
+                                                            userSelect: 'none',
+                                                            opacity: isBooked ? 0.75 : 1,
                                                         }}
                                                     >
-                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                                                        {formatTime(slot.start_time)} – {formatTime(slot.end_time)}
+                                                        {isBooked ? (
+                                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                                                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                                            </svg>
+                                                        ) : (
+                                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                                <circle cx="12" cy="12" r="10"/>
+                                                                <polyline points="12 6 12 12 16 14"/>
+                                                            </svg>
+                                                        )}
+                                                        <span>{formatTime(slot.start_time)} – {formatTime(slot.end_time)}</span>
+                                                        {isBooked && (
+                                                            <span style={{
+                                                                fontSize: '0.65rem',
+                                                                fontWeight: 700,
+                                                                background: '#e2e8f0',
+                                                                color: '#64748b',
+                                                                padding: '1px 5px',
+                                                                letterSpacing: '0.5px'
+                                                            }}>
+                                                                BOOKED
+                                                            </span>
+                                                        )}
                                                     </div>
                                                 );
                                             })}

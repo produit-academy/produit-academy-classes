@@ -35,15 +35,17 @@ export default function TeachersPage() {
         if (courseId) {
             apiGet(`/api/classes/subjects/?course_id=${courseId}`)
                 .then(subs => {
-                    const s = subs.find(s => String(s.id) === String(subjectId));
-                    setSubjectName(s?.name || 'Subject');
-                }).catch(() => {});
-
-            apiGet('/api/classes/courses/?page_size=200')
-                .then(data => {
-                    const list = data?.results || (Array.isArray(data) ? data : []);
-                    const c = list.find(c => String(c.id) === String(courseId));
-                    setCourseName(c?.name || 'Class');
+                    const list = Array.isArray(subs) ? subs : (subs?.results || []);
+                    const s = list.find(s => String(s.id) === String(subjectId));
+                    if (s) {
+                        setSubjectName(s.name || 'Subject');
+                        if (s.course_name) setCourseName(s.course_name);
+                    }
+                    if (!s || !s.course_name) {
+                        apiGet(`/api/classes/courses/${courseId}/`)
+                            .then(c => setCourseName(c?.name || 'Class'))
+                            .catch(() => {});
+                    }
                 }).catch(() => {});
         }
     }, [subjectId, courseId]);
