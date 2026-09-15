@@ -76,18 +76,27 @@ export default function VerifyOTP() {
                 body: JSON.stringify({ email, otp: otpString })
             });
 
-            const data = await res.json();
+            let data;
+            try {
+                data = await res.json();
+            } catch (jsonErr) {
+                data = null;
+            }
 
-            if (res.ok) {
+            if (res.ok && data) {
+                if (data.user && data.user.platform !== 'classes') {
+                    setError('Access denied. This account belongs to the GATE platform.');
+                    return;
+                }
                 localStorage.setItem('access_token', data.access);
                 if (data.refresh) localStorage.setItem('refresh_token', data.refresh);
                 if (data.user) localStorage.setItem('user_data', JSON.stringify(data.user));
                 window.location.href = '/student/dashboard';
             } else {
-                setError(data.error || 'Verification failed.');
+                setError((data && (data.error || data.detail)) || `Verification failed (Status ${res.status}). Please try again.`);
             }
         } catch (err) {
-            setError('Failed to connect to the server.');
+            setError('Failed to connect to the server. Please check your internet connection.');
         } finally {
             setLoading(false);
         }
@@ -98,15 +107,27 @@ export default function VerifyOTP() {
 
         const API_URL = process.env.NEXT_PUBLIC_API_URL;
         try {
-            await fetch(`${API_URL}/api/student/otp-login/`, {
+            const res = await fetch(`${API_URL}/api/student/otp-login/`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email })
             });
-            setResendCooldown(60);
-            setError('');
+
+            let data;
+            try {
+                data = await res.json();
+            } catch {
+                data = null;
+            }
+
+            if (res.ok) {
+                setResendCooldown(60);
+                setError('');
+            } else {
+                setError((data && (data.error || data.detail)) || 'Failed to resend OTP.');
+            }
         } catch (err) {
-            setError('Failed to resend OTP.');
+            setError('Failed to resend OTP. Please check your connection.');
         }
     };
 
