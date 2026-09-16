@@ -8,7 +8,8 @@ import DashboardLayout from '../../components/DashboardLayout';
 import {
     Activity, Calendar, Clock, Video, BookOpen,
     CheckCircle2, AlertCircle, Plus,
-    Zap, ArrowRight, UserCheck, ShieldCheck, X
+    Zap, ArrowRight, UserCheck, ShieldCheck, X,
+    Star, FileText, Download, Mic
 } from 'lucide-react';
 
 function StudentDashboard() {
@@ -439,6 +440,62 @@ function StudentDashboard() {
                         </div>
                     )}
 
+                    {/* Live Class In Progress Alert Banner */}
+                    {data.live_sessions?.length > 0 && (
+                        <div style={{
+                            background: '#ecfdf5',
+                            border: '1px solid #10b981',
+                            borderLeft: '5px solid #059669',
+                            padding: '18px 24px',
+                            marginBottom: '28px',
+                            borderRadius: '0px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            flexWrap: 'wrap',
+                            gap: '16px',
+                            boxShadow: '0 0 16px rgba(16, 185, 129, 0.25)'
+                        }}>
+                            <div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                                    <span className="status-badge badge-live">LIVE IN PROGRESS</span>
+                                    <span style={{ fontSize: '0.8rem', color: '#065f46', fontWeight: 700 }}>Your scheduled class is active now</span>
+                                </div>
+                                <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#064e3b', margin: 0 }}>
+                                    {data.live_sessions[0].title} &middot; {data.live_sessions[0].course_name}
+                                </h3>
+                                <p style={{ fontSize: '0.85rem', color: '#047857', margin: '4px 0 0' }}>
+                                    Instructor: <strong>{data.live_sessions[0].teacher_name}</strong> &middot; Time: {formatTime(data.live_sessions[0].scheduled_time)}
+                                </p>
+                            </div>
+
+                            {data.live_sessions[0].meeting_link ? (
+                                <a
+                                    href={data.live_sessions[0].meeting_link}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{
+                                        background: '#059669',
+                                        color: '#ffffff',
+                                        padding: '10px 22px',
+                                        fontWeight: 800,
+                                        fontSize: '0.92rem',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '8px',
+                                        borderRadius: '0px',
+                                        boxShadow: '0 2px 10px rgba(5, 150, 105, 0.35)'
+                                    }}
+                                >
+                                    <Video size={16} />
+                                    <span>Join Live Class Now</span>
+                                </a>
+                            ) : (
+                                <span className="badge-meet-missing">Teacher will provide link shortly</span>
+                            )}
+                        </div>
+                    )}
+
                     {/* Upcoming Classes Section */}
                     <div style={{ marginBottom: '36px' }}>
                         <div style={{
@@ -494,14 +551,21 @@ function StudentDashboard() {
                                                 <h4 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
                                                     {cls.title}
                                                 </h4>
-                                                {cls.is_demo ? (
+                                                {cls.effective_status === 'Live' ? (
+                                                    <span className="status-badge badge-live">LIVE NOW</span>
+                                                ) : cls.is_demo ? (
                                                     <span className="telemetry-chip cyan" style={{ padding: '2px 8px', fontSize: '0.68rem' }}>
                                                         DEMO SESSION
                                                     </span>
                                                 ) : (
-                                                    <span className="telemetry-chip live" style={{ padding: '2px 8px', fontSize: '0.68rem' }}>
-                                                        CONFIRMED
+                                                    <span className="status-badge badge-scheduled">
+                                                        SCHEDULED
                                                     </span>
+                                                )}
+                                                {cls.has_meet_link ? (
+                                                    <span className="badge-meet-ready">Link Ready</span>
+                                                ) : (
+                                                    <span className="badge-meet-missing">Link Pending</span>
                                                 )}
                                             </div>
                                             <p style={{ fontSize: '0.9rem', color: '#64748b', margin: 0 }}>
@@ -588,6 +652,141 @@ function StudentDashboard() {
                             </div>
                         )}
                     </div>
+
+                    {/* Recent Classes & Outcomes Section */}
+                    {data.recent_sessions?.length > 0 && (
+                        <div style={{ marginBottom: '36px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
+                                <CheckCircle2 size={18} color="var(--accent-green-dark)" />
+                                <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                                    Recent Classes & Conducted Outcomes
+                                </h3>
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                {data.recent_sessions.map(s => (
+                                    <div key={s.id} style={{
+                                        background: '#ffffff',
+                                        border: '1px solid #e2e8f0',
+                                        borderRadius: '0px',
+                                        padding: '16px 20px',
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        flexWrap: 'wrap',
+                                        gap: '12px'
+                                    }}>
+                                        <div>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
+                                                <h4 style={{ fontSize: '0.98rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                                                    {s.title} &middot; {s.course_name}
+                                                </h4>
+                                                {s.status === 'Completed' ? (
+                                                    <span className="status-badge badge-completed">Completed</span>
+                                                ) : s.status === 'Not Conducted' ? (
+                                                    <span className="status-badge badge-not-conducted">Not Conducted</span>
+                                                ) : s.status === 'Needs Review' ? (
+                                                    <span className="status-badge badge-needs-review">Needs Review</span>
+                                                ) : (
+                                                    <span className="status-badge badge-scheduled">{s.status}</span>
+                                                )}
+                                            </div>
+                                            <p style={{ fontSize: '0.82rem', color: '#64748b', margin: 0 }}>
+                                                Instructor: {s.teacher_name} &middot; Date: {formatDate(s.scheduled_time)}
+                                            </p>
+                                            {s.outcome_remarks && (
+                                                <p style={{ fontSize: '0.82rem', color: '#334155', margin: '6px 0 0', fontStyle: 'italic', background: '#f8fafc', padding: '4px 8px', borderLeft: '2px solid #cbd5e1' }}>
+                                                    Faculty note: "{s.outcome_remarks}"
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Academic Progress & Faculty Reports Section */}
+                    {data.student_reports?.length > 0 && (
+                        <div style={{ marginBottom: '36px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
+                                <FileText size={18} color="#2563eb" />
+                                <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                                    Faculty Academic Evaluations & Reports
+                                </h3>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
+                                {data.student_reports.map(rep => (
+                                    <div key={rep.id} style={{
+                                        background: '#ffffff',
+                                        border: '1px solid #e2e8f0',
+                                        borderTop: '3px solid #2563eb',
+                                        borderRadius: '0px',
+                                        padding: '18px 20px',
+                                        boxShadow: '0 2px 6px rgba(15, 23, 42, 0.03)'
+                                    }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                                            <div>
+                                                <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#2563eb', textTransform: 'uppercase' }}>
+                                                    {rep.session_title || 'Class Evaluation'}
+                                                </span>
+                                                <div style={{ fontSize: '0.82rem', color: '#64748b' }}>
+                                                    Faculty: <strong>{rep.teacher_name}</strong>
+                                                </div>
+                                            </div>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '3px', color: '#f59e0b' }}>
+                                                <Star size={14} fill="#f59e0b" />
+                                                <span style={{ fontWeight: 800, fontSize: '0.85rem' }}>{rep.performance_rating}/5</span>
+                                            </div>
+                                        </div>
+
+                                        <p style={{ fontSize: '0.85rem', color: '#1e293b', margin: '0 0 12px', lineHeight: 1.5 }}>
+                                            {rep.observations}
+                                        </p>
+
+                                        {rep.strengths && (
+                                            <div style={{ fontSize: '0.78rem', color: '#047857', marginBottom: '6px' }}>
+                                                <strong>Strengths:</strong> {rep.strengths}
+                                            </div>
+                                        )}
+                                        {rep.areas_for_improvement && (
+                                            <div style={{ fontSize: '0.78rem', color: '#b45309', marginBottom: '12px' }}>
+                                                <strong>Areas to Focus:</strong> {rep.areas_for_improvement}
+                                            </div>
+                                        )}
+
+                                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap', paddingTop: '10px', borderTop: '1px solid #f1f5f9' }}>
+                                            {rep.report_file && (
+                                                <a
+                                                    href={rep.report_file}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    style={{
+                                                        fontSize: '0.78rem',
+                                                        fontWeight: 700,
+                                                        color: '#2563eb',
+                                                        display: 'inline-flex',
+                                                        alignItems: 'center',
+                                                        gap: '4px'
+                                                    }}
+                                                >
+                                                    <Download size={13} />
+                                                    <span>Download PDF Assessment</span>
+                                                </a>
+                                            )}
+                                            {rep.voice_note && (
+                                                <div style={{ width: '100%', marginTop: '6px' }}>
+                                                    <span style={{ fontSize: '0.72rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '2px' }}>
+                                                        <Mic size={11} /> Faculty Voice Feedback:
+                                                    </span>
+                                                    <audio controls src={rep.voice_note} style={{ width: '100%', height: '28px' }} />
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
                     {/* Enrolled Courses Grid */}
                     {data.courses?.length > 0 && (

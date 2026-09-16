@@ -4,7 +4,8 @@ import { useRouter } from 'next/router';
 import { useState } from 'react';
 import {
     LayoutGrid, BookOpen, Calendar, Wallet, User,
-    LifeBuoy, LogOut, Menu, X, Activity, Users, Plus, ShieldCheck
+    LifeBuoy, LogOut, Menu, X, Activity, Users, Plus, ShieldCheck,
+    FileText, CreditCard
 } from 'lucide-react';
 
 const NAV_ITEMS = {
@@ -18,6 +19,7 @@ const NAV_ITEMS = {
     ],
     teacher: [
         { label: 'Dashboard', href: '/teacher/dashboard', icon: LayoutGrid },
+        { label: 'Reports & Notes', href: '/teacher/reports', icon: FileText },
         { label: 'Manage Profile', href: '/teacher/manage-profile', icon: User },
         { label: 'My Availability', href: '/teacher/availability', icon: Calendar },
         { label: 'My Bookings', href: '/teacher/bookings', icon: BookOpen },
@@ -26,6 +28,7 @@ const NAV_ITEMS = {
     ],
     admin: [
         { label: 'Dashboard', href: '/admin/dashboard', icon: LayoutGrid },
+        { label: 'Payment Audit', href: '/admin/payments', icon: CreditCard },
         { label: 'Students', href: '/admin/students', icon: Users },
         { label: 'Courses', href: '/admin/courses', icon: BookOpen },
         { label: 'Bookings', href: '/admin/bookings', icon: Calendar },

@@ -98,6 +98,7 @@ function StudentPayments() {
                                     display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
                                     gap: '12px', padding: '16px', borderRadius: '12px',
                                     background: 'var(--background-light)',
+                                    marginBottom: '12px'
                                 }}>
                                     <div>
                                         <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total</span>
@@ -115,6 +116,27 @@ function StudentPayments() {
                                         <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Status</span>
                                         <p style={{ fontWeight: 700, fontSize: '1.1rem', margin: '4px 0 0 0', textTransform: 'capitalize' }}>{p.booking_status}</p>
                                     </div>
+                                </div>
+
+                                <div style={{
+                                    display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap',
+                                    gap: '8px', fontSize: '0.78rem', color: 'var(--text-secondary)',
+                                    paddingTop: '8px', borderTop: '1px dashed var(--card-border)'
+                                }}>
+                                    <div>
+                                        <span>Gateway Order ID: </span>
+                                        <code style={{ background: '#f1f5f9', padding: '2px 6px', borderRadius: '4px', color: '#334155' }}>
+                                            {p.razorpay_order_id || p.order_id || 'N/A'}
+                                        </code>
+                                    </div>
+                                    {p.razorpay_payment_id && (
+                                        <div>
+                                            <span>Payment Ref: </span>
+                                            <code style={{ background: '#ecfdf5', padding: '2px 6px', borderRadius: '4px', color: '#047857' }}>
+                                                {p.razorpay_payment_id}
+                                            </code>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         );

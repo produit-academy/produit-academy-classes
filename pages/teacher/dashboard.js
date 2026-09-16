@@ -1,16 +1,31 @@
 import Head from 'next/head';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import { withAuth, useAuth } from '../../lib/auth';
 import { apiGet, apiPatch, apiPost } from '../../lib/api';
 import DashboardLayout from '../../components/DashboardLayout';
 import StatCard from '../../components/StatCard';
+import {
+    Video, Calendar, Clock, AlertTriangle, CheckCircle2, XCircle,
+    FileText, Mic, Link as LinkIcon, ExternalLink, RefreshCw, X
+} from 'lucide-react';
 
 function TeacherDashboard() {
     const { user } = useAuth();
+    const router = useRouter();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [demoLink, setDemoLink] = useState('');
-    const [submittingLinkId, setSubmittingLinkId] = useState(null);
+
+    // Outcome Modal State
+    const [outcomeSession, setOutcomeSession] = useState(null);
+    const [outcomeStatus, setOutcomeStatus] = useState('Completed');
+    const [outcomeRemarks, setOutcomeRemarks] = useState('');
+    const [outcomeLoading, setOutcomeLoading] = useState(false);
+
+    // Meet Link Modal State
+    const [meetSession, setMeetSession] = useState(null);
+    const [meetUrl, setMeetUrl] = useState('');
+    const [meetLoading, setMeetLoading] = useState(false);
 
     // Cancel modal
     const [cancelId, setCancelId] = useState(null);
@@ -29,17 +44,52 @@ function TeacherDashboard() {
         loadData();
     }, []);
 
-    const submitMeetingLink = async (classId) => {
-        if (!demoLink) return;
-        setSubmittingLinkId(classId);
+    const handleMarkOutcome = async () => {
+        if (!outcomeSession) return;
+        setOutcomeLoading(true);
         try {
-            await apiPatch(`/api/classes/teacher/demo/${classId}/link/`, { meeting_link: demoLink });
-            setDemoLink('');
-            loadData();
-        } catch (error) {
-            console.error('Failed to submit link', error);
+            const res = await apiPost(`/api/classes/session/${outcomeSession.id}/outcome/`, {
+                status: outcomeStatus,
+                remarks: outcomeRemarks
+            });
+            const d = await res.json();
+            if (res.ok) {
+                setOutcomeSession(null);
+                setOutcomeRemarks('');
+                loadData();
+            } else {
+                alert(d.error || 'Failed to update class outcome.');
+            }
+        } catch {
+            alert('Network error updating class outcome.');
         } finally {
-            setSubmittingLinkId(null);
+            setOutcomeLoading(false);
+        }
+    };
+
+    const handleUpdateMeetLink = async () => {
+        if (!meetSession) return;
+        if (!meetUrl.trim()) {
+            alert('Please enter a Google Meet link.');
+            return;
+        }
+        setMeetLoading(true);
+        try {
+            const res = await apiPost(`/api/classes/session/${meetSession.id}/meet-link/`, {
+                meeting_link: meetUrl.trim()
+            });
+            const d = await res.json();
+            if (res.ok) {
+                setMeetSession(null);
+                setMeetUrl('');
+                loadData();
+            } else {
+                alert(d.error || 'Failed to update Google Meet link.');
+            }
+        } catch {
+            alert('Network error updating Meet link.');
+        } finally {
+            setMeetLoading(false);
         }
     };
 
@@ -77,7 +127,7 @@ function TeacherDashboard() {
     };
 
     return (
-        <DashboardLayout title={`Welcome, ${user?.first_name ? user.first_name : (user?.username?.split('@')[0] || 'Teacher')}`}>
+        <DashboardLayout title={`Faculty Dashboard // ${user?.first_name ? user.first_name : (user?.username?.split('@')[0] || 'Teacher')}`}>
             <Head>
                 <title>Teacher Dashboard | Produit Classes</title>
             </Head>
@@ -86,322 +136,555 @@ function TeacherDashboard() {
                 <div className="loading-container"><div className="loading-spinner" /></div>
             ) : data ? (
                 <>
-                    {/* Next Session Priority Reminder Banner */}
-                    {data.upcoming_classes?.length > 0 && (() => {
-                        const nextClass = data.upcoming_classes[0];
-                        return (
-                            <div style={{
-                                background: '#f0fdf4',
-                                border: '1px solid #86efac',
-                                borderLeft: '5px solid #16a34a',
-                                padding: '18px 24px',
-                                marginBottom: '24px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                                flexWrap: 'wrap',
-                                gap: '16px',
-                                boxShadow: '0 2px 8px rgba(22, 163, 74, 0.08)'
-                            }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                                    <div style={{
-                                        background: '#16a34a', color: '#fff', padding: '10px',
-                                        display: 'flex', alignItems: 'center', justifyContent: 'center'
-                                    }}>
-                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                            <polygon points="23 7 16 12 23 17 23 7"/>
-                                            <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                                            <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#15803d', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                                                Next Teaching Session
-                                            </span>
-                                            <span className="telemetry-chip live" style={{ padding: '1px 6px', fontSize: '0.65rem' }}>
-                                                Priority
-                                            </span>
-                                        </div>
-                                        <h4 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0f172a', margin: '0 0 4px' }}>
-                                            {nextClass.title} &middot; {nextClass.course_name}
-                                        </h4>
-                                        <div style={{ fontSize: '0.85rem', color: '#475569', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                                            <span>Student: <strong style={{ color: '#1e293b' }}>{nextClass.student_name}</strong></span>
-                                            <span>&bull;</span>
-                                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#15803d', fontWeight: 700 }}>
-                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                                                {formatDate(nextClass.scheduled_time)} at {formatTime(nextClass.scheduled_time)}
-                                            </span>
-                                        </div>
-                                    </div>
+                    {/* Live Session Alert Banner */}
+                    {data.live_sessions?.length > 0 && (
+                        <div style={{
+                            background: '#ecfdf5',
+                            border: '1px solid #10b981',
+                            borderLeft: '6px solid #059669',
+                            padding: '18px 24px',
+                            marginBottom: '24px',
+                            boxShadow: '0 0 16px rgba(16, 185, 129, 0.25)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            flexWrap: 'wrap',
+                            gap: '16px'
+                        }}>
+                            <div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                                    <span className="status-badge badge-live">LIVE IN PROGRESS</span>
+                                    <span style={{ fontSize: '0.8rem', color: '#065f46', fontWeight: 700 }}>Scheduled Class is Active Now</span>
                                 </div>
-                                {nextClass.meeting_link && (
+                                <h4 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#064e3b', margin: 0 }}>
+                                    {data.live_sessions[0].title} &middot; {data.live_sessions[0].course_name}
+                                </h4>
+                                <p style={{ fontSize: '0.85rem', color: '#047857', margin: '4px 0 0' }}>
+                                    Student: <strong>{data.live_sessions[0].student_name}</strong> &middot; Time: {formatTime(data.live_sessions[0].scheduled_time)}
+                                </p>
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                {data.live_sessions[0].meeting_link && (
                                     <a
-                                        href={nextClass.meeting_link.startsWith('http') ? nextClass.meeting_link : `https://${nextClass.meeting_link}`}
+                                        href={data.live_sessions[0].meeting_link}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         style={{
-                                            background: '#16a34a',
-                                            color: '#fff',
-                                            padding: '10px 22px',
-                                            fontWeight: 700,
+                                            background: '#059669',
+                                            color: '#ffffff',
+                                            padding: '10px 20px',
+                                            fontWeight: 800,
                                             fontSize: '0.9rem',
-                                            textDecoration: 'none',
                                             display: 'inline-flex',
                                             alignItems: 'center',
-                                            gap: '8px',
-                                            boxShadow: '0 2px 6px rgba(22, 163, 74, 0.25)'
+                                            gap: '6px',
+                                            borderRadius: '0px',
+                                            boxShadow: '0 2px 8px rgba(5, 150, 105, 0.3)'
                                         }}
                                     >
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                            <polygon points="23 7 16 12 23 17 23 7"/>
-                                            <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
-                                        </svg>
-                                        <span>Start Class (Google Meet)</span>
+                                        <Video size={16} />
+                                        <span>Join Google Meet</span>
                                     </a>
                                 )}
+                                <button
+                                    onClick={() => {
+                                        setOutcomeSession(data.live_sessions[0]);
+                                        setOutcomeStatus('Completed');
+                                    }}
+                                    style={{
+                                        background: '#ffffff',
+                                        border: '1px solid #10b981',
+                                        color: '#065f46',
+                                        padding: '10px 16px',
+                                        fontWeight: 700,
+                                        fontSize: '0.85rem',
+                                        borderRadius: '0px',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    End & Mark Outcome
+                                </button>
                             </div>
-                        );
-                    })()}
+                        </div>
+                    )}
 
-                    <div className="stats-grid">
-                        <StatCard label="Total Classes Held" value={data.total_classes_held} color="var(--accent-green)" />
-                        <StatCard label="Total Hours Taught" value={data.total_hours_worked} color="var(--accent-blue)" />
-                    </div>
+                    {/* Needs Outcome Review Banner (Elapsed classes) */}
+                    {data.needs_review_classes?.length > 0 && (
+                        <div style={{
+                            background: '#fffbeb',
+                            border: '1px solid #fde68a',
+                            borderLeft: '5px solid #d97706',
+                            padding: '18px 22px',
+                            marginBottom: '24px',
+                            borderRadius: '0px'
+                        }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '12px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                    <AlertTriangle size={20} color="#d97706" />
+                                    <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#92400e' }}>
+                                        Classes Awaiting Outcome Confirmation ({data.needs_review_classes.length})
+                                    </h4>
+                                </div>
+                                <span style={{ fontSize: '0.8rem', color: '#b45309', fontWeight: 600 }}>
+                                    Scheduled class time has passed. Please confirm if class was conducted or missed.
+                                </span>
+                            </div>
 
-                    {/* Assigned Subjects */}
-                    <div className="glass-card" style={{ padding: '20px 24px', marginBottom: '24px', borderLeft: '4px solid var(--accent-green)' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', flexWrap: 'wrap', gap: '8px' }}>
-                            <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-                                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-                                </svg>
-                                Assigned Subjects
-                            </h3>
-                            <span style={{ fontSize: '0.82rem', background: 'rgba(51, 174, 120, 0.1)', color: 'var(--accent-green)', padding: '3px 10px', borderRadius: '12px', fontWeight: 600 }}>
-                                {(data.assigned_subjects?.length || data.courses?.length || 0)} Subject{( (data.assigned_subjects?.length || data.courses?.length || 0) === 1 ? '' : 's')}
-                            </span>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                {data.needs_review_classes.map(sess => (
+                                    <div key={sess.id} style={{
+                                        background: '#ffffff',
+                                        border: '1px solid #fef3c7',
+                                        padding: '12px 18px',
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        flexWrap: 'wrap',
+                                        gap: '12px'
+                                    }}>
+                                        <div>
+                                            <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.95rem' }}>
+                                                {sess.title} &middot; {sess.course_name}
+                                            </div>
+                                            <div style={{ fontSize: '0.8rem', color: '#64748b' }}>
+                                                Student: <strong>{sess.student_name}</strong> &middot; Scheduled: {formatDate(sess.scheduled_time)} at {formatTime(sess.scheduled_time)}
+                                            </div>
+                                        </div>
+                                        <button
+                                            onClick={() => {
+                                                setOutcomeSession(sess);
+                                                setOutcomeStatus('Completed');
+                                            }}
+                                            className="glass-btn primary"
+                                            style={{ borderRadius: '0px', padding: '6px 14px', fontSize: '0.82rem', background: '#d97706' }}
+                                        >
+                                            Confirm Outcome
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Stat Metrics Grid */}
+                    <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                        gap: '16px',
+                        marginBottom: '28px'
+                    }}>
+                        <div className="glass-card" style={{ padding: '20px', borderRadius: '0px', borderLeft: '4px solid #10b981' }}>
+                            <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>Classes Conducted</span>
+                            <h3 style={{ fontSize: '1.8rem', fontWeight: 800, color: '#0f172a', margin: '4px 0 0' }}>{data.classes_conducted || 0}</h3>
+                            <span style={{ fontSize: '0.78rem', color: '#10b981', fontWeight: 600 }}>Completed successfully</span>
                         </div>
 
-                        {data.assigned_subjects?.length > 0 ? (
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-                                {data.assigned_subjects.map((sub) => (
-                                    <div 
-                                        key={sub.id} 
-                                        style={{ 
-                                            background: '#f8fafc', 
-                                            border: '1px solid var(--border)', 
-                                            borderRadius: '10px', 
-                                            padding: '10px 16px',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '12px'
-                                        }}
-                                    >
-                                        <div style={{
-                                            width: '32px',
-                                            height: '32px',
-                                            borderRadius: '8px',
-                                            background: 'rgba(51, 174, 120, 0.12)',
-                                            color: 'var(--accent-green)',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            fontSize: '0.9rem',
-                                            fontWeight: 700
-                                        }}>
-                                            {sub.name.charAt(0)}
-                                        </div>
-                                        <div>
-                                            <div style={{ fontWeight: 600, fontSize: '0.92rem', color: 'var(--text-primary)' }}>{sub.name}</div>
-                                            {sub.course_name && (
-                                                <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
-                                                    {sub.course_name} {sub.grade_level ? `• ${sub.grade_level}` : ''}
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : data.courses?.length > 0 ? (
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-                                {data.courses.map((crs) => (
-                                    <div 
-                                        key={crs.id} 
-                                        style={{ 
-                                            background: '#f8fafc', 
-                                            border: '1px solid var(--border)', 
-                                            borderRadius: '10px', 
-                                            padding: '10px 16px',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '12px'
-                                        }}
-                                    >
-                                        <div style={{
-                                            width: '32px',
-                                            height: '32px',
-                                            borderRadius: '8px',
-                                            background: 'rgba(51, 174, 120, 0.12)',
-                                            color: 'var(--accent-green)',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            fontSize: '0.9rem',
-                                            fontWeight: 700
-                                        }}>
-                                            {crs.name.charAt(0)}
-                                        </div>
-                                        <div>
-                                            <div style={{ fontWeight: 600, fontSize: '0.92rem', color: 'var(--text-primary)' }}>{crs.name}</div>
-                                            {crs.grade_level && (
-                                                <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
-                                                    {crs.grade_level}
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', padding: '6px 0' }}>
-                                No subjects have been assigned to your profile yet. Please contact an administrator to assign your teaching subjects.
-                            </div>
-                        )}
+                        <div className="glass-card" style={{ padding: '20px', borderRadius: '0px', borderLeft: '4px solid #f59e0b' }}>
+                            <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>Needs Review</span>
+                            <h3 style={{ fontSize: '1.8rem', fontWeight: 800, color: '#d97706', margin: '4px 0 0' }}>{data.needs_review_count || 0}</h3>
+                            <span style={{ fontSize: '0.78rem', color: '#64748b' }}>Outcome not marked</span>
+                        </div>
+
+                        <div className="glass-card" style={{ padding: '20px', borderRadius: '0px', borderLeft: '4px solid #ef4444' }}>
+                            <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>Not Conducted</span>
+                            <h3 style={{ fontSize: '1.8rem', fontWeight: 800, color: '#dc2626', margin: '4px 0 0' }}>{data.not_conducted || 0}</h3>
+                            <span style={{ fontSize: '0.78rem', color: '#64748b' }}>Missed / Cancelled</span>
+                        </div>
+
+                        <div className="glass-card" style={{ padding: '20px', borderRadius: '0px', borderLeft: '4px solid #3b82f6' }}>
+                            <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>Confirmed Earnings</span>
+                            <h3 style={{ fontSize: '1.8rem', fontWeight: 800, color: '#2563eb', margin: '4px 0 0' }}>₹{parseFloat(data.total_earnings || 0).toLocaleString('en-IN')}</h3>
+                            <span style={{ fontSize: '0.78rem', color: '#64748b' }}>Completed classes only</span>
+                        </div>
                     </div>
 
-                    <div className="dashboard-grid">
-                        {/* Upcoming Classes */}
-                        <div>
-                            <h3 className="section-heading">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                                Upcoming Classes
+                    {/* Quick Faculty Actions */}
+                    <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                        gap: '16px',
+                        marginBottom: '28px'
+                    }}>
+                        <div
+                            onClick={() => router.push('/teacher/reports')}
+                            className="glass-card pro-card-hover"
+                            style={{
+                                padding: '18px 22px',
+                                borderRadius: '0px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '16px'
+                            }}
+                        >
+                            <div style={{ background: '#f0fdf4', padding: '12px', color: '#16a34a' }}>
+                                <FileText size={24} />
+                            </div>
+                            <div>
+                                <h4 style={{ margin: '0 0 4px', fontSize: '1rem', fontWeight: 800, color: '#0f172a' }}>
+                                    Submit Student Class Report
+                                </h4>
+                                <p style={{ margin: 0, fontSize: '0.8rem', color: '#64748b' }}>
+                                    Rate performance, add observations, and upload PDF assessment.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div
+                            onClick={() => router.push('/teacher/reports')}
+                            className="glass-card pro-card-hover"
+                            style={{
+                                padding: '18px 22px',
+                                borderRadius: '0px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '16px'
+                            }}
+                        >
+                            <div style={{ background: '#fef2f2', padding: '12px', color: '#dc2626' }}>
+                                <Mic size={24} />
+                            </div>
+                            <div>
+                                <h4 style={{ margin: '0 0 4px', fontSize: '1rem', fontWeight: 800, color: '#0f172a' }}>
+                                    Record Daily Voice Note
+                                </h4>
+                                <p style={{ margin: 0, fontSize: '0.8rem', color: '#64748b' }}>
+                                    Record audio recap for today's classes and student progress.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Upcoming Sessions */}
+                    <div style={{ marginBottom: '32px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                            <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <Calendar size={18} color="var(--accent-green-dark)" />
+                                Upcoming Scheduled Classes
                             </h3>
-                            {data.upcoming_classes?.length > 0 ? (
-                                data.upcoming_classes.map((cls) => (
-                                    <div key={cls.id} className="class-card glass-card">
-                                        <div className="class-card-info">
-                                            <h4>{cls.title}</h4>
-                                            <p>{cls.course_name} • {cls.student_name}</p>
-                                        </div>
-                                        <div className="class-card-meta">
-                                            <span className="class-time">
-                                                {formatDate(cls.scheduled_time)} &middot; {formatTime(cls.scheduled_time)}
-                                            </span>
-                                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                                                {cls.meeting_link ? (
-                                                    <a href={cls.meeting_link} target="_blank" rel="noopener noreferrer" className="glass-btn primary" style={{ fontSize: '0.85rem', padding: '8px 16px' }}>
-                                                        Start Class
-                                                    </a>
-                                                ) : cls.is_demo ? (
-                                                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                                                        <input 
-                                                            type="text" 
-                                                            placeholder="Paste Google Meet Link" 
-                                                            value={submittingLinkId === cls.id ? '' : demoLink}
-                                                            onChange={(e) => setDemoLink(e.target.value)}
-                                                            className="glass-input"
-                                                            style={{ padding: '6px 12px', fontSize: '0.85rem', width: '200px' }}
-                                                        />
-                                                        <button 
-                                                            onClick={() => submitMeetingLink(cls.id)}
-                                                            disabled={submittingLinkId === cls.id}
-                                                            className="glass-btn primary" 
-                                                            style={{ fontSize: '0.85rem', padding: '6px 12px' }}
-                                                        >
-                                                            {submittingLinkId === cls.id ? 'Saving...' : 'Save Link'}
-                                                        </button>
-                                                    </div>
+                        </div>
+
+                        {data.upcoming_classes?.length > 0 ? (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                {data.upcoming_classes.map(cls => (
+                                    <div key={cls.id} className="glass-card" style={{
+                                        padding: '18px 22px',
+                                        borderRadius: '0px',
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        flexWrap: 'wrap',
+                                        gap: '16px'
+                                    }}>
+                                        <div>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                                                <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                                                    {cls.title}
+                                                </h4>
+                                                {cls.has_meet_link ? (
+                                                    <span className="badge-meet-ready">Meet Link Ready</span>
                                                 ) : (
-                                                    <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>No link provided</span>
+                                                    <span className="badge-meet-missing">Meet Link Pending</span>
                                                 )}
+                                            </div>
+                                            <p style={{ fontSize: '0.88rem', color: '#64748b', margin: 0 }}>
+                                                {cls.course_name} &middot; Student: <strong style={{ color: '#1e293b' }}>{cls.student_name}</strong>
+                                            </p>
+                                        </div>
+
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                                            <div style={{
+                                                fontSize: '0.82rem', color: '#334155', fontWeight: 600,
+                                                background: '#f8fafc', padding: '6px 12px', border: '1px solid #e2e8f0'
+                                            }}>
+                                                <Clock size={13} style={{ display: 'inline', marginRight: '5px' }} />
+                                                {formatDate(cls.scheduled_time)} &middot; {formatTime(cls.scheduled_time)}
+                                            </div>
+
+                                            <div style={{ display: 'flex', gap: '8px' }}>
+                                                {cls.meeting_link ? (
+                                                    <a
+                                                        href={cls.meeting_link}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        style={{
+                                                            background: '#047857',
+                                                            color: '#ffffff',
+                                                            padding: '6px 14px',
+                                                            borderRadius: '0px',
+                                                            fontSize: '0.82rem',
+                                                            fontWeight: 700,
+                                                            display: 'inline-flex',
+                                                            alignItems: 'center',
+                                                            gap: '6px'
+                                                        }}
+                                                    >
+                                                        <Video size={13} />
+                                                        <span>Join Class</span>
+                                                    </a>
+                                                ) : null}
+
+                                                <button
+                                                    onClick={() => {
+                                                        setMeetSession(cls);
+                                                        setMeetUrl(cls.meeting_link || '');
+                                                    }}
+                                                    style={{
+                                                        background: '#ffffff',
+                                                        border: '1px solid #cbd5e1',
+                                                        color: '#0f172a',
+                                                        padding: '6px 12px',
+                                                        borderRadius: '0px',
+                                                        fontSize: '0.82rem',
+                                                        fontWeight: 700,
+                                                        cursor: 'pointer',
+                                                        display: 'inline-flex',
+                                                        alignItems: 'center',
+                                                        gap: '4px'
+                                                    }}
+                                                >
+                                                    <LinkIcon size={12} />
+                                                    <span>{cls.meeting_link ? 'Edit Link' : 'Add Meet Link'}</span>
+                                                </button>
+
+                                                <button
+                                                    onClick={() => {
+                                                        setOutcomeSession(cls);
+                                                        setOutcomeStatus('Completed');
+                                                    }}
+                                                    style={{
+                                                        background: '#ffffff',
+                                                        border: '1px solid #cbd5e1',
+                                                        color: '#334155',
+                                                        padding: '6px 12px',
+                                                        borderRadius: '0px',
+                                                        fontSize: '0.82rem',
+                                                        fontWeight: 700,
+                                                        cursor: 'pointer'
+                                                    }}
+                                                >
+                                                    Mark Outcome
+                                                </button>
+
                                                 <button
                                                     onClick={() => setCancelId(cls.id)}
-                                                    className="glass-btn"
-                                                    style={{ fontSize: '0.8rem', padding: '6px 12px', color: 'var(--accent-red)', borderColor: 'rgba(231,76,60,0.3)' }}
+                                                    style={{
+                                                        background: '#ffffff',
+                                                        border: '1px solid #fecaca',
+                                                        color: '#dc2626',
+                                                        padding: '6px 10px',
+                                                        borderRadius: '0px',
+                                                        fontSize: '0.82rem',
+                                                        fontWeight: 600,
+                                                        cursor: 'pointer'
+                                                    }}
                                                 >
                                                     Cancel
                                                 </button>
                                             </div>
                                         </div>
                                     </div>
-                                ))
-                            ) : (
-                                <div className="glass-card empty-state">
-                                    <h3>No upcoming classes</h3>
-                                    <p>You have no scheduled sessions.</p>
-                                </div>
-                            )}
-                        </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="glass-card empty-state" style={{ borderRadius: '0px', padding: '36px', textAlign: 'center' }}>
+                                <p style={{ color: '#64748b', margin: 0 }}>No upcoming classes scheduled.</p>
+                            </div>
+                        )}
                     </div>
 
-                    {/* Assigned Students */}
-                    {data.assigned_students?.length > 0 && (
-                        <>
-                            <h3 className="section-heading" style={{ marginTop: '8px' }}>
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                                My Students ({data.assigned_students.length})
-                            </h3>
-                            <div className="glass-card data-table-wrapper">
-                                <table className="data-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Student</th>
-                                            <th>Email</th>
-                                            <th>Courses</th>
-                                            <th>Attendance</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {data.assigned_students.map(s => (
-                                            <tr key={s.id}>
-                                                <td><strong>{s.first_name} {s.last_name}</strong></td>
-                                                <td style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>{s.email}</td>
-                                                <td style={{ fontSize: '0.85rem' }}>
-                                                    {s.courses?.length > 0 ? s.courses.join(', ') : '-'}
-                                                </td>
-                                                <td>
-                                                    <span style={{ color: s.attendance_percentage >= 75 ? 'var(--accent-green)' : 'var(--accent-red)', fontWeight: 600 }}>
-                                                        {s.attendance_percentage}%
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                    {/* Outcome Modal */}
+                    {outcomeSession && (
+                        <div className="modal-overlay" onClick={() => setOutcomeSession(null)}>
+                            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '480px', borderRadius: '0px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                                    <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800, color: '#0f172a' }}>
+                                        Confirm Class Outcome
+                                    </h3>
+                                    <button onClick={() => setOutcomeSession(null)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={18} /></button>
+                                </div>
+
+                                <p style={{ fontSize: '0.88rem', color: '#64748b', marginBottom: '16px' }}>
+                                    Update final status for <strong>{outcomeSession.title}</strong> with student <strong>{outcomeSession.student_name}</strong>.
+                                </p>
+
+                                <div style={{ marginBottom: '16px' }}>
+                                    <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
+                                        Class Outcome *
+                                    </label>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                                        <button
+                                            type="button"
+                                            onClick={() => setOutcomeStatus('Completed')}
+                                            style={{
+                                                padding: '12px',
+                                                border: outcomeStatus === 'Completed' ? '2px solid #059669' : '1px solid #cbd5e1',
+                                                background: outcomeStatus === 'Completed' ? '#ecfdf5' : '#ffffff',
+                                                color: outcomeStatus === 'Completed' ? '#065f46' : '#334155',
+                                                fontWeight: 700,
+                                                fontSize: '0.88rem',
+                                                cursor: 'pointer',
+                                                borderRadius: '0px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                gap: '6px'
+                                            }}
+                                        >
+                                            <CheckCircle2 size={16} />
+                                            <span>Completed</span>
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            onClick={() => setOutcomeStatus('Not Conducted')}
+                                            style={{
+                                                padding: '12px',
+                                                border: outcomeStatus === 'Not Conducted' ? '2px solid #dc2626' : '1px solid #cbd5e1',
+                                                background: outcomeStatus === 'Not Conducted' ? '#fef2f2' : '#ffffff',
+                                                color: outcomeStatus === 'Not Conducted' ? '#991b1b' : '#334155',
+                                                fontWeight: 700,
+                                                fontSize: '0.88rem',
+                                                cursor: 'pointer',
+                                                borderRadius: '0px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                gap: '6px'
+                                            }}
+                                        >
+                                            <XCircle size={16} />
+                                            <span>Not Conducted</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div style={{ marginBottom: '20px' }}>
+                                    <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
+                                        Remarks / Notes:
+                                    </label>
+                                    <textarea
+                                        className="input-field"
+                                        rows={3}
+                                        placeholder={outcomeStatus === 'Completed' ? 'Summary of topics covered, attendance notes...' : 'Reason class was not conducted (student absent, emergency...)'}
+                                        value={outcomeRemarks}
+                                        onChange={(e) => setOutcomeRemarks(e.target.value)}
+                                        style={{ width: '100%', resize: 'vertical' }}
+                                    />
+                                </div>
+
+                                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                                    <button
+                                        type="button"
+                                        className="glass-btn outline"
+                                        onClick={() => setOutcomeSession(null)}
+                                        style={{ borderRadius: '0px' }}
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={handleMarkOutcome}
+                                        disabled={outcomeLoading}
+                                        className="glass-btn primary"
+                                        style={{ borderRadius: '0px' }}
+                                    >
+                                        {outcomeLoading ? 'Saving...' : 'Confirm Outcome'}
+                                    </button>
+                                </div>
                             </div>
-                        </>
+                        </div>
+                    )}
+
+                    {/* Google Meet Link Modal */}
+                    {meetSession && (
+                        <div className="modal-overlay" onClick={() => setMeetSession(null)}>
+                            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '460px', borderRadius: '0px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <Video size={20} color="#059669" />
+                                        <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: '#0f172a' }}>
+                                            Set Google Meet Link
+                                        </h3>
+                                    </div>
+                                    <button onClick={() => setMeetSession(null)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={18} /></button>
+                                </div>
+
+                                <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '16px' }}>
+                                    Adding or updating the link will automatically email the student with joining instructions.
+                                </p>
+
+                                <div style={{ marginBottom: '20px' }}>
+                                    <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
+                                        Google Meet URL:
+                                    </label>
+                                    <input
+                                        type="url"
+                                        className="input-field"
+                                        placeholder="https://meet.google.com/abc-defg-hij"
+                                        value={meetUrl}
+                                        onChange={(e) => setMeetUrl(e.target.value)}
+                                        style={{ width: '100%' }}
+                                    />
+                                </div>
+
+                                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                                    <button
+                                        type="button"
+                                        className="glass-btn outline"
+                                        onClick={() => setMeetSession(null)}
+                                        style={{ borderRadius: '0px' }}
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={handleUpdateMeetLink}
+                                        disabled={meetLoading || !meetUrl.trim()}
+                                        className="glass-btn primary"
+                                        style={{ borderRadius: '0px' }}
+                                    >
+                                        {meetLoading ? 'Updating...' : 'Save & Email Student'}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     )}
 
                     {/* Cancel Session Modal */}
                     {cancelId && (
                         <div className="modal-overlay" onClick={() => setCancelId(null)}>
-                            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '460px' }}>
-                                <h3 style={{ color: 'var(--accent-red)' }}>Cancel Class</h3>
-                                <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem', fontSize: '0.9rem' }}>
+                            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '460px', borderRadius: '0px' }}>
+                                <h3 style={{ color: '#dc2626', margin: '0 0 8px', fontSize: '1.2rem', fontWeight: 800 }}>
+                                    Cancel Class Session
+                                </h3>
+                                <p style={{ color: '#64748b', marginBottom: '1rem', fontSize: '0.88rem' }}>
                                     Please provide a reason for cancellation. The student will be notified.
                                 </p>
-                                <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                                    <label>Reason</label>
+                                <div style={{ marginBottom: '1.5rem' }}>
+                                    <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
+                                        Cancellation Reason *
+                                    </label>
                                     <textarea
                                         className="input-field"
                                         rows={3}
-                                        placeholder="e.g. Personal emergency, schedule conflict, illness..."
+                                        placeholder="e.g. Schedule emergency, power outage..."
                                         value={cancelReason}
                                         onChange={e => setCancelReason(e.target.value)}
-                                        style={{ resize: 'vertical' }}
+                                        style={{ width: '100%', resize: 'vertical' }}
                                         required
                                     />
                                 </div>
-                                <div className="modal-actions">
-                                    <button type="button" className="glass-btn outline" onClick={() => { setCancelId(null); setCancelReason(''); }}>Go Back</button>
+                                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                                    <button type="button" className="glass-btn outline" style={{ borderRadius: '0px' }} onClick={() => { setCancelId(null); setCancelReason(''); }}>Go Back</button>
                                     <button
                                         type="button"
-                                        className="glass-btn primary"
+                                        className="glass-btn danger"
+                                        style={{ borderRadius: '0px' }}
                                         disabled={cancelling || !cancelReason.trim()}
                                         onClick={handleCancelSession}
-                                        style={{ background: 'var(--accent-red)' }}
                                     >
                                         {cancelling ? 'Cancelling...' : 'Confirm Cancellation'}
                                     </button>
@@ -411,11 +694,10 @@ function TeacherDashboard() {
                     )}
                 </>
             ) : (
-                <div className="alert alert-error">Failed to load dashboard data.</div>
+                <div className="alert alert-error">Failed to load faculty dashboard.</div>
             )}
         </DashboardLayout>
     );
 }
 
 export default withAuth(TeacherDashboard, ['teacher', 'admin']);
-
