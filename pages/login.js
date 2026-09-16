@@ -40,7 +40,7 @@ export default function Login() {
                 if (data.refresh) localStorage.setItem('refresh_token', data.refresh);
 
                 const user = decodeToken(data.access);
-                if (user.platform !== 'classes' && user.role !== 'admin') {
+                if (user.platform !== 'classes' && user.role !== 'admin' && user.role !== 'staff' && !user.is_staff_user) {
                     setError("Access denied. This portal is exclusively for Produit Classes.");
                     localStorage.removeItem('access_token');
                     setLoading(false);
@@ -49,6 +49,8 @@ export default function Login() {
 
                 switch (user?.role) {
                     case 'admin':
+                    case 'staff':
+                    case 'manager':
                         window.location.href = '/admin/dashboard';
                         break;
                     case 'teacher':
