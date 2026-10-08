@@ -24,6 +24,13 @@ function StudentDashboard() {
     const [cancelReason, setCancelReason] = useState('');
     const [cancelling, setCancelling] = useState(false);
 
+    const resolveMediaUrl = (url) => {
+        if (!url) return '';
+        if (url.startsWith('http://') || url.startsWith('https://')) return url;
+        const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+        return `${base.replace(/\/$/, '')}/${url.replace(/^\//, '')}`;
+    };
+
     const loadData = () => {
         apiGet('/api/classes/student/dashboard/')
             .then(setData)
@@ -778,7 +785,7 @@ function StudentDashboard() {
                                                     <span style={{ fontSize: '0.72rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '2px' }}>
                                                         <Mic size={11} /> Faculty Voice Feedback:
                                                     </span>
-                                                    <audio controls src={rep.voice_note} style={{ width: '100%', height: '28px' }} />
+                                                    <audio controls src={resolveMediaUrl(rep.voice_note)} style={{ width: '100%', height: '28px' }} />
                                                 </div>
                                             )}
                                         </div>

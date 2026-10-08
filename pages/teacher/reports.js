@@ -43,6 +43,13 @@ function TeacherReports() {
     const [monthlySummary, setMonthlySummary] = useState('');
     const [monthlyPdfFile, setMonthlyPdfFile] = useState(null);
 
+    const resolveMediaUrl = (url) => {
+        if (!url) return '';
+        if (url.startsWith('http://') || url.startsWith('https://')) return url;
+        const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+        return `${base.replace(/\/$/, '')}/${url.replace(/^\//, '')}`;
+    };
+
     // Audio recording state
     const [isRecording, setIsRecording] = useState(false);
     const [recordedBlob, setRecordedBlob] = useState(null);
@@ -180,7 +187,11 @@ function TeacherReports() {
         const formData = new FormData();
         formData.append('audio_file', vnAudioFile);
         formData.append('summary', vnSummary);
-        if (vnSession) formData.append('session', vnSession);
+        formData.append('text_summary', vnSummary);
+        if (vnSession) {
+            formData.append('session', vnSession);
+            formData.append('class_session', vnSession);
+        }
         if (vnStudent) formData.append('student', vnStudent);
 
         try {
@@ -622,7 +633,7 @@ function TeacherReports() {
                                                             </a>
                                                         )}
                                                         {r.voice_note && (
-                                                            <audio controls src={r.voice_note} style={{ height: '24px', width: '120px' }} />
+                                                            <audio controls src={resolveMediaUrl(r.voice_note)} style={{ height: '24px', width: '120px' }} />
                                                         )}
                                                         {!r.report_file && !r.voice_note && <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>None</span>}
                                                     </div>
@@ -785,13 +796,13 @@ function TeacherReports() {
                                                     </span>
                                                 )}
                                             </div>
-                                            {vn.summary && (
+                                            {(vn.summary || vn.text_summary) && (
                                                 <p style={{ fontSize: '0.85rem', color: '#1e293b', margin: '0 0 8px', fontStyle: 'italic' }}>
-                                                    "{vn.summary}"
+                                                    "{vn.summary || vn.text_summary}"
                                                 </p>
                                             )}
                                             {vn.audio_file && (
-                                                <audio controls src={vn.audio_file} style={{ width: '100%', height: '32px' }} />
+                                                <audio controls src={resolveMediaUrl(vn.audio_file)} style={{ width: '100%', height: '32px' }} />
                                             )}
                                         </div>
                                     ))}

@@ -7,6 +7,7 @@ import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import BookingModal from '../../components/BookingModal';
 import { useAuth } from '../../lib/auth';
+import { useLiveSlots } from '../../lib/useLiveSlots';
 import {
     GraduationCap, Award, Globe, Video, Calendar,
     CheckCircle2, Clock, Sparkles, ArrowLeft, ShieldCheck,
@@ -59,15 +60,18 @@ export default function TeacherProfilePage() {
         return null;
     };
 
+    const { slots: liveSlots } = useLiveSlots(teacherId, profile?.availability_slots || []);
+
     const groupedSlots = useMemo(() => {
-        if (!profile?.availability_slots?.length) return [];
+        const slotsToUse = (liveSlots && liveSlots.length > 0) ? liveSlots : (profile?.availability_slots || []);
+        if (!slotsToUse?.length) return [];
         const groups = {};
-        profile.availability_slots.forEach(slot => {
+        slotsToUse.forEach(slot => {
             if (!groups[slot.date]) groups[slot.date] = [];
             groups[slot.date].push(slot);
         });
         return Object.entries(groups).sort((a, b) => a[0].localeCompare(b[0]));
-    }, [profile]);
+    }, [liveSlots, profile]);
 
     const formatDate = (dateStr) => {
         const d = new Date(dateStr + 'T00:00:00');
@@ -634,26 +638,40 @@ export default function TeacherProfilePage() {
                                         </div>
 
                                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                                            {slots.map(slot => (
-                                                <span
-                                                    key={slot.id}
-                                                    style={{
-                                                        fontSize: '0.78rem',
-                                                        fontWeight: 700,
-                                                        background: '#ffffff',
-                                                        border: '1px solid #cbd5e1',
-                                                        borderRadius: '0px',
-                                                        padding: '4px 8px',
-                                                        color: '#334155',
-                                                        display: 'inline-flex',
-                                                        alignItems: 'center',
-                                                        gap: '4px'
-                                                    }}
-                                                >
-                                                    <Clock size={12} color="#64748b" />
-                                                    <span>{formatTime(slot.start_time)} - {formatTime(slot.end_time)}</span>
-                                                </span>
-                                            ))}
+                                            {slots.map(slot => {
+                                                const isBooked = !!slot.is_booked;
+                                                const isHeld = !!slot.is_held && !isBooked;
+                                                return (
+                                                    <span
+                                                        key={slot.id}
+                                                        style={{
+                                                            fontSize: '0.78rem',
+                                                            fontWeight: 700,
+                                                            background: isBooked ? '#f1f5f9' : isHeld ? '#fef3c7' : '#ffffff',
+                                                            border: isBooked ? '1px dashed #cbd5e1' : isHeld ? '1px dashed #fde68a' : '1px solid #cbd5e1',
+                                                            borderRadius: '0px',
+                                                            padding: '4px 8px',
+                                                            color: isBooked ? '#94a3b8' : isHeld ? '#b45309' : '#334155',
+                                                            display: 'inline-flex',
+                                                            alignItems: 'center',
+                                                            gap: '4px'
+                                                        }}
+                                                    >
+                                                        <Clock size={12} color={isBooked ? '#94a3b8' : isHeld ? '#b45309' : '#64748b'} />
+                                                        <span>{formatTime(slot.start_time)} - {formatTime(slot.end_time)}</span>
+                                                        {isBooked && (
+                                                            <span style={{ fontSize: '0.65rem', fontWeight: 800, background: '#e2e8f0', color: '#64748b', padding: '1px 4px' }}>
+                                                                BOOKED
+                                                            </span>
+                                                        )}
+                                                        {isHeld && (
+                                                            <span style={{ fontSize: '0.65rem', fontWeight: 800, background: '#fef08a', color: '#92400e', padding: '1px 4px' }}>
+                                                                HELD
+                                                            </span>
+                                                        )}
+                                                    </span>
+                                                );
+                                            })}
                                         </div>
                                     </div>
                                 ))}
@@ -768,7 +786,10 @@ export default function TeacherProfilePage() {
             {/* Booking Modal */}
             {showBooking && (
                 <BookingModal
-                    teacher={profile}
+                    teacher={{
+                        ...profile,
+                        availability_slots: (liveSlots && liveSlots.length > 0) ? liveSlots : profile?.availability_slots
+                    }}
                     subjectId={selectedSubjectId || subject}
                     courseId={course}
                     onClose={() => setShowBooking(false)}

@@ -1,9 +1,11 @@
-// components/BookingModal.js - Booking flow with fee calculation + Razorpay Payment
-import { useState } from 'react';
+// components/BookingModal.js - Booking flow with fee calculation, instant real-time sync, and Razorpay
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { apiPost } from '../lib/api';
 import { useRouter } from 'next/router';
 import { loadRazorpayScript } from '../lib/razorpay';
 import { useAuth } from '../lib/auth';
+import { useLiveSlots } from '../lib/useLiveSlots';
+import { Clock, ShieldAlert, Sparkles, Lock, Hourglass, CheckCircle2 } from 'lucide-react';
 
 const PLATFORM_FEE = 50;
 
@@ -15,15 +17,35 @@ export default function BookingModal({ teacher, subjectId, courseId, onClose }) 
     const [booking, setBooking] = useState(null);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [timeRemaining, setTimeRemaining] = useState(null); // in seconds
+
+    // Callback when another student books/reserves a slot in real time
+    const handleSlotTaken = useCallback((takenSlotIds) => {
+        setSelectedSlots(prevSelected => {
+            const conflicting = prevSelected.filter(s => takenSlotIds.includes(s.id));
+            if (conflicting.length > 0) {
+                setError('Notice: A slot you selected was just booked or reserved by another student. Please select an available slot.');
+                setStep(1);
+                return prevSelected.filter(s => !takenSlotIds.includes(s.id));
+            }
+            return prevSelected;
+        });
+    }, []);
+
+    // Live slot synchronization ("like firebase instant update")
+    const { slots: liveSlots, broadcastSlotUpdate } = useLiveSlots(
+        teacher?.user_id,
+        teacher?.availability_slots || [],
+        handleSlotTaken
+    );
 
     const teacherFee = parseFloat(teacher.hourly_rate || 0);
     const totalTeacherFee = teacherFee * selectedSlots.length;
     const totalAmount = totalTeacherFee + PLATFORM_FEE;
 
-    const availableSlots = teacher.availability_slots || [];
-
     const toggleSlot = (slot) => {
-        if (slot.is_booked) return;
+        if (slot.is_booked || slot.is_held) return;
+        setError('');
         if (selectedSlots.find(s => s.id === slot.id)) {
             setSelectedSlots(selectedSlots.filter(s => s.id !== slot.id));
         } else {
@@ -46,10 +68,38 @@ export default function BookingModal({ teacher, subjectId, courseId, onClose }) 
     };
 
     const formatTime = (timeStr) => {
-        const [h, m] = timeStr.split(':');
+        const [h, m] = (timeStr || '').split(':');
+        if (!h) return '';
         const date = new Date();
-        date.setHours(parseInt(h), parseInt(m));
-        return date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }).toLowerCase();
+        date.setHours(parseInt(h, 10), parseInt(m, 10));
+        return date.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' }).toLowerCase();
+    };
+
+    // 15-minute countdown timer on Step 2
+    useEffect(() => {
+        if (step !== 2 || !booking?.expires_at) return;
+
+        const expiresTime = new Date(booking.expires_at).getTime();
+
+        const updateTimer = () => {
+            const diff = Math.max(0, Math.floor((expiresTime - Date.now()) / 1000));
+            setTimeRemaining(diff);
+            if (diff === 0) {
+                setError('Your 15-minute slot reservation has expired. Please select your slot again.');
+                setStep(1);
+            }
+        };
+
+        updateTimer();
+        const interval = setInterval(updateTimer, 1000);
+        return () => clearInterval(interval);
+    }, [step, booking]);
+
+    const formatCountdown = (seconds) => {
+        if (seconds == null) return '';
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        return `${m}:${s.toString().padStart(2, '0')}`;
     };
 
     const handleCreateBooking = async () => {
@@ -65,11 +115,19 @@ export default function BookingModal({ teacher, subjectId, courseId, onClose }) 
             if (res.ok) {
                 setBooking(data);
                 setStep(2);
+                // Notify other tabs that slots are now held
+                broadcastSlotUpdate(selectedSlots.map(s => s.id));
             } else {
-                setError(data.error || 'Failed to create booking.');
+                setError(data.error || 'Failed to reserve slots. Another student may have selected them.');
+                if (res.status === 409) {
+                    // Remove conflicting slot from selection
+                    if (data.slot_id) {
+                        setSelectedSlots(prev => prev.filter(s => s.id !== data.slot_id));
+                    }
+                }
             }
         } catch {
-            setError('Network error.');
+            setError('Network error creating booking.');
         } finally {
             setLoading(false);
         }
@@ -96,6 +154,9 @@ export default function BookingModal({ teacher, subjectId, courseId, onClose }) 
             if (!orderRes.ok) {
                 setError(orderData.error || 'Failed to initialize payment.');
                 setLoading(false);
+                if (orderRes.status === 409 || orderRes.status === 400) {
+                    setStep(1);
+                }
                 return;
             }
 
@@ -136,11 +197,18 @@ export default function BookingModal({ teacher, subjectId, courseId, onClose }) 
 
                         if (verifyRes.ok) {
                             setStep(3);
+                            // Broadcast instant slot update to all other open tabs/users
+                            broadcastSlotUpdate(selectedSlots.map(s => s.id));
                         } else {
-                            setError(verifyData.error || 'Payment signature verification failed.');
+                            if (verifyData.status === 'conflict_refunded') {
+                                setError('Slot conflict detected: Another student confirmed this slot moments before. A full refund has been automatically initiated to your original payment method.');
+                                setStep(1);
+                            } else {
+                                setError(verifyData.error || 'Payment signature verification failed.');
+                            }
                         }
                     } catch {
-                        setError('Server error during payment verification. If money was debited, your booking will be confirmed automatically.');
+                        setError('Server error during payment verification. If money was debited, your booking will be confirmed automatically via webhook.');
                     } finally {
                         setLoading(false);
                     }
@@ -165,80 +233,110 @@ export default function BookingModal({ teacher, subjectId, courseId, onClose }) 
     return (
         <div style={{
             position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-            background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)',
+            background: 'rgba(15, 23, 42, 0.65)', backdropFilter: 'blur(6px)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             zIndex: 1000, padding: '20px',
         }} onClick={onClose}>
             <div style={{
-                background: '#fff', borderRadius: '0px', padding: '32px',
-                maxWidth: '520px', width: '100%', maxHeight: '90vh', overflowY: 'auto',
-                boxShadow: '0 10px 40px rgba(0,0,0,0.15)', border: '1px solid #cbd5e1'
+                background: '#ffffff', borderRadius: '12px', padding: '32px',
+                maxWidth: '540px', width: '100%', maxHeight: '90vh', overflowY: 'auto',
+                boxShadow: '0 20px 50px rgba(0,0,0,0.25)', border: '1px solid #cbd5e1'
             }} onClick={(e) => e.stopPropagation()}>
+
+                {/* Header with Live Sync Indicator */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                    <div>
+                        <h2 style={{ fontSize: '1.4rem', fontWeight: 800, margin: 0, color: '#0f172a', fontFamily: "'Lora', serif" }}>
+                            Book Class with {teacher.name}
+                        </h2>
+                        <p style={{ color: '#64748b', fontSize: '0.88rem', margin: '4px 0 0' }}>
+                            ₹{teacherFee}/class + ₹{PLATFORM_FEE} platform fee
+                        </p>
+                    </div>
+
+                    <div style={{
+                        display: 'inline-flex', alignItems: 'center', gap: '6px',
+                        background: '#f0fdf4', border: '1px solid #bbf7d0',
+                        padding: '4px 8px', borderRadius: '6px', fontSize: '0.72rem',
+                        fontWeight: 700, color: '#15803d', flexShrink: 0
+                    }}>
+                        <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22c55e', display: 'inline-block' }} />
+                        <span>Live Sync</span>
+                    </div>
+                </div>
+
+                {error && (
+                    <div className="alert alert-error" style={{ marginBottom: '16px', borderRadius: '8px', fontSize: '0.88rem', lineHeight: 1.4 }}>
+                        {error}
+                    </div>
+                )}
 
                 {step === 1 && (
                     <>
-                        <h2 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: '6px', fontFamily: "'Lora', serif" }}>
-                            Book {teacher.name}
-                        </h2>
-                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '24px' }}>
-                            ₹{teacherFee}/class + ₹{PLATFORM_FEE} platform fee
-                        </p>
-
-                        {error && <div className="alert alert-error" style={{ marginBottom: '16px', borderRadius: '0px' }}>{error}</div>}
-
-                        <div style={{ maxHeight: '40vh', overflowY: 'auto', paddingRight: '8px', marginBottom: '16px' }}>
-                            {availableSlots.length > 0 ? (
-                                groupByDate(availableSlots).map(([date, slots]) => (
+                        <div style={{ maxHeight: '42vh', overflowY: 'auto', paddingRight: '8px', marginBottom: '16px' }}>
+                            {liveSlots.length > 0 ? (
+                                groupByDate(liveSlots).map(([date, slots]) => (
                                     <div key={date} style={{ marginBottom: '16px' }}>
-                                        <h4 style={{ fontSize: '0.95rem', fontWeight: 700, marginBottom: '10px', color: '#1e293b' }}>
+                                        <h4 style={{ fontSize: '0.92rem', fontWeight: 700, marginBottom: '8px', color: '#1e293b' }}>
                                             {formatDate(date)}
                                         </h4>
                                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                                             {slots.map(slot => {
                                                 const isBooked = !!slot.is_booked;
-                                                const isSelected = selectedSlots.find(s => s.id === slot.id);
+                                                const isHeld = !!slot.is_held && !isBooked;
+                                                const isSelected = selectedSlots.some(s => s.id === slot.id);
+                                                const isUnavailable = isBooked || isHeld;
+
+                                                let bg = '#fff';
+                                                let border = '1px solid #cbd5e1';
+                                                let color = '#334155';
+
+                                                if (isBooked) {
+                                                    bg = '#f1f5f9';
+                                                    border = '1px dashed #cbd5e1';
+                                                    color = '#94a3b8';
+                                                } else if (isHeld) {
+                                                    bg = '#fffbeb';
+                                                    border = '1px dashed #fde68a';
+                                                    color = '#b45309';
+                                                } else if (isSelected) {
+                                                    bg = '#f0f9ff';
+                                                    border = '2px solid #0284c7';
+                                                    color = '#0284c7';
+                                                }
+
                                                 return (
-                                                    <div 
-                                                        key={slot.id} 
-                                                        onClick={() => !isBooked && toggleSlot(slot)}
-                                                        title={isBooked ? "This slot has already been reserved" : "Click to select slot"}
+                                                    <div
+                                                        key={slot.id}
+                                                        onClick={() => !isUnavailable && toggleSlot(slot)}
+                                                        title={isBooked ? "Slot confirmed by another student" : isHeld ? "Slot currently in checkout by another student" : "Click to select slot"}
                                                         style={{
-                                                            padding: '9px 14px', borderRadius: '0px',
-                                                            background: isBooked ? '#f1f5f9' : isSelected ? '#f0f9ff' : '#fff',
-                                                            border: isBooked 
-                                                                ? '1px dashed #cbd5e1' 
-                                                                : isSelected ? '2px solid #0284c7' : '1px solid #cbd5e1',
-                                                            fontSize: '0.85rem', fontWeight: 600, 
-                                                            color: isBooked ? '#94a3b8' : isSelected ? '#0284c7' : '#475569',
-                                                            display: 'flex', alignItems: 'center', gap: '8px',
-                                                            cursor: isBooked ? 'not-allowed' : 'pointer', 
-                                                            transition: 'all 0.15s',
+                                                            padding: '9px 12px', borderRadius: '8px',
+                                                            background: bg, border: border,
+                                                            fontSize: '0.84rem', fontWeight: 600,
+                                                            color: color, display: 'flex', alignItems: 'center', gap: '6px',
+                                                            cursor: isUnavailable ? 'not-allowed' : 'pointer',
+                                                            transition: 'all 0.15s ease',
                                                             userSelect: 'none',
-                                                            opacity: isBooked ? 0.75 : 1,
+                                                            opacity: isUnavailable ? 0.75 : 1,
                                                         }}
                                                     >
                                                         {isBooked ? (
-                                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                                                                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                                                            </svg>
+                                                            <Lock size={13} />
+                                                        ) : isHeld ? (
+                                                            <Hourglass size={13} color="#d97706" />
                                                         ) : (
-                                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                                <circle cx="12" cy="12" r="10"/>
-                                                                <polyline points="12 6 12 12 16 14"/>
-                                                            </svg>
+                                                            <Clock size={13} />
                                                         )}
                                                         <span>{formatTime(slot.start_time)} – {formatTime(slot.end_time)}</span>
                                                         {isBooked && (
-                                                            <span style={{
-                                                                fontSize: '0.65rem',
-                                                                fontWeight: 700,
-                                                                background: '#e2e8f0',
-                                                                color: '#64748b',
-                                                                padding: '1px 5px',
-                                                                letterSpacing: '0.5px'
-                                                            }}>
+                                                            <span style={{ fontSize: '0.65rem', fontWeight: 800, background: '#e2e8f0', color: '#64748b', padding: '1px 5px', borderRadius: '4px' }}>
                                                                 BOOKED
+                                                            </span>
+                                                        )}
+                                                        {isHeld && (
+                                                            <span style={{ fontSize: '0.65rem', fontWeight: 800, background: '#fef3c7', color: '#92400e', padding: '1px 5px', borderRadius: '4px' }}>
+                                                                HELD
                                                             </span>
                                                         )}
                                                     </div>
@@ -248,34 +346,38 @@ export default function BookingModal({ teacher, subjectId, courseId, onClose }) 
                                     </div>
                                 ))
                             ) : (
-                                <p style={{ color: '#64748b' }}>No available slots found for this teacher.</p>
+                                <p style={{ color: '#64748b', fontSize: '0.9rem' }}>No availability slots found for this faculty.</p>
                             )}
                         </div>
 
                         {/* Fee Preview */}
                         <div style={{
-                            padding: '16px', borderRadius: '0px',
+                            padding: '16px', borderRadius: '10px',
                             background: '#f8fafc', border: '1px solid #e2e8f0',
                         }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.9rem' }}>
-                                <span>Teacher Fee ({selectedSlots.length} × ₹{teacherFee})</span>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.88rem' }}>
+                                <span>Class Tuition ({selectedSlots.length} × ₹{teacherFee})</span>
                                 <span style={{ fontWeight: 600 }}>₹{totalTeacherFee}</span>
                             </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.9rem' }}>
-                                <span>Platform Fee</span>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.88rem' }}>
+                                <span>Platform Processing Fee</span>
                                 <span style={{ fontWeight: 600 }}>₹{PLATFORM_FEE}</span>
                             </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '10px', borderTop: '1px solid #e2e8f0', fontSize: '1rem' }}>
-                                <span style={{ fontWeight: 700 }}>Total</span>
-                                <span style={{ fontWeight: 700, color: 'var(--accent-blue)' }}>₹{selectedSlots.length > 0 ? totalAmount : 0}</span>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '10px', borderTop: '1px solid #e2e8f0', fontSize: '0.98rem' }}>
+                                <span style={{ fontWeight: 700 }}>Total Payable</span>
+                                <span style={{ fontWeight: 800, color: '#0284c7' }}>₹{selectedSlots.length > 0 ? totalAmount : 0}</span>
                             </div>
                         </div>
 
                         <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-                            <button onClick={onClose} className="glass-btn" style={{ flex: 1, padding: '12px', borderRadius: '0px' }}>Cancel</button>
-                            <button onClick={handleCreateBooking} className="glass-btn primary" disabled={loading || selectedSlots.length === 0}
-                                style={{ flex: 1, padding: '12px', borderRadius: '0px', opacity: selectedSlots.length === 0 ? 0.5 : 1 }}>
-                                {loading ? 'Creating...' : `Review Booking (${selectedSlots.length})`}
+                            <button onClick={onClose} className="glass-btn" style={{ flex: 1, padding: '12px', borderRadius: '8px' }}>Cancel</button>
+                            <button
+                                onClick={handleCreateBooking}
+                                className="glass-btn primary"
+                                disabled={loading || selectedSlots.length === 0}
+                                style={{ flex: 1, padding: '12px', borderRadius: '8px', opacity: selectedSlots.length === 0 ? 0.5 : 1 }}
+                            >
+                                {loading ? 'Locking Slots...' : `Review & Book (${selectedSlots.length})`}
                             </button>
                         </div>
                     </>
@@ -283,29 +385,44 @@ export default function BookingModal({ teacher, subjectId, courseId, onClose }) 
 
                 {step === 2 && booking && (
                     <>
-                        <h2 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: '20px', fontFamily: "'Lora', serif" }}>
-                            Confirm & Pay
-                        </h2>
+                        {/* 15-Minute Reservation Countdown */}
+                        {timeRemaining !== null && (
+                            <div style={{
+                                background: '#eff6ff', border: '1px solid #bfdbfe',
+                                borderRadius: '8px', padding: '10px 14px', marginBottom: '16px',
+                                display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+                            }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#1e40af', fontSize: '0.86rem', fontWeight: 600 }}>
+                                    <Clock size={16} />
+                                    <span>Slots Held for Checkout</span>
+                                </div>
+                                <span style={{ fontSize: '0.92rem', fontWeight: 800, color: '#1d4ed8' }}>
+                                    {formatCountdown(timeRemaining)}
+                                </span>
+                            </div>
+                        )}
 
-                        {error && <div className="alert alert-error" style={{ marginBottom: '16px', borderRadius: '0px' }}>{error}</div>}
-
-                        <div style={{ padding: '20px', borderRadius: '0px', background: '#f8fafc', border: '1px solid #e2e8f0', marginBottom: '20px' }}>
-                            <p style={{ marginBottom: '8px' }}><strong>Teacher:</strong> {booking.teacher_name}</p>
-                            <p style={{ marginBottom: '8px' }}><strong>Subject:</strong> {booking.subject}</p>
-                            <p style={{ marginBottom: '8px' }}><strong>Classes:</strong> {booking.num_classes}</p>
+                        <div style={{ padding: '20px', borderRadius: '10px', background: '#f8fafc', border: '1px solid #e2e8f0', marginBottom: '20px' }}>
+                            <p style={{ marginBottom: '8px', fontSize: '0.9rem' }}><strong>Faculty:</strong> {booking.teacher_name}</p>
+                            <p style={{ marginBottom: '8px', fontSize: '0.9rem' }}><strong>Subject:</strong> {booking.subject}</p>
+                            <p style={{ marginBottom: '8px', fontSize: '0.9rem' }}><strong>Class Sessions:</strong> {booking.num_classes}</p>
                             <div style={{ borderTop: '1px solid #e2e8f0', marginTop: '12px', paddingTop: '12px' }}>
-                                <p style={{ marginBottom: '4px' }}>Teacher Fee: ₹{booking.teacher_fee_per_class}/class × {booking.num_classes} = ₹{booking.teacher_fee_per_class * booking.num_classes}</p>
-                                <p style={{ marginBottom: '4px' }}>Platform Fee: ₹{booking.platform_fee}</p>
-                                <p style={{ fontWeight: 700, fontSize: '1.1rem', marginTop: '8px', color: 'var(--accent-blue)' }}>
-                                    Total: ₹{booking.total_amount}
+                                <p style={{ marginBottom: '4px', fontSize: '0.88rem' }}>Tuition: ₹{booking.teacher_fee_per_class}/class × {booking.num_classes} = ₹{booking.teacher_fee_per_class * booking.num_classes}</p>
+                                <p style={{ marginBottom: '4px', fontSize: '0.88rem' }}>Platform Fee: ₹{booking.platform_fee}</p>
+                                <p style={{ fontWeight: 800, fontSize: '1.15rem', marginTop: '8px', color: '#0284c7' }}>
+                                    Total Amount: ₹{booking.total_amount}
                                 </p>
                             </div>
                         </div>
 
                         <div style={{ display: 'flex', gap: '10px' }}>
-                            <button onClick={() => setStep(1)} className="glass-btn" style={{ flex: 1, padding: '12px', borderRadius: '0px' }}>Back</button>
-                            <button onClick={handlePayment} className="glass-btn primary" disabled={loading}
-                                style={{ flex: 1, padding: '12px', borderRadius: '0px', fontWeight: 700 }}>
+                            <button onClick={() => setStep(1)} className="glass-btn" style={{ flex: 1, padding: '12px', borderRadius: '8px' }}>Back</button>
+                            <button
+                                onClick={handlePayment}
+                                className="glass-btn primary"
+                                disabled={loading}
+                                style={{ flex: 1, padding: '12px', borderRadius: '8px', fontWeight: 700 }}
+                            >
                                 {loading ? 'Processing...' : `Pay ₹${booking.total_amount}`}
                             </button>
                         </div>
@@ -315,25 +432,22 @@ export default function BookingModal({ teacher, subjectId, courseId, onClose }) 
                 {step === 3 && (
                     <div style={{ textAlign: 'center', padding: '20px 0' }}>
                         <div style={{ marginBottom: '16px' }}>
-                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ margin: '0 auto' }}>
-                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                            </svg>
+                            <CheckCircle2 size={60} color="#22c55e" style={{ margin: '0 auto' }} />
                         </div>
-                        <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '8px', fontFamily: "'Lora', serif" }}>
+                        <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '8px', color: '#0f172a', fontFamily: "'Lora', serif" }}>
                             Booking Confirmed!
                         </h2>
-                        <p style={{ color: 'var(--text-secondary)', marginBottom: '8px' }}>
-                            Your classes have been scheduled and confirmation emails have been sent.
+                        <p style={{ color: '#475569', marginBottom: '8px', fontSize: '0.92rem' }}>
+                            Your classes have been scheduled and live calendar invitations have been sent.
                         </p>
-                        <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '24px' }}>
-                            Check your email for the Google Meet link and schedule details.
+                        <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '24px' }}>
+                            Check your email for the Google Meet link and class timings.
                         </p>
                         <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
-                            <button onClick={() => router.push('/student/bookings')} className="glass-btn primary" style={{ padding: '12px 24px', borderRadius: '0px' }}>
+                            <button onClick={() => router.push('/student/bookings')} className="glass-btn primary" style={{ padding: '12px 24px', borderRadius: '8px' }}>
                                 View Bookings
                             </button>
-                            <button onClick={onClose} className="glass-btn" style={{ padding: '12px 24px', borderRadius: '0px' }}>Close</button>
+                            <button onClick={onClose} className="glass-btn" style={{ padding: '12px 24px', borderRadius: '8px' }}>Close</button>
                         </div>
                     </div>
                 )}

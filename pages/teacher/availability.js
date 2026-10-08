@@ -1,21 +1,37 @@
 import Head from 'next/head';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { withAuth, useAuth } from '../../lib/auth';
 import { apiGet, apiPost, apiDelete } from '../../lib/api';
 import DashboardLayout from '../../components/DashboardLayout';
+import {
+    Calendar as CalendarIcon, Clock, Plus, Trash2, AlertCircle,
+    CheckCircle2, Info, ArrowRight, ShieldCheck, Sparkles, Pause
+} from 'lucide-react';
 
-// Generate hour slots from 9 AM to 9 PM
-const HOUR_SLOTS = [];
-for (let h = 9; h < 21; h++) {
-    const startH = h.toString().padStart(2, '0');
-    const endH = (h + 1).toString().padStart(2, '0');
-    const label = `${h > 12 ? h - 12 : h}:00 ${h >= 12 ? 'PM' : 'AM'}`;
-    HOUR_SLOTS.push({
-        start_time: `${startH}:00`,
-        end_time: `${endH}:00`,
-        label,
-        labelShort: `${h > 12 ? h - 12 : h} ${h >= 12 ? 'PM' : 'AM'}`,
-    });
+function timeToMinutes(timeStr) {
+    if (!timeStr) return 0;
+    const [h, m] = timeStr.split(':').map(n => parseInt(n, 10));
+    return (h || 0) * 60 + (m || 0);
+}
+
+function minutesToTimeStr(totalMinutes) {
+    const h = Math.floor(totalMinutes / 60) % 24;
+    const m = totalMinutes % 60;
+    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+}
+
+function formatTime(timeStr) {
+    if (!timeStr) return '';
+    const [h, m] = timeStr.split(':').map(n => parseInt(n, 10));
+    const d = new Date();
+    d.setHours(h, m, 0);
+    return d.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' }).toLowerCase();
+}
+
+function formatDate(dateStr) {
+    if (!dateStr) return '';
+    const d = new Date(dateStr + 'T00:00:00');
+    return d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
 }
 
 function TeacherAvailability() {
@@ -26,361 +42,557 @@ function TeacherAvailability() {
     const [msg, setMsg] = useState(null);
     const [err, setErr] = useState(null);
 
-    // Form state
+    // Form inputs for manual slot entry
     const [selectedDate, setSelectedDate] = useState('');
-    const [selectedHours, setSelectedHours] = useState([]); // array of { start_time, end_time }
+    const [startTime, setStartTime] = useState('10:00');
+    const [endTime, setEndTime] = useState('11:00');
+    const [durationMinutes, setDurationMinutes] = useState(60);
 
     const loadData = useCallback(() => {
         setLoading(true);
         apiGet('/api/classes/teacher/availability/')
-            .then(setData)
+            .then(res => {
+                setData(res);
+                // Set default date to today or tomorrow
+                if (res?.today && !selectedDate) {
+                    setSelectedDate(res.today);
+                }
+            })
             .catch(console.error)
             .finally(() => setLoading(false));
-    }, []);
+    }, [selectedDate]);
 
-    useEffect(() => { loadData(); }, [loadData]);
+    useEffect(() => {
+        loadData();
+    }, [loadData]);
 
-    const toggleHour = (slot) => {
-        const exists = selectedHours.find(h => h.start_time === slot.start_time);
-        if (exists) {
-            setSelectedHours(selectedHours.filter(h => h.start_time !== slot.start_time));
-        } else {
-            setSelectedHours([...selectedHours, { start_time: slot.start_time, end_time: slot.end_time }]);
+    // When start time or duration changes, update end time automatically
+    const handleStartTimeChange = (newStart) => {
+        setStartTime(newStart);
+        const startMin = timeToMinutes(newStart);
+        const endMin = Math.min(startMin + durationMinutes, 23 * 60 + 59);
+        setEndTime(minutesToTimeStr(endMin));
+    };
+
+    const handleDurationChange = (duration) => {
+        setDurationMinutes(duration);
+        const startMin = timeToMinutes(startTime);
+        const endMin = Math.min(startMin + duration, 23 * 60 + 59);
+        setEndTime(minutesToTimeStr(endMin));
+    };
+
+    const handleEndTimeChange = (newEnd) => {
+        setEndTime(newEnd);
+        const sMin = timeToMinutes(startTime);
+        const eMin = timeToMinutes(newEnd);
+        if (eMin > sMin) {
+            setDurationMinutes(eMin - sMin);
         }
     };
 
-    const isHourSelected = (slot) => selectedHours.some(h => h.start_time === slot.start_time);
+    // Existing slots for currently selected date
+    const dayExistingSlots = useMemo(() => {
+        if (!data?.slots || !selectedDate) return [];
+        return data.slots
+            .filter(s => s.date === selectedDate)
+            .sort((a, b) => timeToMinutes(a.start_time) - timeToMinutes(b.start_time));
+    }, [data, selectedDate]);
 
-    // Check if a slot already exists for this date+hour
-    const isHourAlreadySaved = (slot) => {
-        if (!data || !selectedDate) return false;
-        return (data.slots || []).some(s => s.date === selectedDate && s.start_time === slot.start_time);
-    };
+    // Live validation against the 1-hour gap rule for the entered time
+    const validationResult = useMemo(() => {
+        if (!selectedDate || !startTime || !endTime) {
+            return { valid: false, message: 'Please specify date and start/end times.' };
+        }
 
-    const handleAddSlots = async (e) => {
+        const newStartMin = timeToMinutes(startTime);
+        const newEndMin = timeToMinutes(endTime);
+
+        if (newEndMin <= newStartMin) {
+            return { valid: false, message: 'End time must be after start time.' };
+        }
+
+        const duration = newEndMin - newStartMin;
+        if (duration < 30) {
+            return { valid: false, message: 'Class slot must be at least 30 minutes.' };
+        }
+        if (duration > 240) {
+            return { valid: false, message: 'Slot cannot exceed 4 hours.' };
+        }
+
+        for (const ex of dayExistingSlots) {
+            const exStartMin = timeToMinutes(ex.start_time);
+            const exEndMin = timeToMinutes(ex.end_time);
+
+            // Overlap check
+            if (newStartMin < exEndMin && newEndMin > exStartMin) {
+                return {
+                    valid: false,
+                    message: `Overlaps with your existing slot (${formatTime(ex.start_time)} - ${formatTime(ex.end_time)}).`,
+                    type: 'overlap'
+                };
+            }
+
+            // Gap after existing slot
+            if (newStartMin >= exEndMin) {
+                const gap = newStartMin - exEndMin;
+                if (gap < 60) {
+                    const earliestMin = exEndMin + 60;
+                    return {
+                        valid: false,
+                        message: `Must have at least a 1-hour gap after slot ending at ${formatTime(ex.end_time)}. Earliest start: ${formatTime(minutesToTimeStr(earliestMin))}.`,
+                        type: 'gap_after'
+                    };
+                }
+            }
+
+            // Gap before existing slot
+            if (newEndMin <= exStartMin) {
+                const gap = exStartMin - newEndMin;
+                if (gap < 60) {
+                    const latestMin = exStartMin - 60;
+                    return {
+                        valid: false,
+                        message: `Must have at least a 1-hour gap before slot starting at ${formatTime(ex.start_time)}. Latest end: ${formatTime(minutesToTimeStr(latestMin))}.`,
+                        type: 'gap_before'
+                    };
+                }
+            }
+        }
+
+        return { valid: true, message: 'Slot satisfies the 1-hour buffer requirement!' };
+    }, [selectedDate, startTime, endTime, dayExistingSlots]);
+
+    const handleAddSlot = async (e) => {
         e.preventDefault();
         setMsg(null);
         setErr(null);
 
-        if (!selectedDate) {
-            setErr('Please select a day.');
-            return;
-        }
-        if (selectedHours.length === 0) {
-            setErr('Please select at least one time slot.');
+        if (!validationResult.valid) {
+            setErr(validationResult.message);
             return;
         }
 
         setSaving(true);
         try {
-            const slotsPayload = selectedHours.map(h => ({
-                date: selectedDate,
-                start_time: h.start_time,
-                end_time: h.end_time,
-            }));
-
             const res = await apiPost('/api/classes/teacher/availability/', {
-                slots: slotsPayload,
+                date: selectedDate,
+                start_time: startTime,
+                end_time: endTime,
             });
             const d = await res.json();
             if (res.ok) {
-                if (d.errors && d.errors.length > 0) {
-                    setErr(d.errors.join(', '));
-                    setMsg(d.message);
-                } else {
-                    setMsg(d.message || `${slotsPayload.length} slot(s) saved successfully!`);
-                    setSelectedHours([]);
-                }
+                setMsg(d.message || 'Slot saved successfully with 1-hour buffer!');
                 loadData();
+                // Propose next logical start time: end time + 60 min
+                const nextStartMin = Math.min(timeToMinutes(endTime) + 60, 22 * 60);
+                const nextEndMin = Math.min(nextStartMin + 60, 23 * 60);
+                setStartTime(minutesToTimeStr(nextStartMin));
+                setEndTime(minutesToTimeStr(nextEndMin));
             } else {
-                setErr(d.error || 'Failed to save slots.');
+                setErr(d.error || (d.errors ? d.errors.join(', ') : 'Failed to save slot.'));
             }
         } catch {
-            setErr('Network error.');
+            setErr('Network error while communicating with server.');
         } finally {
             setSaving(false);
         }
     };
 
     const handleDeleteSlot = async (slotId) => {
-        if (!confirm('Remove this availability slot?')) return;
+        if (!confirm('Are you sure you want to remove this availability slot?')) return;
+        setMsg(null);
+        setErr(null);
         try {
             const res = await apiDelete('/api/classes/teacher/availability/', { slot_id: slotId });
+            const d = await res.json();
             if (res.ok) {
+                setMsg('Slot removed.');
                 loadData();
+            } else {
+                setErr(d.error || 'Failed to remove slot.');
             }
         } catch {
-            alert('Failed to delete slot.');
+            setErr('Failed to delete slot.');
         }
     };
 
-    const formatDate = (dateStr) => {
-        const d = new Date(dateStr + 'T00:00:00');
-        return d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
-    };
-
-    const formatTime = (timeStr) => {
-        const [h, m] = timeStr.split(':');
-        const date = new Date();
-        date.setHours(parseInt(h), parseInt(m));
-        return date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
-    };
-
-    // Group slots by week
-    const groupSlotsByWeek = (slots) => {
-        if (!data) return {};
-        const groups = { current: [], next: [] };
-        const nextStart = data.next_week?.start;
-        slots.forEach(s => {
-            if (s.date >= nextStart) {
-                groups.next.push(s);
-            } else {
-                groups.current.push(s);
-            }
-        });
-        return groups;
-    };
-
-    const grouped = data ? groupSlotsByWeek(data.slots || []) : { current: [], next: [] };
-
-    // Generate date options for next week only
-    const getNextWeekDates = () => {
-        if (!data?.next_week) return [];
-        const dates = [];
-        const start = new Date(data.next_week.start + 'T00:00:00');
+    // Quick upcoming 7 days
+    const upcomingDays = useMemo(() => {
+        const list = [];
+        const base = new Date();
         for (let i = 0; i < 7; i++) {
-            const d = new Date(start);
+            const d = new Date(base);
             d.setDate(d.getDate() + i);
             const yyyy = d.getFullYear();
             const mm = String(d.getMonth() + 1).padStart(2, '0');
             const dd = String(d.getDate()).padStart(2, '0');
-            
-            dates.push({
-                value: `${yyyy}-${mm}-${dd}`,
-                label: d.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short' }),
-                labelShort: d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric' }),
+            const val = `${yyyy}-${mm}-${dd}`;
+            list.push({
+                value: val,
+                label: i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : d.toLocaleDateString('en-IN', { weekday: 'short' }),
+                dateLabel: d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
             });
         }
-        return dates;
-    };
+        return list;
+    }, []);
 
-    // Group existing slots by date for nicer display
-    const groupByDate = (slots) => {
+    // Group all slots by date
+    const groupedAllSlots = useMemo(() => {
+        if (!data?.slots) return [];
         const map = {};
-        slots.forEach(s => {
+        data.slots.forEach(s => {
             if (!map[s.date]) map[s.date] = [];
             map[s.date].push(s);
         });
         return Object.entries(map).sort((a, b) => a[0].localeCompare(b[0]));
-    };
+    }, [data]);
 
     return (
-        <DashboardLayout title="My Availability">
+        <DashboardLayout title="Faculty Availability & Schedule">
             <Head>
-                <title>My Availability | Produit Classes</title>
+                <title>Teacher Availability | Produit Classes</title>
             </Head>
 
             {loading ? (
                 <div className="loading-container"><div className="loading-spinner" /></div>
             ) : data ? (
-                <>
-                    {/* Deadline Warning */}
-                    {data.deadline_passed && (
-                        <div className="alert alert-warning" style={{ marginBottom: '20px' }}>
-                            <strong>Deadline Passed:</strong> The submission window for next week has closed (Sunday 6:00 PM). You can view your existing slots but cannot add new ones until the next cycle.
+                <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+
+                    {/* Policy Banner */}
+                    <div style={{
+                        background: '#f0fdf4', border: '1px solid #bbf7d0',
+                        borderRadius: '12px', padding: '16px 20px', marginBottom: '24px',
+                        display: 'flex', alignItems: 'flex-start', gap: '14px'
+                    }}>
+                        <div style={{ background: '#dcfce7', color: '#166534', padding: '8px', borderRadius: '8px', flexShrink: 0 }}>
+                            <ShieldCheck size={20} />
+                        </div>
+                        <div>
+                            <h4 style={{ margin: 0, fontSize: '0.96rem', fontWeight: 700, color: '#14532d' }}>
+                                Manual Slot Entry & 1-Hour Buffer Standard
+                            </h4>
+                            <p style={{ margin: '4px 0 0', fontSize: '0.86rem', color: '#166534', lineHeight: 1.5 }}>
+                                You can enter custom class start and end times for any upcoming day. To maintain high teaching quality and prevent fatigue, the system automatically enforces a <strong>mandatory 1-hour gap</strong> before and after every class slot you schedule.
+                            </p>
+                        </div>
+                    </div>
+
+                    {msg && (
+                        <div className="alert alert-success" style={{ marginBottom: '20px', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <CheckCircle2 size={18} />
+                            <span>{msg}</span>
+                        </div>
+                    )}
+                    {err && (
+                        <div className="alert alert-error" style={{ marginBottom: '20px', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <AlertCircle size={18} />
+                            <span>{err}</span>
                         </div>
                     )}
 
-                    {/* Add Slot Form */}
-                    {!data.deadline_passed && (
-                        <div className="glass-card" style={{ padding: '28px', marginBottom: '28px', borderRadius: '20px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-                                <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'var(--accent-green, #22c55e)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-                                    </svg>
-                                </div>
-                                <h3 style={{ fontSize: '1.2rem', fontWeight: 800, margin: 0 }}>Add Availability for Next Week</h3>
+                    {/* Manual Slot Creator Card */}
+                    <div className="glass-card" style={{ padding: '28px', marginBottom: '32px', borderRadius: '16px', border: '1px solid #e2e8f0', background: '#ffffff', boxShadow: '0 4px 20px rgba(15, 23, 42, 0.04)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+                            <div style={{
+                                width: '38px', height: '38px', borderRadius: '10px',
+                                background: '#e0f2fe', color: '#0284c7',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center'
+                            }}>
+                                <Clock size={20} />
                             </div>
-                            <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', marginBottom: '20px', marginLeft: '46px' }}>
-                                Next week: <strong>{data.next_week?.start}</strong> to <strong>{data.next_week?.end}</strong>
-                            </p>
+                            <div>
+                                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0, color: '#0f172a' }}>
+                                    Add New Teaching Slot
+                                </h3>
+                                <p style={{ fontSize: '0.84rem', color: '#64748b', margin: '2px 0 0' }}>
+                                    Enter custom slot timing for the selected day
+                                </p>
+                            </div>
+                        </div>
 
-                            {msg && <div className="alert alert-success" style={{ marginBottom: '16px' }}>{msg}</div>}
-                            {err && <div className="alert alert-error" style={{ marginBottom: '16px' }}>{err}</div>}
-
-                            {/* Step 1: Select Day */}
-                            <div style={{ marginBottom: '20px' }}>
-                                <label style={{ display: 'block', fontWeight: 700, marginBottom: '10px', fontSize: '0.9rem', color: '#0f172a' }}>
-                                    1. Select a Day
-                                </label>
-                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-                                    {getNextWeekDates().map(d => (
+                        {/* Step 1: Select Date */}
+                        <div style={{ marginBottom: '22px' }}>
+                            <label style={{ display: 'block', fontWeight: 700, fontSize: '0.9rem', marginBottom: '10px', color: '#1e293b' }}>
+                                1. Select Date
+                            </label>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '12px' }}>
+                                {upcomingDays.map(d => {
+                                    const isSelected = selectedDate === d.value;
+                                    return (
                                         <button
                                             key={d.value}
                                             type="button"
-                                            onClick={() => { setSelectedDate(d.value); setSelectedHours([]); }}
+                                            onClick={() => setSelectedDate(d.value)}
                                             style={{
-                                                padding: '10px 18px', borderRadius: '12px', fontSize: '0.88rem',
-                                                fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s',
-                                                border: selectedDate === d.value ? '2px solid var(--accent-blue)' : '1px solid var(--border)',
-                                                background: selectedDate === d.value ? 'var(--accent-blue)' : '#fff',
-                                                color: selectedDate === d.value ? '#fff' : '#334155',
-                                                boxShadow: selectedDate === d.value ? '0 4px 12px rgba(59,130,246,0.25)' : 'none',
+                                                padding: '10px 16px', borderRadius: '10px',
+                                                border: isSelected ? '2px solid #0284c7' : '1px solid #cbd5e1',
+                                                background: isSelected ? '#f0f9ff' : '#ffffff',
+                                                color: isSelected ? '#0369a1' : '#334155',
+                                                cursor: 'pointer', transition: 'all 0.15s ease',
+                                                display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '84px',
+                                                boxShadow: isSelected ? '0 2px 8px rgba(2, 132, 199, 0.15)' : 'none'
                                             }}
                                         >
-                                            {d.label}
+                                            <span style={{ fontSize: '0.85rem', fontWeight: 700 }}>{d.label}</span>
+                                            <span style={{ fontSize: '0.74rem', color: isSelected ? '#0284c7' : '#64748b', marginTop: '2px' }}>{d.dateLabel}</span>
                                         </button>
-                                    ))}
+                                    );
+                                })}
+                            </div>
+
+                            {/* Or pick any calendar date */}
+                            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', color: '#475569' }}>
+                                <span>Or pick custom date:</span>
+                                <input
+                                    type="date"
+                                    min={data.today || ''}
+                                    value={selectedDate}
+                                    onChange={(e) => setSelectedDate(e.target.value)}
+                                    style={{
+                                        padding: '6px 12px', borderRadius: '8px',
+                                        border: '1px solid #cbd5e1', fontSize: '0.88rem',
+                                        color: '#0f172a', fontWeight: 600, background: '#fff'
+                                    }}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Step 2: Time and Duration Inputs */}
+                        <div style={{
+                            background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px',
+                            padding: '20px', marginBottom: '20px'
+                        }}>
+                            <label style={{ display: 'block', fontWeight: 700, fontSize: '0.9rem', marginBottom: '14px', color: '#1e293b' }}>
+                                2. Manual Time Entry & Duration
+                            </label>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', alignItems: 'center' }}>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#64748b', marginBottom: '6px' }}>
+                                        Start Time
+                                    </label>
+                                    <input
+                                        type="time"
+                                        value={startTime}
+                                        onChange={(e) => handleStartTimeChange(e.target.value)}
+                                        style={{
+                                            width: '100%', padding: '10px 14px', borderRadius: '8px',
+                                            border: '1px solid #cbd5e1', fontSize: '1rem',
+                                            fontWeight: 700, color: '#0f172a', background: '#fff'
+                                        }}
+                                        required
+                                    />
+                                </div>
+
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#64748b', marginBottom: '6px' }}>
+                                        End Time
+                                    </label>
+                                    <input
+                                        type="time"
+                                        value={endTime}
+                                        onChange={(e) => handleEndTimeChange(e.target.value)}
+                                        style={{
+                                            width: '100%', padding: '10px 14px', borderRadius: '8px',
+                                            border: '1px solid #cbd5e1', fontSize: '1rem',
+                                            fontWeight: 700, color: '#0f172a', background: '#fff'
+                                        }}
+                                        required
+                                    />
+                                </div>
+
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#64748b', marginBottom: '6px' }}>
+                                        Quick Duration
+                                    </label>
+                                    <div style={{ display: 'flex', gap: '6px' }}>
+                                        {[45, 60, 90].map(dur => (
+                                            <button
+                                                key={dur}
+                                                type="button"
+                                                onClick={() => handleDurationChange(dur)}
+                                                style={{
+                                                    flex: 1, padding: '8px 4px', borderRadius: '6px',
+                                                    fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer',
+                                                    border: durationMinutes === dur ? '1px solid #0284c7' : '1px solid #cbd5e1',
+                                                    background: durationMinutes === dur ? '#0284c7' : '#ffffff',
+                                                    color: durationMinutes === dur ? '#ffffff' : '#475569',
+                                                }}
+                                            >
+                                                {dur}m
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
 
-                            {/* Step 2: Select Hours */}
-                            {selectedDate && (
-                                <div style={{ marginBottom: '20px' }}>
-                                    <label style={{ display: 'block', fontWeight: 700, marginBottom: '10px', fontSize: '0.9rem', color: '#0f172a' }}>
-                                        2. Select Available Hours (9 AM - 9 PM)
-                                    </label>
-                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '10px' }}>
-                                        {HOUR_SLOTS.map(slot => {
-                                            const alreadySaved = isHourAlreadySaved(slot);
-                                            const selected = isHourSelected(slot);
-                                            return (
-                                                <button
-                                                    key={slot.start_time}
-                                                    type="button"
-                                                    onClick={() => !alreadySaved && toggleHour(slot)}
-                                                    disabled={alreadySaved}
-                                                    style={{
-                                                        padding: '14px 8px', borderRadius: '12px', fontSize: '0.9rem',
-                                                        fontWeight: 700, cursor: alreadySaved ? 'default' : 'pointer',
-                                                        transition: 'all 0.2s', textAlign: 'center',
-                                                        border: selected ? '2px solid var(--accent-green, #22c55e)' : alreadySaved ? '1px solid #bbf7d0' : '1px solid var(--border)',
-                                                        background: selected ? '#dcfce7' : alreadySaved ? '#f0fdf4' : '#fff',
-                                                        color: selected ? '#166534' : alreadySaved ? '#86efac' : '#334155',
-                                                        opacity: alreadySaved ? 0.6 : 1,
-                                                    }}
-                                                >
-                                                    {slot.labelShort}
-                                                    {alreadySaved && (
-                                                        <div style={{ fontSize: '0.65rem', color: '#86efac', marginTop: '2px' }}>Saved</div>
-                                                    )}
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                    {selectedHours.length > 0 && (
-                                        <p style={{ fontSize: '0.85rem', color: 'var(--accent-green, #22c55e)', fontWeight: 600, marginTop: '12px' }}>
-                                            {selectedHours.length} hour(s) selected
-                                        </p>
-                                    )}
-                                </div>
-                            )}
-
-                            {/* Submit */}
-                            <button
-                                onClick={handleAddSlots}
-                                className="glass-btn primary"
-                                disabled={saving || !selectedDate || selectedHours.length === 0}
-                                style={{
-                                    padding: '12px 28px', borderRadius: '12px', fontWeight: 700,
-                                    opacity: (!selectedDate || selectedHours.length === 0) ? 0.5 : 1,
-                                }}
-                            >
-                                {saving ? 'Saving...' : `Add ${selectedHours.length || ''} Slot${selectedHours.length !== 1 ? 's' : ''}`}
-                            </button>
+                            {/* Live Gap & Conflict Status Alert */}
+                            <div style={{
+                                marginTop: '16px', padding: '12px 16px', borderRadius: '8px',
+                                display: 'flex', alignItems: 'center', gap: '10px',
+                                background: validationResult.valid ? '#ecfdf5' : '#fef2f2',
+                                border: validationResult.valid ? '1px solid #a7f3d0' : '1px solid #fecaca',
+                                color: validationResult.valid ? '#047857' : '#b91c1c',
+                                fontSize: '0.88rem', fontWeight: 600
+                            }}>
+                                {validationResult.valid ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
+                                <span>{validationResult.message}</span>
+                            </div>
                         </div>
-                    )}
 
-                    {/* Current Week Slots */}
-                    <h3 className="section-heading">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" strokeWidth="2">
-                            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-                        </svg>
-                        This Week's Schedule
-                    </h3>
-                    {grouped.current.length > 0 ? (
-                        <div style={{ marginBottom: '28px' }}>
-                            {groupByDate(grouped.current).map(([date, slots]) => (
-                                <div key={date} style={{ marginBottom: '20px' }}>
-                                    <h4 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '12px', color: '#1e293b' }}>
-                                        {formatDate(date)}
-                                    </h4>
-                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
-                                        {slots.map(slot => (
-                                            <div key={slot.id} style={{
-                                                padding: '10px 16px', borderRadius: '8px',
-                                                background: '#f0f9ff', border: '1px solid #bae6fd',
-                                                fontSize: '0.9rem', fontWeight: 600, color: '#0ea5e9',
-                                                display: 'flex', alignItems: 'center', gap: '8px',
-                                            }}>
-                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                                                {formatTime(slot.start_time).toLowerCase()} - {formatTime(slot.end_time).toLowerCase()}
+                        {/* Existing Slots on this date preview */}
+                        {dayExistingSlots.length > 0 && (
+                            <div style={{ marginBottom: '20px' }}>
+                                <div style={{ fontSize: '0.84rem', fontWeight: 700, color: '#475569', marginBottom: '8px' }}>
+                                    Already scheduled on {formatDate(selectedDate)}:
+                                </div>
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                                    {dayExistingSlots.map(s => (
+                                        <span key={s.id} style={{
+                                            padding: '6px 12px', borderRadius: '6px', fontSize: '0.82rem',
+                                            fontWeight: 600, background: s.is_booked ? '#fef3c7' : '#f1f5f9',
+                                            border: s.is_booked ? '1px solid #fde68a' : '1px solid #cbd5e1',
+                                            color: s.is_booked ? '#92400e' : '#334155',
+                                            display: 'inline-flex', alignItems: 'center', gap: '6px'
+                                        }}>
+                                            <Clock size={12} />
+                                            <span>{formatTime(s.start_time)} - {formatTime(s.end_time)}</span>
+                                            {s.is_booked && <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#b45309' }}>[BOOKED]</span>}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Submit Button */}
+                        <button
+                            type="button"
+                            onClick={handleAddSlot}
+                            disabled={saving || !validationResult.valid}
+                            className="glass-btn primary"
+                            style={{
+                                padding: '12px 28px', borderRadius: '10px', fontWeight: 700,
+                                display: 'inline-flex', alignItems: 'center', gap: '8px',
+                                opacity: (!validationResult.valid || saving) ? 0.6 : 1,
+                                cursor: (!validationResult.valid || saving) ? 'not-allowed' : 'pointer',
+                            }}
+                        >
+                            <Plus size={18} />
+                            <span>{saving ? 'Validating & Saving...' : 'Add Slot with 1-Hour Buffer'}</span>
+                        </button>
+                    </div>
+
+                    {/* All Scheduled Slots grouped by Date */}
+                    <div>
+                        <h3 className="section-heading" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1.2rem', fontWeight: 800, color: '#0f172a', marginBottom: '16px' }}>
+                            <CalendarIcon size={20} color="#0284c7" />
+                            <span>All Configured Availability Slots ({data.slots?.length || 0})</span>
+                        </h3>
+
+                        {groupedAllSlots.length > 0 ? (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                                {groupedAllSlots.map(([dateStr, slots]) => {
+                                    // Sort by time
+                                    const sortedSlots = [...slots].sort((a, b) => timeToMinutes(a.start_time) - timeToMinutes(b.start_time));
+                                    return (
+                                        <div key={dateStr} className="glass-card" style={{ padding: '20px', borderRadius: '14px', border: '1px solid #e2e8f0', background: '#fff' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                                                <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: '#0f172a' }}>
+                                                    {formatDate(dateStr)}
+                                                </h4>
+                                                <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#64748b' }}>
+                                                    {sortedSlots.length} class slot{sortedSlots.length !== 1 ? 's' : ''}
+                                                </span>
                                             </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="glass-card empty-state" style={{ marginBottom: '28px' }}>
-                            <h3>No availability set</h3>
-                            <p>You haven't set any slots for this week.</p>
-                        </div>
-                    )}
 
-                    {/* Next Week Slots */}
-                    <h3 className="section-heading">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-purple, #8b5cf6)" strokeWidth="2">
-                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-                        </svg>
-                        Next Week's Schedule
-                    </h3>
-                    {grouped.next.length > 0 ? (
-                        <div>
-                            {groupByDate(grouped.next).map(([date, slots]) => (
-                                <div key={date} style={{ marginBottom: '20px' }}>
-                                    <h4 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '12px', color: '#1e293b' }}>
-                                        {formatDate(date)}
-                                    </h4>
-                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
-                                        {slots.map(slot => (
-                                            <div key={slot.id} style={{
-                                                padding: '10px 16px', borderRadius: '8px',
-                                                background: '#fdf4ff', border: '1px solid #f0abfc',
-                                                fontSize: '0.9rem', fontWeight: 600, color: '#a855f7',
-                                                display: 'flex', alignItems: 'center', gap: '8px',
-                                            }}>
-                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                                                {formatTime(slot.start_time).toLowerCase()} - {formatTime(slot.end_time).toLowerCase()}
-                                                <button
-                                                    onClick={() => handleDeleteSlot(slot.id)}
-                                                    title="Remove slot"
-                                                    style={{
-                                                        background: 'none', border: 'none', cursor: 'pointer',
-                                                        color: '#ef4444', padding: '2px', display: 'flex',
-                                                        alignItems: 'center', marginLeft: '8px', transition: 'transform 0.2s'
-                                                    }}
-                                                    onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.2)'}
-                                                    onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                                                >
-                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                                                </button>
+                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center' }}>
+                                                {sortedSlots.map((slot, idx) => {
+                                                    // Compute gap to next slot
+                                                    let nextGapStr = null;
+                                                    if (idx < sortedSlots.length - 1) {
+                                                        const curEnd = timeToMinutes(slot.end_time);
+                                                        const nextStart = timeToMinutes(sortedSlots[idx + 1].start_time);
+                                                        const gapMin = nextStart - curEnd;
+                                                        const gh = Math.floor(gapMin / 60);
+                                                        const gm = gapMin % 60;
+                                                        nextGapStr = `${gh > 0 ? `${gh}h ` : ''}${gm > 0 ? `${gm}m` : ''} break`;
+                                                    }
+
+                                                    return (
+                                                        <div key={slot.id} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                                                            <div style={{
+                                                                padding: '10px 14px', borderRadius: '10px',
+                                                                border: slot.is_booked ? '1px solid #fde68a' : '1px solid #bae6fd',
+                                                                background: slot.is_booked ? '#fef3c7' : '#f0f9ff',
+                                                                display: 'flex', alignItems: 'center', gap: '10px',
+                                                                boxShadow: '0 1px 3px rgba(0,0,0,0.03)'
+                                                            }}>
+                                                                <Clock size={15} color={slot.is_booked ? '#b45309' : '#0284c7'} />
+                                                                <span style={{ fontSize: '0.9rem', fontWeight: 700, color: slot.is_booked ? '#92400e' : '#0369a1' }}>
+                                                                    {formatTime(slot.start_time)} – {formatTime(slot.end_time)}
+                                                                </span>
+
+                                                                {slot.is_booked ? (
+                                                                    <span style={{
+                                                                        fontSize: '0.72rem', fontWeight: 800,
+                                                                        background: '#fef08a', color: '#854d0e',
+                                                                        padding: '2px 8px', borderRadius: '4px',
+                                                                        letterSpacing: '0.4px'
+                                                                    }}>
+                                                                        BOOKED
+                                                                    </span>
+                                                                ) : (
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => handleDeleteSlot(slot.id)}
+                                                                        title="Remove this slot"
+                                                                        style={{
+                                                                            background: 'none', border: 'none',
+                                                                            color: '#ef4444', cursor: 'pointer',
+                                                                            display: 'flex', alignItems: 'center', padding: '2px',
+                                                                            transition: 'transform 0.15s'
+                                                                        }}
+                                                                        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.2)'}
+                                                                        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                                                                    >
+                                                                        <Trash2 size={15} />
+                                                                    </button>
+                                                                )}
+                                                            </div>
+
+                                                            {nextGapStr && (
+                                                                <div style={{
+                                                                    fontSize: '0.72rem', fontWeight: 700, color: '#16a34a',
+                                                                    background: '#f0fdf4', border: '1px dashed #bbf7d0',
+                                                                    padding: '4px 8px', borderRadius: '6px',
+                                                                    display: 'inline-flex', alignItems: 'center', gap: '4px'
+                                                                }}>
+                                                                    <Pause size={10} />
+                                                                    <span>{nextGapStr}</span>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    );
+                                                })}
                                             </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="glass-card empty-state">
-                            <h3>No slots yet</h3>
-                            <p>Add your available times for next week using the form above.</p>
-                        </div>
-                    )}
-                </>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        ) : (
+                            <div className="glass-card empty-state" style={{ padding: '36px', textAlign: 'center', background: '#fff', borderRadius: '14px', border: '1px solid #e2e8f0' }}>
+                                <Clock size={36} color="#94a3b8" style={{ margin: '0 auto 12px' }} />
+                                <h4 style={{ margin: '0 0 6px', fontSize: '1.1rem', fontWeight: 700, color: '#334155' }}>No availability slots set</h4>
+                                <p style={{ margin: 0, color: '#64748b', fontSize: '0.88rem' }}>
+                                    Use the manual entry form above to enter your available teaching hours.
+                                </p>
+                            </div>
+                        )}
+                    </div>
+
+                </div>
             ) : (
-                <div className="alert alert-error">Failed to load availability data.</div>
+                <div className="alert alert-error">Failed to load teacher availability.</div>
             )}
         </DashboardLayout>
     );
