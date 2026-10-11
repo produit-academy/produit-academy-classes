@@ -318,20 +318,20 @@ export default function TeacherProfilePage() {
                             {/* Fee Banner */}
                             <div>
                                 <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                                    Tuition Fee
+                                    {user?.role === 'teacher' ? 'Allotted Faculty Rate (HR)' : 'Tuition Fee'}
                                 </span>
                                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginTop: '2px' }}>
                                     <span style={{ fontSize: '2.2rem', fontWeight: 800, color: '#0f172a' }}>
                                         ₹{profile.hourly_rate || 0}
                                     </span>
                                     <span style={{ fontSize: '0.9rem', color: '#64748b', fontWeight: 600 }}>
-                                        / 1-Hour Class
+                                        {user?.role === 'teacher' ? '/ Class (Allotted by HR)' : '/ 1-Hour Class'}
                                     </span>
                                 </div>
                             </div>
 
                             {/* Subject selector if multiple taught subjects */}
-                            {profile.taught_subject_names?.length > 1 && (
+                            {user?.role !== 'teacher' && profile.taught_subject_names?.length > 1 && (
                                 <div>
                                     <label style={{ fontSize: '0.82rem', fontWeight: 700, color: '#475569', display: 'block', marginBottom: '6px' }}>
                                         Select Subject to Book:
@@ -360,8 +360,23 @@ export default function TeacherProfilePage() {
                                 </div>
                             )}
 
-                            {/* Square Booking Action Button */}
-                            {user?.role === 'student' ? (
+                            {/* Square Action / Status Display */}
+                            {user?.role === 'teacher' ? (
+                                <div style={{
+                                    background: '#ecfdf5',
+                                    border: '1px solid #a7f3d0',
+                                    padding: '16px',
+                                    textAlign: 'center',
+                                    borderRadius: '0px'
+                                }}>
+                                    <div style={{ fontWeight: 800, color: '#065f46', fontSize: '0.92rem', marginBottom: '4px' }}>
+                                        Faculty Profile Mode
+                                    </div>
+                                    <p style={{ margin: 0, fontSize: '0.8rem', color: '#047857', lineHeight: 1.4 }}>
+                                        Student fee collection and checkout details are concealed. Only your HR-allotted payout is displayed.
+                                    </p>
+                                </div>
+                            ) : user?.role === 'student' ? (
                                 hasSlots ? (
                                     <button
                                         onClick={() => setShowBooking(true)}

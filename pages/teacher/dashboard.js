@@ -293,9 +293,9 @@ function TeacherDashboard() {
                         </div>
 
                         <div className="glass-card" style={{ padding: '20px', borderRadius: '0px', borderLeft: '4px solid #3b82f6' }}>
-                            <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>Confirmed Earnings</span>
+                            <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>Allotted Faculty Earnings</span>
                             <h3 style={{ fontSize: '1.8rem', fontWeight: 800, color: '#2563eb', margin: '4px 0 0' }}>₹{parseFloat(data.total_earnings || 0).toLocaleString('en-IN')}</h3>
-                            <span style={{ fontSize: '0.78rem', color: '#64748b' }}>Completed classes only</span>
+                            <span style={{ fontSize: '0.78rem', color: '#64748b' }}>HR Allotted Rate: ₹{data.hourly_rate || 0}/hr &middot; Completed classes only</span>
                         </div>
                     </div>
 

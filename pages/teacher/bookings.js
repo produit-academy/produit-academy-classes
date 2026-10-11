@@ -77,9 +77,41 @@ function TeacherBookings() {
                                 }}>{b.booking_status}</span>
                             </div>
 
-                            <p style={{ fontSize: '0.9rem', marginBottom: '12px' }}>
-                                <strong>{b.subject_name}</strong> - {b.course_name} · {b.num_classes} classes
-                            </p>
+                            <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                flexWrap: 'wrap',
+                                gap: '10px',
+                                marginBottom: '14px',
+                                background: '#f8fafc',
+                                padding: '12px 16px',
+                                borderRadius: '10px',
+                                border: '1px solid #e2e8f0'
+                            }}>
+                                <div style={{ fontSize: '0.9rem', color: '#1e293b' }}>
+                                    <strong>{b.subject_name}</strong> &middot; {b.course_name} &middot; <strong>{b.num_classes} classes</strong>
+                                </div>
+                                <div style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '6px',
+                                    background: '#ecfdf5',
+                                    border: '1px solid #a7f3d0',
+                                    padding: '5px 12px',
+                                    borderRadius: '6px'
+                                }}>
+                                    <span style={{ fontSize: '0.78rem', color: '#065f46', fontWeight: 600 }}>
+                                        Allotted Faculty Compensation (HR):
+                                    </span>
+                                    <strong style={{ fontSize: '0.9rem', color: '#047857' }}>
+                                        ₹{b.allotted_rate_per_class || b.teacher_fee_per_class || 0} / class
+                                    </strong>
+                                    <span style={{ fontSize: '0.8rem', color: '#059669', fontWeight: 600 }}>
+                                        (Total Allotted: ₹{b.total_allotted_earnings || ((b.allotted_rate_per_class || b.teacher_fee_per_class || 0) * b.num_classes)})
+                                    </span>
+                                </div>
+                            </div>
 
                             {b.schedules?.length > 0 && (
                                 <div style={{ paddingTop: '12px', borderTop: '1px solid var(--card-border, #e0e0e0)' }}>

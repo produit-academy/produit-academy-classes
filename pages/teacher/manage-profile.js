@@ -139,6 +139,13 @@ function ManageProfile() {
                             <div><label style={labelStyle}>Last Name</label><input value={form.last_name} onChange={e => setForm({ ...form, last_name: e.target.value })} style={inputStyle} /></div>
                             <div><label style={labelStyle}>Email</label><input value={form.email} style={{ ...inputStyle, background: '#f5f5f5', cursor: 'not-allowed', color: '#888' }} disabled /></div>
                             <div><label style={labelStyle}>New Password</label><input type="password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} style={inputStyle} placeholder="Leave blank to keep current" /></div>
+                            <div style={{ gridColumn: '1 / -1' }}>
+                                <label style={labelStyle}>Faculty Compensation Rate (Allotted by HR/Admin)</label>
+                                <div style={{ ...inputStyle, background: '#f8fafc', border: '1px solid #bbf7d0', color: '#047857', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                    <span>₹{profile?.hourly_rate || 0} / 1-Hour Class</span>
+                                    <span style={{ fontSize: '0.78rem', color: '#059669', fontWeight: 600 }}>Allotted from HR/Admin</span>
+                                </div>
+                            </div>
 
                             <div style={{ gridColumn: '1 / -1' }}><hr style={{ border: 'none', borderTop: '1px solid var(--card-border, #e0e0e0)', margin: '8px 0' }} /></div>
                             
