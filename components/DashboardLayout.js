@@ -1,11 +1,12 @@
-// components/DashboardLayout.js - 70% Minimalist + 20% Futuristic + 10% Playful
+// components/DashboardLayout.js - Professional Learning Platform Shell
 import { useAuth } from '../lib/auth';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import {
     LayoutGrid, BookOpen, Calendar, Wallet, User,
-    LifeBuoy, LogOut, Menu, X, Activity, Users, Plus, ShieldCheck,
-    FileText, CreditCard
+    LifeBuoy, LogOut, Menu, X, Activity, Users, ShieldCheck,
+    FileText, CreditCard, GraduationCap, ChevronRight
 } from 'lucide-react';
 
 const NAV_ITEMS = {
@@ -23,8 +24,7 @@ const NAV_ITEMS = {
         { label: 'Manage Profile', href: '/teacher/manage-profile', icon: User },
         { label: 'My Availability', href: '/teacher/availability', icon: Calendar },
         { label: 'My Bookings', href: '/teacher/bookings', icon: BookOpen },
-        { label: 'Student Analysis', href: '/analysis', icon: Activity },
-        { label: 'My Wallet', href: '/wallet', icon: Wallet },
+        { label: 'Class Analysis', href: '/teacher/class-analysis', icon: Activity },
     ],
     admin: [
         { label: 'Dashboard', href: '/admin/dashboard', icon: LayoutGrid },
@@ -33,140 +33,159 @@ const NAV_ITEMS = {
         { label: 'Courses', href: '/admin/courses', icon: BookOpen },
         { label: 'Bookings', href: '/admin/bookings', icon: Calendar },
         { label: 'Teachers', href: '/admin/staff', icon: Users },
-        { label: 'Enrollments', href: '/admin/enrollments', icon: Users },
         { label: 'Enquiries', href: '/admin/contacts', icon: LifeBuoy },
     ],
 };
 
-const ROLE_LABELS = {
-    student: 'Student // Portal',
-    teacher: 'Faculty // Portal',
-    admin: 'Admin // Control',
+const PORTAL_LABELS = {
+    student: { title: 'Student Portal', badge: 'Student' },
+    teacher: { title: 'Faculty Portal', badge: 'Faculty' },
+    admin: { title: 'Admin Console', badge: 'Administrator' },
 };
 
-export default function DashboardLayout({ children, title }) {
+export default function DashboardLayout({ children, title, subtitle }) {
     const { user, logout } = useAuth();
     const router = useRouter();
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
     const role = user?.role || 'student';
     const navItems = NAV_ITEMS[role] || NAV_ITEMS.student;
+    const portalInfo = PORTAL_LABELS[role] || PORTAL_LABELS.student;
+
+    // Close sidebar on route change
+    useEffect(() => {
+        const handleRouteChange = () => setSidebarOpen(false);
+        router.events.on('routeChangeComplete', handleRouteChange);
+        return () => router.events.off('routeChangeComplete', handleRouteChange);
+    }, [router]);
 
     const handleLogout = () => {
         logout();
         router.push('/login');
     };
 
+    const userInitial = (user?.first_name || user?.username || 'U')[0].toUpperCase();
+    const displayName = user?.first_name ? `${user.first_name} ${user.last_name || ''}`.trim() : (user?.username?.split('@')[0] || 'User');
+
     return (
         <div className="dashboard-wrapper">
-            {/* Mobile menu toggle */}
-            <button
-                className="sidebar-toggle"
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                aria-label="Toggle sidebar"
-                style={{ borderRadius: '0px' }}
-            >
-                {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
-            </button>
+            {/* Mobile Top Navigation Bar (< 768px) */}
+            <header className="mobile-topbar">
+                <button
+                    className="mobile-menu-btn"
+                    onClick={() => setSidebarOpen(true)}
+                    aria-label="Open menu"
+                >
+                    <Menu size={22} />
+                </button>
 
-            {/* Sidebar overlay (mobile) */}
+                <div className="mobile-brand">
+                    <img src="/logo.png" alt="Produit Academy Logo" width={26} height={26} style={{ borderRadius: '6px', objectFit: 'contain' }} />
+                    <span className="brand-title">Produit Academy</span>
+                </div>
+
+                <div className="mobile-user-avatar">
+                    {userInitial}
+                </div>
+            </header>
+
+            {/* Sidebar backdrop overlay (mobile) */}
             {sidebarOpen && (
-                <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />
+                <div
+                    className="sidebar-overlay"
+                    onClick={() => setSidebarOpen(false)}
+                    aria-hidden="true"
+                />
             )}
 
-            {/* Sidebar */}
-            <aside className={`dashboard-sidebar ${sidebarOpen ? 'open' : ''}`} style={{ borderRadius: '0px' }}>
-                <div className="sidebar-brand">
-                    <div style={{
-                        width: '32px', height: '32px', borderRadius: '0px',
-                        background: 'var(--accent-green)', display: 'flex',
-                        alignItems: 'center', justifyContent: 'center', color: '#ffffff',
-                        fontWeight: 800, fontSize: '1rem'
-                    }}>
-                        P
-                    </div>
-                    <span style={{ fontWeight: 800, letterSpacing: '-0.3px' }}>Produit Classes</span>
+            {/* Main Application Sidebar */}
+            <aside className={`dashboard-sidebar ${sidebarOpen ? 'open' : ''}`}>
+                {/* Brand Logo & Title */}
+                <div className="sidebar-brand-wrapper">
+                    <Link href="/" className="sidebar-brand-link">
+                        <img src="/logo.png" alt="Produit Academy Logo" width={34} height={34} style={{ borderRadius: '8px', objectFit: 'contain', flexShrink: 0 }} />
+                        <div className="sidebar-brand-text">
+                            <span className="brand-name">Produit Academy</span>
+                            <span className="brand-sub">Live Learning Platform</span>
+                        </div>
+                    </Link>
+
+                    {/* Mobile close button inside drawer */}
+                    <button
+                        className="sidebar-close-btn"
+                        onClick={() => setSidebarOpen(false)}
+                        aria-label="Close sidebar"
+                    >
+                        <X size={20} />
+                    </button>
                 </div>
 
-                {/* Futuristic HUD Role Badge */}
-                <div style={{
-                    margin: '16px 20px 8px',
-                    padding: '6px 12px',
-                    background: '#f1f5f9',
-                    color: '#334155',
-                    borderRadius: '0px',
-                    fontFamily: 'ui-monospace, monospace',
-                    fontSize: '0.72rem',
-                    fontWeight: 700,
-                    letterSpacing: '0.08em',
-                    textTransform: 'uppercase',
-                    borderLeft: '3px solid var(--accent-green)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between'
-                }}>
-                    <span>{ROLE_LABELS[role]}</span>
-                    <span className="live-pulse-dot" style={{ width: '6px', height: '6px', borderRadius: '0px' }} />
+                {/* Portal Mode Tag */}
+                <div className="sidebar-portal-tag">
+                    <span className="portal-badge-pill">
+                        {portalInfo.title}
+                    </span>
                 </div>
 
+                {/* Navigation Links */}
                 <nav className="sidebar-nav">
                     {navItems.map((item) => {
                         const IconComponent = item.icon;
                         const isActive = router.pathname === item.href;
                         return (
-                            <a
+                            <Link
                                 key={item.href}
                                 href={item.href}
-                                className={`sidebar-link ${isActive ? 'active' : ''}`}
-                                style={{
-                                    borderRadius: '0px',
-                                    borderLeft: isActive ? '3px solid var(--accent-green-dark)' : '3px solid transparent',
-                                    transition: 'all 0.15s ease'
-                                }}
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    setSidebarOpen(false);
-                                    router.push(item.href);
-                                }}
+                                className={`sidebar-nav-item ${isActive ? 'active' : ''}`}
+                                onClick={() => setSidebarOpen(false)}
                             >
-                                <IconComponent size={18} strokeWidth={isActive ? 2.2 : 1.8} />
-                                <span>{item.label}</span>
-                            </a>
+                                <IconComponent size={19} className="nav-icon" />
+                                <span className="nav-label">{item.label}</span>
+                                {isActive && <ChevronRight size={14} className="nav-active-arrow" />}
+                            </Link>
                         );
                     })}
                 </nav>
 
-                <div className="sidebar-footer" style={{ borderTop: '1px solid #e2e8f0', borderRadius: '0px' }}>
-                    <div className="sidebar-user">
-                        <div className="sidebar-avatar" style={{ borderRadius: '0px', background: '#0f172a', color: '#ffffff' }}>
-                            {(user?.first_name || user?.username || 'U')[0].toUpperCase()}
+                {/* Sidebar User Footer */}
+                <div className="sidebar-footer">
+                    <div className="sidebar-user-card">
+                        <div className="sidebar-user-avatar">
+                            {userInitial}
                         </div>
-                        <div className="sidebar-user-info">
-                            <span className="sidebar-username">
-                                {user?.first_name ? `${user.first_name} ${user.last_name || ''}`.trim() : (user?.username?.split('@')[0])}
+                        <div className="sidebar-user-details">
+                            <span className="sidebar-user-name" title={displayName}>
+                                {displayName}
+                            </span>
+                            <span className="sidebar-user-role">
+                                {portalInfo.badge}
                             </span>
                         </div>
                     </div>
-                    <button className="sidebar-logout" onClick={handleLogout} style={{ borderRadius: '0px' }}>
+
+                    <button
+                        className="sidebar-logout-button"
+                        onClick={handleLogout}
+                    >
                         <LogOut size={16} />
-                        <span>Logout</span>
+                        <span>Sign Out</span>
                     </button>
                 </div>
             </aside>
 
-            {/* Main Content */}
+            {/* Main Content Area */}
             <main className="dashboard-main">
-                <div className="dashboard-header" style={{
-                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                    borderBottom: '1px solid #e2e8f0', paddingBottom: '18px', marginBottom: '24px'
-                }}>
-                    <h1 className="dashboard-title" style={{ fontFamily: "'Lora', serif", fontWeight: 700, margin: 0 }}>
-                        {title}
-                    </h1>
-                    <div className="telemetry-chip live" style={{ display: 'none' }}>
-                        <span>Academic Network Connected</span>
+                <header className="dashboard-header">
+                    <div className="dashboard-header-left">
+                        <h1 className="dashboard-title">
+                            {title}
+                        </h1>
+                        {subtitle && (
+                            <p className="dashboard-subtitle">{subtitle}</p>
+                        )}
                     </div>
-                </div>
+                </header>
+
                 <div className="dashboard-content">
                     {children}
                 </div>

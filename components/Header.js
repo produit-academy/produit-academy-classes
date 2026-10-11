@@ -60,7 +60,7 @@ export default function Header() {
       <header ref={headerRef} className={styles.header}>
         <div className={`container ${styles.headerContent}`}>
           <Link href="/" className={styles.logo}>
-            <img src="/logo.png" alt="Produit Academy Logo" width={26} height={26} style={{ borderRadius: '0px' }} />
+            <img src="/logo.png" alt="Produit Academy Logo" width={26} height={26} style={{ borderRadius: '6px' }} />
             <span className={styles.logoText}>Produit Academy Classes</span>
           </Link>
 
@@ -84,14 +84,14 @@ export default function Header() {
                   <span>{user.first_name || user.username}</span>
                   <span style={{ fontSize: '0.75rem' }}>&#9662;</span>
                 </button>
-                <div className={styles.dropdownContent} style={{ borderRadius: '0px' }}>
-                  <Link href={dashboardUrl} style={{ borderRadius: '0px' }}>Dashboard</Link>
-                  <a href="#" onClick={handleLogout} style={{ borderRadius: '0px' }}>Logout</a>
+                <div className={styles.dropdownContent} style={{ borderRadius: '12px' }}>
+                  <Link href={dashboardUrl} style={{ borderRadius: '8px' }}>Dashboard</Link>
+                  <a href="#" onClick={handleLogout} style={{ borderRadius: '8px' }}>Logout</a>
                 </div>
               </div>
             ) : (
               <Link href="/login" passHref>
-                <button className="glass-btn primary" style={{ padding: '6px 16px', fontSize: '0.85rem', borderRadius: '0px' }}>
+                <button className="glass-btn primary" style={{ padding: '7px 18px', fontSize: '0.88rem', borderRadius: '10px' }}>
                   Login
                 </button>
               </Link>
@@ -107,7 +107,7 @@ export default function Header() {
       <div className={`${styles.sidebar} ${isMenuOpen ? styles.open : ''}`}>
         <div className={styles.sidebarContent}>
           <div className={styles.sidebarHeader}>
-            <img src="/logo.png" alt="Produit Academy Logo" width={32} height={32} style={{ borderRadius: '0px' }} />
+            <img src="/logo.png" alt="Produit Academy Logo" width={32} height={32} style={{ borderRadius: '8px' }} />
             <button className={styles.closeBtn} onClick={closeMenu}>&times;</button>
           </div>
 

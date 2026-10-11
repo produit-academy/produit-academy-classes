@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import { withAuth } from '../../lib/auth';
-import { apiGet } from '../../lib/api';
+import { apiGet, onPlatformSync } from '../../lib/api';
 import DashboardLayout from '../../components/DashboardLayout';
 import StatCard from '../../components/StatCard';
 
@@ -9,11 +9,17 @@ function AdminDashboard() {
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
+    const loadStats = () => {
         apiGet('/api/classes/admin/stats/')
             .then(setStats)
             .catch(console.error)
             .finally(() => setLoading(false));
+    };
+
+    useEffect(() => {
+        loadStats();
+        const unsub = onPlatformSync(() => loadStats());
+        return unsub;
     }, []);
 
     return (

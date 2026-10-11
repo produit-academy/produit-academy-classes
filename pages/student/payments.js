@@ -28,8 +28,14 @@ function StudentPayments() {
         pending: 'Pending',
     };
 
-    const totalPaid = payments.reduce((sum, p) => sum + (p.advance_paid || 0), 0);
-    const totalRemaining = payments.reduce((sum, p) => sum + (p.remaining || 0), 0);
+    const totalPaid = payments.reduce((sum, p) => {
+        const isPaid = p.payment_status === 'advance_paid' || p.payment_status === 'fully_paid';
+        return sum + (isPaid ? (p.advance_paid || 0) : 0);
+    }, 0);
+    const totalRemaining = payments.reduce((sum, p) => {
+        const isPaid = p.payment_status === 'advance_paid' || p.payment_status === 'fully_paid';
+        return sum + (isPaid ? (p.remaining || 0) : (p.total_amount || 0));
+    }, 0);
 
     return (
         <DashboardLayout title="Payment History">
@@ -106,11 +112,25 @@ function StudentPayments() {
                                     </div>
                                     <div>
                                         <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Advance Paid</span>
-                                        <p style={{ fontWeight: 700, fontSize: '1.1rem', margin: '4px 0 0 0', color: '#22c55e' }}>₹{p.advance_paid}</p>
+                                        <p style={{
+                                            fontWeight: 700,
+                                            fontSize: '1.1rem',
+                                            margin: '4px 0 0 0',
+                                            color: (p.payment_status === 'advance_paid' || p.payment_status === 'fully_paid') ? '#22c55e' : 'var(--text-secondary)'
+                                        }}>
+                                            ₹{(p.payment_status === 'advance_paid' || p.payment_status === 'fully_paid') ? p.advance_paid : 0}
+                                        </p>
                                     </div>
                                     <div>
                                         <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Remaining</span>
-                                        <p style={{ fontWeight: 700, fontSize: '1.1rem', margin: '4px 0 0 0', color: p.remaining > 0 ? '#f59e0b' : 'var(--text-secondary)' }}>₹{p.remaining}</p>
+                                        <p style={{
+                                            fontWeight: 700,
+                                            fontSize: '1.1rem',
+                                            margin: '4px 0 0 0',
+                                            color: (p.payment_status !== 'advance_paid' && p.payment_status !== 'fully_paid') || p.remaining > 0 ? '#f59e0b' : 'var(--text-secondary)'
+                                        }}>
+                                            ₹{(p.payment_status === 'advance_paid' || p.payment_status === 'fully_paid') ? p.remaining : p.total_amount}
+                                        </p>
                                     </div>
                                     <div>
                                         <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Status</span>

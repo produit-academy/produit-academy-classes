@@ -23,7 +23,7 @@
 }
 
 .authTitle {
-  font-family: 'Lora', serif;
+  font-family: inherit;
   font-size: 2.5rem;
   font-weight: 600;
   margin-bottom: 1rem;
@@ -214,13 +214,6 @@
   backdrop-filter: blur(8px);
 }
 
-.pulseDot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #34d399;
-  box-shadow: 0 0 8px #34d399;
-}
 
 .showcaseTitle {
   font-size: 2.1rem;

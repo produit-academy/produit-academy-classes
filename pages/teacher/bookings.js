@@ -62,7 +62,7 @@ function TeacherBookings() {
                 <div style={{ display: 'grid', gap: '20px' }}>
                     {bookings.map(b => (
                         <div key={b.id} className="glass-card" style={{ padding: '24px', borderRadius: '16px', borderLeft: `4px solid ${statusColors[b.booking_status] || '#ccc'}` }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px', marginBottom: '12px' }}>
                                 <div>
                                     <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '4px' }}>{b.student_name}</h3>
                                     <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
@@ -70,10 +70,20 @@ function TeacherBookings() {
                                     </p>
                                 </div>
                                 <span style={{
-                                    fontSize: '0.78rem', fontWeight: 600, padding: '4px 14px', borderRadius: '20px',
-                                    background: `${statusColors[b.booking_status]}15`,
-                                    color: statusColors[b.booking_status],
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontSize: '0.78rem',
+                                    fontWeight: 700,
+                                    padding: '5px 14px',
+                                    lineHeight: 1,
+                                    borderRadius: '9999px',
+                                    background: `${statusColors[b.booking_status] || '#cbd5e1'}18`,
+                                    color: statusColors[b.booking_status] || '#475569',
+                                    border: `1px solid ${statusColors[b.booking_status] || '#cbd5e1'}40`,
                                     textTransform: 'capitalize',
+                                    height: 'fit-content',
+                                    marginTop: '2px',
                                 }}>{b.booking_status}</span>
                             </div>
 
@@ -91,25 +101,6 @@ function TeacherBookings() {
                             }}>
                                 <div style={{ fontSize: '0.9rem', color: '#1e293b' }}>
                                     <strong>{b.subject_name}</strong> &middot; {b.course_name} &middot; <strong>{b.num_classes} classes</strong>
-                                </div>
-                                <div style={{
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: '6px',
-                                    background: '#ecfdf5',
-                                    border: '1px solid #a7f3d0',
-                                    padding: '5px 12px',
-                                    borderRadius: '6px'
-                                }}>
-                                    <span style={{ fontSize: '0.78rem', color: '#065f46', fontWeight: 600 }}>
-                                        Allotted Faculty Compensation (HR):
-                                    </span>
-                                    <strong style={{ fontSize: '0.9rem', color: '#047857' }}>
-                                        ₹{b.allotted_rate_per_class || b.teacher_fee_per_class || 0} / class
-                                    </strong>
-                                    <span style={{ fontSize: '0.8rem', color: '#059669', fontWeight: 600 }}>
-                                        (Total Allotted: ₹{b.total_allotted_earnings || ((b.allotted_rate_per_class || b.teacher_fee_per_class || 0) * b.num_classes)})
-                                    </span>
                                 </div>
                             </div>
 

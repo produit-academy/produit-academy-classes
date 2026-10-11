@@ -48,7 +48,7 @@
 }
 
 .logoText {
-  font-family: var(--font-serif, 'Lora', serif);
+  font-family: inherit;
   font-size: 1.15rem;
   font-weight: 700;
   color: var(--text-primary);
@@ -58,7 +58,7 @@
 .avatar {
   width: 26px;
   height: 26px;
-  border-radius: 0px;
+  border-radius: 50%;
   background: #0f172a;
   color: #ffffff;
   display: flex;
@@ -78,7 +78,7 @@
   cursor: pointer;
   padding: 6px;
   z-index: 1001;
-  border-radius: 0px;
+  border-radius: 8px;
   transition: background-color 0.3s ease;
 }
 

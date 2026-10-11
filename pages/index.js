@@ -78,20 +78,13 @@ export default function Home() {
       <main style={{ flex: 1 }}>
         {/* ============ HERO SECTION ============ */}
         <section className={styles.heroSection}>
-          <div className={styles.kitesContainer}>
-            <div className={styles.kite}>🪁</div>
-            <div className={styles.kite}>📚</div>
-            <div className={styles.kite}>🔬</div>
-            <div className={styles.kite}>💡</div>
-          </div>
-
           <div className="container" style={{ position: 'relative', zIndex: 2 }}>
             <div className={styles.heroContent}>
-              {/* Telemetry Chip */}
+              {/* Academic Badge */}
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
                 <div className={styles.heroBadge}>
-                  <span className={styles.pulseDot} />
-                  <span>ACADEMIC NETWORK // CLASSES 6 - 12</span>
+                  <GraduationCap size={15} />
+                  <span>ACCREDITED K-12 LIVE LEARNING</span>
                 </div>
               </motion.div>
 
@@ -126,7 +119,7 @@ export default function Home() {
                 </Link>
 
                 <Link href="/login" className={styles.heroBtnSecondary} id="hero-btn-login">
-                  <UserCheck size={18} color="var(--accent-green)" />
+                  <UserCheck size={18} color="#059669" />
                   <span>Student Portal</span>
                 </Link>
               </motion.div>
@@ -139,31 +132,31 @@ export default function Home() {
           <div className={`${styles.heroOrb} ${styles.heroOrb3}`} />
         </section>
 
-        {/* ============ HUD TELEMETRY BAR ============ */}
+        {/* ============ ACADEMIC PILLARS BAR ============ */}
         <div className={styles.heroStatsWrapper}>
           <div className={styles.heroStats}>
             <div className={styles.heroStat}>
-              <span className={styles.heroStatTag}>[ 01 // LIVE ]</span>
-              <span className={styles.heroStatValue}>Interactive Sessions</span>
-              <span className={styles.heroStatLabel}>Direct audio, video & screen share</span>
+              <span className={styles.heroStatTag}>01 • Live Classes</span>
+              <span className={styles.heroStatValue}>Interactive 1-on-1</span>
+              <span className={styles.heroStatLabel}>Direct audio, video & digital whiteboard</span>
             </div>
 
             <div className={styles.heroStat}>
-              <span className={styles.heroStatTag}>[ 02 // MENTORS ]</span>
-              <span className={styles.heroStatValue}>Vetted Faculty</span>
+              <span className={styles.heroStatTag}>02 • Mentors</span>
+              <span className={styles.heroStatValue}>Verified Faculty</span>
               <span className={styles.heroStatLabel}>Specialists in CBSE, ICSE & State syllabi</span>
             </div>
 
             <div className={styles.heroStat}>
-              <span className={styles.heroStatTag}>[ 03 // BOOKINGS ]</span>
+              <span className={styles.heroStatTag}>03 • Flexible</span>
               <span className={styles.heroStatValue}>Self-Service Demo</span>
               <span className={styles.heroStatLabel}>Pick batch times and test trial sessions</span>
             </div>
 
             <div className={styles.heroStat}>
-              <span className={styles.heroStatTag}>[ 04 // METRICS ]</span>
-              <span className={styles.heroStatValue}>Verified Telemetry</span>
-              <span className={styles.heroStatLabel}>Continuous attendance & academic feedback</span>
+              <span className={styles.heroStatTag}>04 • Progress</span>
+              <span className={styles.heroStatValue}>Continuous Reports</span>
+              <span className={styles.heroStatLabel}>Real-time attendance & parent feedback</span>
             </div>
           </div>
         </div>
@@ -183,7 +176,7 @@ export default function Home() {
               <div className={`${styles.featureCard} pop-accent-border`}>
                 <div
                   className={styles.featureIconBox}
-                  style={{ background: 'rgba(51, 174, 120, 0.08)', color: 'var(--accent-green)' }}
+                  style={{ background: '#ecfdf5', color: '#059669' }}
                 >
                   <Video size={22} />
                 </div>
@@ -196,7 +189,7 @@ export default function Home() {
               <div className={`${styles.featureCard} pop-accent-border-blue`}>
                 <div
                   className={styles.featureIconBox}
-                  style={{ background: 'rgba(37, 99, 235, 0.08)', color: '#2563eb' }}
+                  style={{ background: '#eff6ff', color: '#2563eb' }}
                 >
                   <BookOpen size={22} />
                 </div>
@@ -209,7 +202,7 @@ export default function Home() {
               <div className={`${styles.featureCard} pop-accent-border-purple`}>
                 <div
                   className={styles.featureIconBox}
-                  style={{ background: 'rgba(124, 58, 237, 0.08)', color: '#7c3aed' }}
+                  style={{ background: '#f5f3ff', color: '#7c3aed' }}
                 >
                   <BarChart3 size={22} />
                 </div>
@@ -222,7 +215,7 @@ export default function Home() {
               <div className={`${styles.featureCard} pop-accent-border-amber`}>
                 <div
                   className={styles.featureIconBox}
-                  style={{ background: 'rgba(217, 119, 6, 0.08)', color: '#d97706' }}
+                  style={{ background: '#fffbeb', color: '#d97706' }}
                 >
                   <ShieldCheck size={22} />
                 </div>
@@ -239,22 +232,22 @@ export default function Home() {
         <section className={styles.howItWorksSection} id="how-it-works">
           <div className="container">
             <div className={styles.sectionHeader}>
-              <span className={styles.sectionBadge}>STUDENT PROTOCOL</span>
+              <span className={styles.sectionBadge}>ADMISSIONS & ONBOARDING</span>
               <h2 className={styles.sectionTitle}>How Produit Classes Works</h2>
               <p className={styles.sectionSubtitle}>
-                Get onboarded into your focused learning cohort in three transparent steps.
+                Get onboarded into your focused learning cohort in three simple steps.
               </p>
             </div>
 
             <div className={styles.stepsGrid}>
               <div className={styles.stepCard}>
-                <span className={styles.stepBadge}>PHASE // 01</span>
+                <span className={styles.stepBadge}>STEP 01</span>
                 <h3>Select Grade & Subject</h3>
                 <p>
                   Choose your grade level (Classes 6 through 12) and pick your target subject - from foundation sciences to advanced mathematics.
                 </p>
                 <div style={{ marginTop: 'auto', paddingTop: '20px' }}>
-                  <Link href="/courses" style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--accent-green)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                  <Link href="/courses" style={{ fontSize: '0.85rem', fontWeight: 700, color: '#059669', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                     <span>Browse Subjects</span>
                     <ArrowRight size={14} />
                   </Link>
@@ -263,14 +256,14 @@ export default function Home() {
 
               <div className={styles.stepCard}>
                 <span className={styles.stepBadge} style={{ color: '#2563eb', background: '#eff6ff', borderColor: '#bfdbfe' }}>
-                  PHASE // 02
+                  STEP 02
                 </span>
                 <h3>Book a Teacher & Demo</h3>
                 <p>
                   Browse verified educator profiles, review bios and hourly rates, and schedule an interactive demo at your preferred time.
                 </p>
                 <div style={{ marginTop: 'auto', paddingTop: '20px' }}>
-                  <Link href="/courses" style={{ fontSize: '0.82rem', fontWeight: 700, color: '#2563eb', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                  <Link href="/courses" style={{ fontSize: '0.85rem', fontWeight: 700, color: '#2563eb', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                     <span>View Faculty</span>
                     <ArrowRight size={14} />
                   </Link>
@@ -279,14 +272,14 @@ export default function Home() {
 
               <div className={styles.stepCard}>
                 <span className={styles.stepBadge} style={{ color: '#7c3aed', background: '#f5f3ff', borderColor: '#ddd6fe' }}>
-                  PHASE // 03
+                  STEP 03
                 </span>
                 <h3>Join Live Classes</h3>
                 <p>
                   Access your student dashboard, enter your scheduled virtual classroom, access lesson notes, and review your performance telemetry.
                 </p>
                 <div style={{ marginTop: 'auto', paddingTop: '20px' }}>
-                  <Link href="/login" style={{ fontSize: '0.82rem', fontWeight: 700, color: '#7c3aed', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                  <Link href="/login" style={{ fontSize: '0.85rem', fontWeight: 700, color: '#7c3aed', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                     <span>Launch Portal</span>
                     <ArrowRight size={14} />
                   </Link>
@@ -375,7 +368,7 @@ export default function Home() {
                     id="name"
                     name="name"
                     className="input-field"
-                    style={{ borderRadius: '0px', width: '100%', padding: '10px 14px', border: '1px solid #cbd5e1', fontSize: '0.92rem' }}
+                    style={{ borderRadius: '8px', width: '100%', padding: '10px 14px', border: '1px solid #cbd5e1', fontSize: '0.92rem' }}
                     value={formData.name}
                     onChange={handleChange}
                     placeholder="Enter student or parent name"
@@ -393,7 +386,7 @@ export default function Home() {
                       id="email"
                       name="email"
                       className="input-field"
-                      style={{ borderRadius: '0px', width: '100%', padding: '10px 14px', border: '1px solid #cbd5e1', fontSize: '0.92rem' }}
+                      style={{ borderRadius: '8px', width: '100%', padding: '10px 14px', border: '1px solid #cbd5e1', fontSize: '0.92rem' }}
                       value={formData.email}
                       onChange={handleChange}
                       placeholder="name@example.com"
@@ -410,7 +403,7 @@ export default function Home() {
                       id="phone"
                       name="phone"
                       className="input-field"
-                      style={{ borderRadius: '0px', width: '100%', padding: '10px 14px', border: '1px solid #cbd5e1', fontSize: '0.92rem' }}
+                      style={{ borderRadius: '8px', width: '100%', padding: '10px 14px', border: '1px solid #cbd5e1', fontSize: '0.92rem' }}
                       value={formData.phone}
                       onChange={handleChange}
                       placeholder="e.g., 9876543210"
@@ -427,7 +420,7 @@ export default function Home() {
                     id="course"
                     name="course"
                     className="input-field"
-                    style={{ borderRadius: '0px', width: '100%', padding: '10px 14px', border: '1px solid #cbd5e1', fontSize: '0.92rem', background: '#ffffff' }}
+                    style={{ borderRadius: '14px', width: '100%', padding: '10px 14px', border: '1px solid #cbd5e1', fontSize: '0.92rem', background: '#ffffff' }}
                     value={formData.course}
                     onChange={handleChange}
                     required
@@ -455,7 +448,7 @@ export default function Home() {
                     name="message"
                     rows="4"
                     className="input-field"
-                    style={{ borderRadius: '0px', width: '100%', padding: '10px 14px', border: '1px solid #cbd5e1', fontSize: '0.92rem', resize: 'vertical' }}
+                    style={{ borderRadius: '8px', width: '100%', padding: '10px 14px', border: '1px solid #cbd5e1', fontSize: '0.92rem', resize: 'vertical' }}
                     value={formData.message}
                     onChange={handleChange}
                     placeholder="Tell us about the subjects you need help with, preferred timings, or questions..."
@@ -479,7 +472,7 @@ export default function Home() {
                     style={{
                       marginTop: '1rem',
                       padding: '12px 16px',
-                      borderRadius: '0px',
+                      borderRadius: '14px',
                       fontSize: '0.88rem',
                       fontWeight: 600,
                       background: submitResult.type === 'success' ? '#f0fdf4' : '#fef2f2',
@@ -494,7 +487,7 @@ export default function Home() {
 
               <div className={styles.contactInfo}>
                 <div className={styles.contactInfoImage}>
-                  <Image src="/logo.png" alt="Produit Academy Logo" width={56} height={56} style={{ borderRadius: '0px' }} />
+                  <Image src="/logo.png" alt="Produit Academy Logo" width={56} height={56} style={{ borderRadius: '14px' }} />
                 </div>
 
                 <div className={styles.contactInfoItem}>

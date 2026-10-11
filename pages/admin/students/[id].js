@@ -41,11 +41,11 @@ function StudentProfile() {
         <DashboardLayout title={`Student: ${user.name}`}>
             <Head><title>{user.name} Profile | Produit Classes</title></Head>
 
-            <button className="glass-btn secondary" onClick={() => router.push('/admin/enrollments')} style={{ marginBottom: '20px' }}>
-                &larr; Back to Enrollments
+            <button className="glass-btn secondary" onClick={() => router.push('/admin/students')} style={{ marginBottom: '20px' }}>
+                &larr; Back to Students
             </button>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '24px', alignItems: 'start' }}>
+            <div className="responsive-profile-layout">
                 
                 {/* Profile Card */}
                 <div className="glass-card" style={{ padding: '24px' }}>
@@ -81,7 +81,7 @@ function StudentProfile() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                     
                     {/* Stat Cards */}
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+                    <div className="responsive-stats-row">
                         <div className="glass-card" style={{ padding: '20px', textAlign: 'center' }}>
                             <h3 style={{ fontSize: '2rem', color: 'var(--accent)', margin: 0 }}>{analytics.attendance_rate}%</h3>
                             <p style={{ color: 'var(--text-secondary)', margin: '8px 0 0', fontSize: '0.9rem' }}>Overall Attendance</p>
@@ -101,35 +101,37 @@ function StudentProfile() {
                     <div className="glass-card" style={{ padding: '24px' }}>
                         <h3 style={{ marginTop: 0, marginBottom: '16px' }}>Recent Class Attendance</h3>
                         {analytics.recent_sessions?.length > 0 ? (
-                            <table className="table">
-                                <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Course</th>
-                                        <th>Session</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {analytics.recent_sessions.map((sess, i) => (
-                                        <tr key={i}>
-                                            <td style={{ color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
-                                                {new Date(sess.date).toLocaleDateString()}
-                                            </td>
-                                            <td>{sess.course}</td>
-                                            <td><strong>{sess.session_title}</strong></td>
-                                            <td>
-                                                <span className="badge" style={{
-                                                    background: sess.status === 'Present' ? 'var(--green-bg)' : sess.status === 'Late' ? 'var(--yellow-bg)' : 'var(--red-bg)',
-                                                    color: sess.status === 'Present' ? 'var(--green)' : sess.status === 'Late' ? 'var(--yellow)' : 'var(--red)'
-                                                }}>
-                                                    {sess.status}
-                                                </span>
-                                            </td>
+                            <div className="data-table-wrapper">
+                                <table className="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Course</th>
+                                            <th>Session</th>
+                                            <th>Status</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        {analytics.recent_sessions.map((sess, i) => (
+                                            <tr key={i}>
+                                                <td style={{ color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
+                                                    {new Date(sess.date).toLocaleDateString()}
+                                                </td>
+                                                <td>{sess.course}</td>
+                                                <td><strong>{sess.session_title}</strong></td>
+                                                <td>
+                                                    <span className="badge" style={{
+                                                        background: sess.status === 'Present' ? 'var(--green-bg)' : sess.status === 'Late' ? 'var(--yellow-bg)' : 'var(--red-bg)',
+                                                        color: sess.status === 'Present' ? 'var(--green)' : sess.status === 'Late' ? 'var(--yellow)' : 'var(--red)'
+                                                    }}>
+                                                        {sess.status}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
                         ) : (
                             <p style={{ color: 'var(--text-secondary)', margin: 0 }}>No attendance records found.</p>
                         )}

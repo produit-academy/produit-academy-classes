@@ -3,13 +3,14 @@ import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { withAuth, useAuth } from '../../lib/auth';
-import { apiGet, apiPost } from '../../lib/api';
+import { apiGet, apiPost, onPlatformSync } from '../../lib/api';
 import DashboardLayout from '../../components/DashboardLayout';
 import {
     Activity, Calendar, Clock, Video, BookOpen,
     CheckCircle2, AlertCircle, Plus,
     Zap, ArrowRight, UserCheck, ShieldCheck, X,
-    Star, FileText, Download, Mic
+    Star, FileText, Download, Mic,
+    GraduationCap, Building2, RefreshCw
 } from 'lucide-react';
 
 function StudentDashboard() {
@@ -23,6 +24,14 @@ function StudentDashboard() {
     const [cancelId, setCancelId] = useState(null);
     const [cancelReason, setCancelReason] = useState('');
     const [cancelling, setCancelling] = useState(false);
+
+    // Switch Class modal state
+    const [changeClassModal, setChangeClassModal] = useState(false);
+    const [availableCourses, setAvailableCourses] = useState([]);
+    const [selectedCourseId, setSelectedCourseId] = useState('');
+    const [editSchoolName, setEditSchoolName] = useState('');
+    const [changingClass, setChangingClass] = useState(false);
+    const [changeClassError, setChangeClassError] = useState('');
 
     const resolveMediaUrl = (url) => {
         if (!url) return '';
@@ -38,7 +47,11 @@ function StudentDashboard() {
             .finally(() => setLoading(false));
     };
 
-    useEffect(() => { loadData(); }, []);
+    useEffect(() => {
+        loadData();
+        const unsub = onPlatformSync(() => loadData());
+        return unsub;
+    }, []);
 
     const handleAcceptDemo = async (demoId) => {
         setAcceptingId(demoId);
@@ -98,6 +111,63 @@ function StudentDashboard() {
         }
     };
 
+    const openChangeClassModal = async () => {
+        setChangeClassError('');
+        setChangeClassModal(true);
+        if (data?.student_profile) {
+            setEditSchoolName(data.student_profile.school_name || '');
+        }
+        if (availableCourses.length === 0) {
+            try {
+                const res = await apiGet('/api/classes/courses/?page_size=200');
+                const list = Array.isArray(res) ? res : (res.results || []);
+                setAvailableCourses(list);
+                if (list.length > 0) {
+                    const current = list.find(c => c.name === data?.student_profile?.current_class);
+                    setSelectedCourseId(current ? current.id.toString() : list[0].id.toString());
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+    };
+
+    const handleSaveChangeClass = async (e) => {
+        e.preventDefault();
+        if (!selectedCourseId) {
+            setChangeClassError('Please select a class.');
+            return;
+        }
+        setChangingClass(true);
+        setChangeClassError('');
+        try {
+            const res = await apiPost('/api/classes/student/change-class/', {
+                course_id: parseInt(selectedCourseId, 10),
+                school_name: editSchoolName.trim()
+            });
+            const resData = await res.json();
+            if (res.ok) {
+                const storedUser = localStorage.getItem('user_data');
+                if (storedUser) {
+                    try {
+                        const parsed = JSON.parse(storedUser);
+                        parsed.current_class = resData.current_class;
+                        parsed.school_name = editSchoolName.trim();
+                        localStorage.setItem('user_data', JSON.stringify(parsed));
+                    } catch {}
+                }
+                setChangeClassModal(false);
+                loadData();
+            } else {
+                setChangeClassError(resData.error || 'Failed to update class.');
+            }
+        } catch {
+            setChangeClassError('Network error while updating class.');
+        } finally {
+            setChangingClass(false);
+        }
+    };
+
     const formatDate = (dateStr) => {
         const d = new Date(dateStr);
         return d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
@@ -123,11 +193,11 @@ function StudentDashboard() {
                 </div>
             ) : data ? (
                 <>
-                    {/* Minimal Welcome & Telemetry Banner */}
+                    {/* Minimal Welcome & Academic Class Banner */}
                     <div style={{
                         background: '#ffffff',
                         border: '1px solid #e2e8f0',
-                        borderRadius: '0px',
+                        borderRadius: '14px',
                         padding: '24px 28px',
                         marginBottom: '28px',
                         display: 'flex',
@@ -140,19 +210,52 @@ function StudentDashboard() {
                         <div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
                                 <span className="telemetry-chip live">
-                                    <span className="live-pulse-dot" style={{ width: '6px', height: '6px', borderRadius: '0px' }} />
                                     <span>Academic Session 2026 // Active</span>
                                 </span>
                             </div>
                             <h2 style={{
-                                fontFamily: "'Lora', serif",
                                 fontSize: '1.65rem',
                                 fontWeight: 700,
                                 color: '#0f172a',
-                                margin: 0
+                                margin: '0 0 6px'
                             }}>
                                 Welcome back, {studentName}
                             </h2>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap', fontSize: '0.86rem', color: '#64748b' }}>
+                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                                    <GraduationCap size={15} color="#047857" />
+                                    <span>Class: <strong style={{ color: '#0f172a' }}>{data.student_profile?.current_class || 'Not Selected'}</strong></span>
+                                </span>
+                                {data.student_profile?.school_name && (
+                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                                        <Building2 size={15} color="#64748b" />
+                                        <span>School: <strong style={{ color: '#0f172a' }}>{data.student_profile.school_name}</strong></span>
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+
+                        <div>
+                            <button
+                                onClick={openChangeClassModal}
+                                style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '8px',
+                                    background: '#f8fafc',
+                                    color: '#0f172a',
+                                    border: '1px solid #cbd5e1',
+                                    padding: '10px 18px',
+                                    fontSize: '0.85rem',
+                                    fontWeight: 700,
+                                    cursor: 'pointer',
+                                    boxShadow: '0 1px 3px rgba(15, 23, 42, 0.04)',
+                                    transition: 'all 0.15s ease'
+                                }}
+                            >
+                                <RefreshCw size={14} color="#047857" />
+                                <span>Change / Switch Class</span>
+                            </button>
                         </div>
                     </div>
 
@@ -239,7 +342,7 @@ function StudentDashboard() {
                         <div style={{
                             background: '#ffffff',
                             border: '1px solid #e2e8f0',
-                            borderRadius: '0px',
+                            borderRadius: '14px',
                             padding: '20px',
                             boxShadow: '0 2px 8px rgba(15, 23, 42, 0.03)',
                             position: 'relative'
@@ -264,7 +367,7 @@ function StudentDashboard() {
                         <div style={{
                             background: '#ffffff',
                             border: '1px solid #e2e8f0',
-                            borderRadius: '0px',
+                            borderRadius: '14px',
                             padding: '20px',
                             boxShadow: '0 2px 8px rgba(15, 23, 42, 0.03)'
                         }} className="pro-card-hover pop-accent-border-blue">
@@ -286,7 +389,7 @@ function StudentDashboard() {
                         <div style={{
                             background: '#ffffff',
                             border: '1px solid #e2e8f0',
-                            borderRadius: '0px',
+                            borderRadius: '14px',
                             padding: '20px',
                             boxShadow: '0 2px 8px rgba(15, 23, 42, 0.03)'
                         }} className="pro-card-hover pop-accent-border-amber">
@@ -308,7 +411,7 @@ function StudentDashboard() {
                         <div style={{
                             background: '#ffffff',
                             border: '1px solid #e2e8f0',
-                            borderRadius: '0px',
+                            borderRadius: '14px',
                             padding: '20px',
                             boxShadow: '0 2px 8px rgba(15, 23, 42, 0.03)'
                         }} className="pro-card-hover pop-accent-border-purple">
@@ -345,7 +448,7 @@ function StudentDashboard() {
                                     <div key={i} style={{
                                         background: '#ffffff',
                                         border: '1px solid #e2e8f0',
-                                        borderRadius: '0px',
+                                        borderRadius: '14px',
                                         padding: '16px 18px',
                                         display: 'flex',
                                         alignItems: 'center',
@@ -353,7 +456,7 @@ function StudentDashboard() {
                                         boxShadow: '0 1px 4px rgba(15, 23, 42, 0.03)'
                                     }}>
                                         <div style={{
-                                            width: '42px', height: '42px', borderRadius: '0px',
+                                            width: '42px', height: '42px', borderRadius: '50%',
                                             background: '#0f172a', color: '#ffffff',
                                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                                             fontWeight: 800, fontSize: '1.1rem', flexShrink: 0
@@ -392,7 +495,7 @@ function StudentDashboard() {
                                         background: '#ffffff',
                                         border: '1px solid #e2e8f0',
                                         borderLeft: '4px solid #7c3aed',
-                                        borderRadius: '0px',
+                                        borderRadius: '14px',
                                         padding: '18px 24px',
                                         display: 'flex',
                                         justifyContent: 'space-between',
@@ -420,7 +523,7 @@ function StudentDashboard() {
                                                 onClick={() => handleAcceptDemo(demo.id)}
                                                 disabled={acceptingId === demo.id}
                                                 className="glass-btn primary"
-                                                style={{ fontSize: '0.85rem', padding: '8px 18px', borderRadius: '0px' }}
+                                                style={{ fontSize: '0.85rem', padding: '8px 18px', borderRadius: '14px' }}
                                             >
                                                 {acceptingId === demo.id ? 'Processing...' : 'Accept Teacher'}
                                             </button>
@@ -432,7 +535,7 @@ function StudentDashboard() {
                                                     border: '1px solid #fca5a5',
                                                     color: '#dc2626',
                                                     padding: '8px 14px',
-                                                    borderRadius: '0px',
+                                                    borderRadius: '14px',
                                                     fontSize: '0.85rem',
                                                     fontWeight: 600,
                                                     cursor: 'pointer'
@@ -455,13 +558,13 @@ function StudentDashboard() {
                             borderLeft: '5px solid #059669',
                             padding: '18px 24px',
                             marginBottom: '28px',
-                            borderRadius: '0px',
+                            borderRadius: '14px',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'space-between',
                             flexWrap: 'wrap',
                             gap: '16px',
-                            boxShadow: '0 0 16px rgba(16, 185, 129, 0.25)'
+                            boxShadow: 'var(--shadow-sm)'
                         }}>
                             <div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
@@ -490,7 +593,7 @@ function StudentDashboard() {
                                         display: 'inline-flex',
                                         alignItems: 'center',
                                         gap: '8px',
-                                        borderRadius: '0px',
+                                        borderRadius: '14px',
                                         boxShadow: '0 2px 10px rgba(5, 150, 105, 0.35)'
                                     }}
                                 >
@@ -524,7 +627,7 @@ function StudentDashboard() {
                                     color: '#ffffff',
                                     border: 'none',
                                     padding: '8px 16px',
-                                    borderRadius: '0px',
+                                    borderRadius: '14px',
                                     fontSize: '0.85rem',
                                     fontWeight: 700,
                                     cursor: 'pointer',
@@ -544,7 +647,7 @@ function StudentDashboard() {
                                     <div key={cls.id} style={{
                                         background: '#ffffff',
                                         border: '1px solid #e2e8f0',
-                                        borderRadius: '0px',
+                                        borderRadius: '14px',
                                         padding: '20px 24px',
                                         display: 'flex',
                                         justifyContent: 'space-between',
@@ -584,7 +687,7 @@ function StudentDashboard() {
                                             <div style={{
                                                 fontSize: '0.85rem', color: '#334155', fontWeight: 600,
                                                 display: 'flex', alignItems: 'center', gap: '6px',
-                                                background: '#f8fafc', padding: '6px 12px', border: '1px solid #e2e8f0', borderRadius: '0px'
+                                                background: '#f8fafc', padding: '6px 12px', border: '1px solid #e2e8f0', borderRadius: '14px'
                                             }}>
                                                 <Clock size={14} color="#64748b" />
                                                 <span>{formatDate(cls.scheduled_time)} &middot; {formatTime(cls.scheduled_time)}</span>
@@ -600,7 +703,7 @@ function StudentDashboard() {
                                                             background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
                                                             color: '#ffffff',
                                                             padding: '8px 16px',
-                                                            borderRadius: '0px',
+                                                            borderRadius: '14px',
                                                             fontSize: '0.85rem',
                                                             fontWeight: 700,
                                                             display: 'inline-flex',
@@ -620,7 +723,7 @@ function StudentDashboard() {
                                                         border: '1px solid #fecaca',
                                                         color: '#dc2626',
                                                         padding: '8px 12px',
-                                                        borderRadius: '0px',
+                                                        borderRadius: '14px',
                                                         fontSize: '0.82rem',
                                                         fontWeight: 600,
                                                         cursor: 'pointer'
@@ -637,7 +740,7 @@ function StudentDashboard() {
                             <div style={{
                                 background: '#ffffff',
                                 border: '1px solid #e2e8f0',
-                                borderRadius: '0px',
+                                borderRadius: '14px',
                                 padding: '40px 24px',
                                 textAlign: 'center',
                                 color: '#64748b'
@@ -652,7 +755,7 @@ function StudentDashboard() {
                                 <button
                                     onClick={() => router.push('/courses')}
                                     className="glass-btn primary"
-                                    style={{ borderRadius: '0px', padding: '9px 18px', fontSize: '0.88rem' }}
+                                    style={{ borderRadius: '10px', padding: '9px 18px', fontSize: '0.88rem' }}
                                 >
                                     Browse Classes
                                 </button>
@@ -674,7 +777,7 @@ function StudentDashboard() {
                                     <div key={s.id} style={{
                                         background: '#ffffff',
                                         border: '1px solid #e2e8f0',
-                                        borderRadius: '0px',
+                                        borderRadius: '14px',
                                         padding: '16px 20px',
                                         display: 'flex',
                                         justifyContent: 'space-between',
@@ -727,7 +830,7 @@ function StudentDashboard() {
                                         background: '#ffffff',
                                         border: '1px solid #e2e8f0',
                                         borderTop: '3px solid #2563eb',
-                                        borderRadius: '0px',
+                                        borderRadius: '14px',
                                         padding: '18px 20px',
                                         boxShadow: '0 2px 6px rgba(15, 23, 42, 0.03)'
                                     }}>
@@ -816,7 +919,7 @@ function StudentDashboard() {
                                         style={{
                                             background: '#ffffff',
                                             border: '1px solid #e2e8f0',
-                                            borderRadius: '0px',
+                                            borderRadius: '14px',
                                             padding: '20px',
                                             cursor: 'pointer',
                                             boxShadow: '0 2px 6px rgba(15, 23, 42, 0.03)'
@@ -851,7 +954,7 @@ function StudentDashboard() {
                     {/* Cancel Session Modal */}
                     {cancelId && (
                         <div className="modal-overlay" onClick={() => setCancelId(null)}>
-                            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '460px', borderRadius: '0px' }}>
+                            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '460px', borderRadius: '10px' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
                                     <h3 style={{ color: '#dc2626', margin: 0, fontSize: '1.25rem', fontWeight: 700 }}>
                                         Cancel Scheduled Class
@@ -873,12 +976,12 @@ function StudentDashboard() {
                                         placeholder="e.g. Schedule conflict, academic exam, personal reason..."
                                         value={cancelReason}
                                         onChange={e => setCancelReason(e.target.value)}
-                                        style={{ resize: 'vertical', borderRadius: '0px' }}
+                                        style={{ resize: 'vertical', borderRadius: '14px' }}
                                         required
                                     />
                                 </div>
                                 <div className="modal-actions" style={{ display: 'flex', gap: '10px' }}>
-                                    <button type="button" className="glass-btn" style={{ flex: 1, borderRadius: '0px' }} onClick={() => { setCancelId(null); setCancelReason(''); }}>
+                                    <button type="button" className="glass-btn" style={{ flex: 1, borderRadius: '10px' }} onClick={() => { setCancelId(null); setCancelReason(''); }}>
                                         Keep Class
                                     </button>
                                     <button
@@ -886,7 +989,7 @@ function StudentDashboard() {
                                         className="glass-btn"
                                         disabled={cancelling || !cancelReason.trim()}
                                         onClick={handleCancelSession}
-                                        style={{ flex: 1, background: '#dc2626', color: '#ffffff', borderRadius: '0px', border: 'none' }}
+                                        style={{ flex: 1, background: '#dc2626', color: '#ffffff', borderRadius: '14px', border: 'none' }}
                                     >
                                         {cancelling ? 'Cancelling...' : 'Confirm Cancellation'}
                                     </button>
@@ -894,9 +997,123 @@ function StudentDashboard() {
                             </div>
                         </div>
                     )}
+
+                    {/* Switch Academic Class Modal */}
+                    {changeClassModal && (
+                        <div className="modal-overlay" onClick={() => setChangeClassModal(false)}>
+                            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '500px', borderRadius: '10px', padding: '28px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <GraduationCap size={20} color="#047857" />
+                                        <h3 style={{ color: '#0f172a', margin: 0, fontSize: '1.25rem', fontWeight: 800 }}>
+                                            Switch Academic Class
+                                        </h3>
+                                    </div>
+                                    <button onClick={() => setChangeClassModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}>
+                                        <X size={18} />
+                                    </button>
+                                </div>
+                                <p style={{ color: '#64748b', marginBottom: '1.2rem', fontSize: '0.88rem', lineHeight: '1.5' }}>
+                                    You can update your preferred class curriculum or school at any time. Your dashboard schedule and courses will sync immediately.
+                                </p>
+
+                                {changeClassError && (
+                                    <div style={{ padding: '10px 14px', background: '#fef2f2', border: '1px solid #fecaca', color: '#991b1b', fontSize: '0.85rem', marginBottom: '16px' }}>
+                                        {changeClassError}
+                                    </div>
+                                )}
+
+                                <form onSubmit={handleSaveChangeClass}>
+                                    <div style={{ marginBottom: '18px' }}>
+                                        <label style={{ fontSize: '0.82rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '6px', textTransform: 'uppercase' }}>
+                                            Select Class / Curriculum <span style={{ color: '#dc2626' }}>*</span>
+                                        </label>
+                                        <select
+                                            value={selectedCourseId}
+                                            onChange={(e) => setSelectedCourseId(e.target.value)}
+                                            style={{
+                                                width: '100%',
+                                                padding: '10px 12px',
+                                                border: '1px solid #cbd5e1',
+                                                borderRadius: '14px',
+                                                fontSize: '0.9rem',
+                                                color: '#0f172a',
+                                                outline: 'none',
+                                                background: '#ffffff'
+                                            }}
+                                        >
+                                            {availableCourses.map(c => (
+                                                <option key={c.id} value={c.id}>
+                                                    {c.name} {c.category ? `(${c.category})` : ''}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    <div style={{ marginBottom: '22px' }}>
+                                        <label style={{ fontSize: '0.82rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '6px', textTransform: 'uppercase' }}>
+                                            School / Institution Name
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={editSchoolName}
+                                            onChange={(e) => setEditSchoolName(e.target.value)}
+                                            placeholder="Your school name"
+                                            style={{
+                                                width: '100%',
+                                                padding: '10px 12px',
+                                                border: '1px solid #cbd5e1',
+                                                borderRadius: '14px',
+                                                fontSize: '0.9rem',
+                                                color: '#0f172a',
+                                                outline: 'none'
+                                            }}
+                                        />
+                                    </div>
+
+                                    <div style={{ display: 'flex', gap: '10px' }}>
+                                        <button
+                                            type="button"
+                                            onClick={() => setChangeClassModal(false)}
+                                            style={{
+                                                flex: 1,
+                                                padding: '10px',
+                                                background: '#f8fafc',
+                                                border: '1px solid #cbd5e1',
+                                                borderRadius: '14px',
+                                                fontWeight: 700,
+                                                fontSize: '0.88rem',
+                                                color: '#475569',
+                                                cursor: 'pointer'
+                                            }}
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            disabled={changingClass}
+                                            style={{
+                                                flex: 1,
+                                                padding: '10px',
+                                                background: '#0f172a',
+                                                border: 'none',
+                                                borderRadius: '14px',
+                                                fontWeight: 700,
+                                                fontSize: '0.88rem',
+                                                color: '#ffffff',
+                                                cursor: changingClass ? 'not-allowed' : 'pointer'
+                                            }}
+                                        >
+                                            {changingClass ? 'Updating...' : 'Save & Switch'}
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    )}
                 </>
             ) : (
-                <div className="alert alert-error" style={{ borderRadius: '0px' }}>Failed to load student dashboard telemetry.</div>
+                <div className="alert alert-error" style={{ borderRadius: '14px' }}>Failed to load student dashboard telemetry.</div>
             )}
         </DashboardLayout>
     );

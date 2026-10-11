@@ -49,6 +49,7 @@ function AdminStaff() {
                 <th>Name</th>
                 <th>Role</th>
                 <th>Email</th>
+                <th>Classroom Meet</th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -90,8 +91,33 @@ function AdminStaff() {
                   </td>
                   <td style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{staff.email}</td>
                   <td>
+                    {staff.role === 'teacher' ? (
+                      staff.google_meet_link ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span className="badge" style={{ background: 'rgba(16, 185, 129, 0.12)', color: '#059669', fontSize: '0.74rem', fontWeight: 700 }}>
+                            Assigned
+                          </span>
+                          <a
+                            href={staff.google_meet_link.startsWith('http') ? staff.google_meet_link : `https://${staff.google_meet_link}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{ fontSize: '0.8rem', color: 'var(--accent)', textDecoration: 'underline', fontWeight: 600 }}
+                          >
+                            Enter Class
+                          </a>
+                        </div>
+                      ) : (
+                        <span className="badge" style={{ background: 'rgba(245, 158, 11, 0.12)', color: '#d97706', fontSize: '0.74rem', fontWeight: 700 }}>
+                          No Meet Link
+                        </span>
+                      )
+                    ) : (
+                      <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>-</span>
+                    )}
+                  </td>
+                  <td>
                     <button className="glass-btn" onClick={() => router.push(`/admin/staff/${staff.id}`)} style={{ padding: '4px 12px', fontSize: '0.8rem', background: 'var(--accent-light)', color: 'var(--accent)' }}>
-                      View Analytics
+                      Manage Profile
                     </button>
                   </td>
                 </tr>

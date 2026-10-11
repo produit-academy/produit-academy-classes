@@ -105,7 +105,7 @@ export default function TeacherProfilePage() {
             <main className="main-content" style={{ paddingTop: '140px', textAlign: 'center' }}>
                 <div style={{
                     maxWidth: '480px', margin: '0 auto', padding: '48px 24px',
-                    background: '#ffffff', borderRadius: '0px', border: '1px solid #e2e8f0'
+                    background: '#ffffff', borderRadius: '14px', border: '1px solid #e2e8f0'
                 }}>
                     <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#0f172a', marginBottom: '12px' }}>
                         Teacher Profile Not Found
@@ -116,7 +116,7 @@ export default function TeacherProfilePage() {
                     <button
                         onClick={() => router.push('/courses')}
                         className="glass-btn primary"
-                        style={{ padding: '10px 24px', borderRadius: '0px' }}
+                        style={{ padding: '10px 24px', borderRadius: '10px' }}
                     >
                         Browse All Classes
                     </button>
@@ -144,7 +144,7 @@ export default function TeacherProfilePage() {
                             style={{
                                 background: '#ffffff',
                                 border: '1px solid #e2e8f0',
-                                borderRadius: '0px',
+                                borderRadius: '14px',
                                 padding: '8px 16px',
                                 cursor: 'pointer',
                                 color: '#334155',
@@ -165,7 +165,7 @@ export default function TeacherProfilePage() {
                     {/* Hero Profile Banner Card */}
                     <div style={{
                         background: '#ffffff',
-                        borderRadius: '0px',
+                        borderRadius: '50%',
                         border: '1px solid #e2e8f0',
                         boxShadow: '0 2px 12px rgba(15, 23, 42, 0.04)',
                         padding: '36px',
@@ -181,7 +181,7 @@ export default function TeacherProfilePage() {
                             <div style={{
                                 width: '130px',
                                 height: '130px',
-                                borderRadius: '0px',
+                                borderRadius: '50%',
                                 flexShrink: 0,
                                 background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
                                 color: '#ffffff',
@@ -213,7 +213,7 @@ export default function TeacherProfilePage() {
                                         display: 'inline-flex', alignItems: 'center', gap: '5px',
                                         background: '#ecfdf5', color: '#047857',
                                         border: '1px solid #a7f3d0',
-                                        borderRadius: '0px', padding: '4px 10px',
+                                        borderRadius: '14px', padding: '4px 10px',
                                         fontSize: '0.78rem', fontWeight: 800, letterSpacing: '0.4px', textTransform: 'uppercase'
                                     }}>
                                         <CheckCircle2 size={14} />
@@ -225,17 +225,16 @@ export default function TeacherProfilePage() {
                                             display: 'inline-flex', alignItems: 'center', gap: '5px',
                                             background: '#f0fdf4', color: '#15803d',
                                             border: '1px solid #bbf7d0',
-                                            borderRadius: '0px', padding: '4px 10px',
+                                            borderRadius: '14px', padding: '4px 10px',
                                             fontSize: '0.78rem', fontWeight: 700
                                         }}>
-                                            <span className="live-pulse-dot" style={{ width: '6px', height: '6px', borderRadius: '0px' }} />
                                             <span>Active Slots Available</span>
                                         </span>
                                     ) : (
                                         <span style={{
                                             background: '#f8fafc', color: '#64748b',
                                             border: '1px solid #e2e8f0',
-                                            borderRadius: '0px', padding: '4px 10px',
+                                            borderRadius: '14px', padding: '4px 10px',
                                             fontSize: '0.78rem', fontWeight: 600
                                         }}>
                                             Schedule on Request
@@ -244,7 +243,6 @@ export default function TeacherProfilePage() {
                                 </div>
 
                                 <h1 style={{
-                                    fontFamily: "'Lora', serif",
                                     fontSize: 'clamp(2rem, 3.5vw, 2.6rem)',
                                     fontWeight: 700,
                                     color: '#0f172a',
@@ -265,7 +263,7 @@ export default function TeacherProfilePage() {
                                                 background: '#f1f5f9',
                                                 color: '#334155',
                                                 padding: '5px 10px',
-                                                borderRadius: '0px',
+                                                borderRadius: '14px',
                                                 border: '1px solid #e2e8f0'
                                             }}
                                         >
@@ -308,7 +306,7 @@ export default function TeacherProfilePage() {
                         <div style={{
                             background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
                             border: '1px solid #e2e8f0',
-                            borderRadius: '0px',
+                            borderRadius: '14px',
                             padding: '28px 24px',
                             display: 'flex',
                             flexDirection: 'column',
@@ -342,7 +340,7 @@ export default function TeacherProfilePage() {
                                         style={{
                                             width: '100%',
                                             padding: '10px 14px',
-                                            borderRadius: '0px',
+                                            borderRadius: '14px',
                                             border: '1px solid #cbd5e1',
                                             background: '#ffffff',
                                             fontSize: '0.88rem',
@@ -367,7 +365,7 @@ export default function TeacherProfilePage() {
                                     border: '1px solid #a7f3d0',
                                     padding: '16px',
                                     textAlign: 'center',
-                                    borderRadius: '0px'
+                                    borderRadius: '14px'
                                 }}>
                                     <div style={{ fontWeight: 800, color: '#065f46', fontSize: '0.92rem', marginBottom: '4px' }}>
                                         Faculty Profile Mode
@@ -385,7 +383,7 @@ export default function TeacherProfilePage() {
                                             color: '#ffffff',
                                             border: 'none',
                                             padding: '16px 24px',
-                                            borderRadius: '0px',
+                                            borderRadius: '14px',
                                             fontSize: '1.05rem',
                                             fontWeight: 800,
                                             cursor: 'pointer',
@@ -405,7 +403,7 @@ export default function TeacherProfilePage() {
                                         padding: '14px 20px',
                                         background: '#e2e8f0',
                                         color: '#64748b',
-                                        borderRadius: '0px',
+                                        borderRadius: '14px',
                                         fontSize: '0.92rem',
                                         fontWeight: 700,
                                         textAlign: 'center'
@@ -420,7 +418,7 @@ export default function TeacherProfilePage() {
                                         background: 'var(--accent-green)',
                                         color: '#ffffff',
                                         padding: '14px 20px',
-                                        borderRadius: '0px',
+                                        borderRadius: '14px',
                                         fontSize: '0.95rem',
                                         fontWeight: 700,
                                         textAlign: 'center',
@@ -461,14 +459,14 @@ export default function TeacherProfilePage() {
                         {profile.bio && (
                             <div style={{
                                 background: '#ffffff',
-                                borderRadius: '0px',
+                                borderRadius: '50%',
                                 border: '1px solid #e2e8f0',
                                 padding: '32px',
                                 boxShadow: '0 2px 8px rgba(15, 23, 42, 0.03)'
                             }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '18px' }}>
                                     <div style={{
-                                        width: '38px', height: '38px', borderRadius: '0px',
+                                        width: '38px', height: '38px', borderRadius: '50%',
                                         background: '#ecfdf5', color: '#047857',
                                         display: 'flex', alignItems: 'center', justifyContent: 'center'
                                     }}>
@@ -488,14 +486,14 @@ export default function TeacherProfilePage() {
                         {profile.teaching_style && (
                             <div style={{
                                 background: '#ffffff',
-                                borderRadius: '0px',
+                                borderRadius: '50%',
                                 border: '1px solid #e2e8f0',
                                 padding: '32px',
                                 boxShadow: '0 2px 8px rgba(15, 23, 42, 0.03)'
                             }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '18px' }}>
                                     <div style={{
-                                        width: '38px', height: '38px', borderRadius: '0px',
+                                        width: '38px', height: '38px', borderRadius: '50%',
                                         background: '#eff6ff', color: '#2563eb',
                                         display: 'flex', alignItems: 'center', justifyContent: 'center'
                                     }}>
@@ -516,7 +514,7 @@ export default function TeacherProfilePage() {
                     {(profile.skills || profile.certifications) && (
                         <div style={{
                             background: '#ffffff',
-                            borderRadius: '0px',
+                            borderRadius: '50%',
                             border: '1px solid #e2e8f0',
                             padding: '32px',
                             marginBottom: '32px',
@@ -524,7 +522,7 @@ export default function TeacherProfilePage() {
                         }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>
                                 <div style={{
-                                    width: '38px', height: '38px', borderRadius: '0px',
+                                    width: '38px', height: '38px', borderRadius: '50%',
                                     background: '#fef3c7', color: '#d97706',
                                     display: 'flex', alignItems: 'center', justifyContent: 'center'
                                 }}>
@@ -552,7 +550,7 @@ export default function TeacherProfilePage() {
                                                             background: '#f8fafc',
                                                             border: '1px solid #e2e8f0',
                                                             padding: '6px 12px',
-                                                            borderRadius: '0px',
+                                                            borderRadius: '14px',
                                                             fontSize: '0.85rem',
                                                             fontWeight: 600,
                                                             color: '#334155'
@@ -584,7 +582,7 @@ export default function TeacherProfilePage() {
                     {hasSlots && (
                         <div style={{
                             background: '#ffffff',
-                            borderRadius: '0px',
+                            borderRadius: '50%',
                             border: '1px solid #e2e8f0',
                             padding: '32px',
                             marginBottom: '32px',
@@ -593,7 +591,7 @@ export default function TeacherProfilePage() {
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                     <div style={{
-                                        width: '38px', height: '38px', borderRadius: '0px',
+                                        width: '38px', height: '38px', borderRadius: '50%',
                                         background: '#ecfdf5', color: '#047857',
                                         display: 'flex', alignItems: 'center', justifyContent: 'center'
                                     }}>
@@ -617,7 +615,7 @@ export default function TeacherProfilePage() {
                                             color: '#047857',
                                             border: '1px solid #a7f3d0',
                                             padding: '8px 16px',
-                                            borderRadius: '0px',
+                                            borderRadius: '14px',
                                             fontSize: '0.88rem',
                                             fontWeight: 700,
                                             cursor: 'pointer'
@@ -640,7 +638,7 @@ export default function TeacherProfilePage() {
                                         style={{
                                             background: '#f8fafc',
                                             border: '1px solid #e2e8f0',
-                                            borderRadius: '0px',
+                                            borderRadius: '14px',
                                             padding: '16px',
                                         }}
                                     >
@@ -664,7 +662,7 @@ export default function TeacherProfilePage() {
                                                             fontWeight: 700,
                                                             background: isBooked ? '#f1f5f9' : isHeld ? '#fef3c7' : '#ffffff',
                                                             border: isBooked ? '1px dashed #cbd5e1' : isHeld ? '1px dashed #fde68a' : '1px solid #cbd5e1',
-                                                            borderRadius: '0px',
+                                                            borderRadius: '14px',
                                                             padding: '4px 8px',
                                                             color: isBooked ? '#94a3b8' : isHeld ? '#b45309' : '#334155',
                                                             display: 'inline-flex',
@@ -698,7 +696,7 @@ export default function TeacherProfilePage() {
                     {profile.demo_videos?.length > 0 && (
                         <div style={{
                             background: '#ffffff',
-                            borderRadius: '0px',
+                            borderRadius: '50%',
                             border: '1px solid #e2e8f0',
                             padding: '32px',
                             marginBottom: '32px',
@@ -706,7 +704,7 @@ export default function TeacherProfilePage() {
                         }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>
                                 <div style={{
-                                    width: '38px', height: '38px', borderRadius: '0px',
+                                    width: '38px', height: '38px', borderRadius: '50%',
                                     background: '#eff6ff', color: '#2563eb',
                                     display: 'flex', alignItems: 'center', justifyContent: 'center'
                                 }}>
@@ -736,7 +734,7 @@ export default function TeacherProfilePage() {
                                             style={{
                                                 background: '#f8fafc',
                                                 border: '1px solid #e2e8f0',
-                                                borderRadius: '0px',
+                                                borderRadius: '14px',
                                                 overflow: 'hidden',
                                                 display: 'flex',
                                                 flexDirection: 'column'

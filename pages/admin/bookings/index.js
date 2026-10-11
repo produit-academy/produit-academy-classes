@@ -60,6 +60,29 @@ function AdminBookings() {
                                     <td>
                                         <div style={{ fontSize: '0.95rem' }}>{b.teacher_name}</div>
                                         <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{b.teacher_email}</div>
+                                        {b.google_meet_link ? (
+                                            <a
+                                                href={b.google_meet_link.startsWith('http') ? b.google_meet_link : `https://${b.google_meet_link}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                style={{
+                                                    display: 'inline-flex',
+                                                    alignItems: 'center',
+                                                    gap: '4px',
+                                                    fontSize: '0.78rem',
+                                                    color: '#059669',
+                                                    fontWeight: 600,
+                                                    marginTop: '4px',
+                                                    textDecoration: 'underline'
+                                                }}
+                                            >
+                                                Enter Class &rarr;
+                                            </a>
+                                        ) : (
+                                            <span style={{ fontSize: '0.75rem', color: '#d97706', display: 'block', marginTop: '4px' }}>
+                                                No Meet Link
+                                            </span>
+                                        )}
                                     </td>
                                     <td>
                                         <div style={{ fontWeight: 600 }}>₹{b.total_amount}</div>
@@ -67,19 +90,23 @@ function AdminBookings() {
                                         <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Platform: ₹{b.platform_fee}</div>
                                     </td>
                                     <td>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'flex-start' }}>
                                             <span style={{
-                                                fontSize: '0.75rem', fontWeight: 600, padding: '2px 8px', borderRadius: '12px',
-                                                background: `${statusColors[b.booking_status] || '#ccc'}15`,
-                                                color: statusColors[b.booking_status], textAlign: 'center', textTransform: 'capitalize'
+                                                fontSize: '0.74rem', fontWeight: 600, padding: '4px 10px', borderRadius: '9999px',
+                                                background: `${statusColors[b.booking_status] || '#cbd5e1'}18`,
+                                                color: statusColors[b.booking_status] || '#475569',
+                                                border: `1px solid ${statusColors[b.booking_status] || '#cbd5e1'}40`,
+                                                textTransform: 'capitalize',
+                                                display: 'inline-flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1.2
                                             }}>
-                                                Booking: {b.booking_status}
+                                                {b.booking_status}
                                             </span>
                                             <span style={{
-                                                fontSize: '0.75rem', fontWeight: 600, padding: '2px 8px', borderRadius: '12px',
+                                                fontSize: '0.72rem', fontWeight: 600, padding: '3px 8px', borderRadius: '6px',
                                                 background: b.payment_status === 'advance_paid' ? 'rgba(34,197,94,0.1)' : 'rgba(0,0,0,0.05)',
                                                 color: b.payment_status === 'advance_paid' ? 'var(--accent-green, #22c55e)' : 'var(--text-secondary)',
-                                                textAlign: 'center', textTransform: 'capitalize'
+                                                textTransform: 'capitalize',
+                                                display: 'inline-flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1.2
                                             }}>
                                                 Pay: {b.payment_status.replace('_', ' ')}
                                             </span>

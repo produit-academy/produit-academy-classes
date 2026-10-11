@@ -1,4 +1,4 @@
-// pages/courses/index.js - Select Your Class (Crisp Square Architectural Aesthetic)
+// pages/courses/index.js - Professional Education Platform Design
 import { useState, useEffect, useMemo } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
@@ -6,8 +6,10 @@ import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import { apiGet } from '../../lib/api';
 import {
-    GraduationCap, Search, Sparkles, BookOpen,
-    Users, ChevronRight, X, ArrowRight, Layers
+    GraduationCap, Search, BookOpen,
+    Users, ChevronRight, X, ArrowRight,
+    CheckCircle2, Sparkles, Award, ShieldCheck,
+    Compass, Video
 } from 'lucide-react';
 
 const BOARD_CONFIG = {
@@ -17,8 +19,9 @@ const BOARD_CONFIG = {
         badgeBg: '#eff6ff',
         badgeColor: '#1d4ed8',
         badgeBorder: '#bfdbfe',
-        gradient: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
-        accentColor: '#2563eb'
+        gradient: 'linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)',
+        accentColor: '#2563eb',
+        tag: 'CBSE National'
     },
     'ICSE': {
         name: 'ICSE',
@@ -26,8 +29,9 @@ const BOARD_CONFIG = {
         badgeBg: '#f5f3ff',
         badgeColor: '#6d28d9',
         badgeBorder: '#ddd6fe',
-        gradient: 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)',
-        accentColor: '#7c3aed'
+        gradient: 'linear-gradient(135deg, #6d28d9 0%, #7c3aed 100%)',
+        accentColor: '#7c3aed',
+        tag: 'ICSE Council'
     },
     'State': {
         name: 'State',
@@ -35,8 +39,9 @@ const BOARD_CONFIG = {
         badgeBg: '#ecfdf5',
         badgeColor: '#047857',
         badgeBorder: '#a7f3d0',
-        gradient: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
-        accentColor: '#059669'
+        gradient: 'linear-gradient(135deg, #047857 0%, #059669 100%)',
+        accentColor: '#059669',
+        tag: 'State Board'
     }
 };
 
@@ -50,14 +55,28 @@ function getBoardMeta(name = '') {
         badgeBg: '#f1f5f9',
         badgeColor: '#334155',
         badgeBorder: '#cbd5e1',
-        gradient: 'linear-gradient(135deg, #475569 0%, #334155 100%)',
-        accentColor: '#475569'
+        gradient: 'linear-gradient(135deg, #334155 0%, #475569 100%)',
+        accentColor: '#475569',
+        tag: 'Accredited Curriculum'
     };
 }
 
 function extractGradeNumber(name = '') {
     const match = name.match(/^(\d+)/);
     return match ? parseInt(match[1], 10) : 99;
+}
+
+function getGradeStage(gradeNum) {
+    if (gradeNum >= 6 && gradeNum <= 8) {
+        return { label: 'Middle School', subtext: 'Foundational Syllabus & Core Concepts' };
+    }
+    if (gradeNum >= 9 && gradeNum <= 10) {
+        return { label: 'Secondary School', subtext: 'Board Examination & Rigorous Practice' };
+    }
+    if (gradeNum >= 11 && gradeNum <= 12) {
+        return { label: 'Senior Secondary', subtext: 'Higher Secondary Specialized Streams' };
+    }
+    return { label: 'Academic Program', subtext: 'Comprehensive Subject Curriculum' };
 }
 
 export default function CoursesPage() {
@@ -120,116 +139,202 @@ export default function CoursesPage() {
         return counts;
     }, [courses]);
 
+    const stageCounts = useMemo(() => {
+        const counts = { ALL: courses.length, MIDDLE: 0, SECONDARY: 0, SENIOR: 0 };
+        courses.forEach((c) => {
+            const g = extractGradeNumber(c.name);
+            if (g >= 6 && g <= 8) counts.MIDDLE++;
+            else if (g >= 9 && g <= 10) counts.SECONDARY++;
+            else if (g >= 11 && g <= 12) counts.SENIOR++;
+        });
+        return counts;
+    }, [courses]);
+
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: 'linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#f8fafc' }}>
             <Head>
-                <title>Select Your Class | Produit Academy Classes</title>
-                <meta name="description" content="Choose your academic class and board to connect with expert faculty and explore comprehensive syllabus modules." />
+                <title>Classes & Academic Curriculum | Produit Academy</title>
+                <meta
+                    name="description"
+                    content="Explore accredited Classes 6 to 12 across CBSE, ICSE, and State Boards. Structured syllabi, verified educators, and 1-on-1 live mentoring."
+                />
             </Head>
             <Header />
 
-            <main className="main-content" style={{ paddingTop: '108px', paddingBottom: '80px' }}>
-                <div className="container" style={{ maxWidth: '1160px', margin: '0 auto', padding: '0 24px' }}>
+            <main className="main-content" style={{ paddingTop: '100px', paddingBottom: '90px' }}>
+                <div className="container" style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px' }}>
                     
-                    {/* Hero Header */}
-                    <div style={{ textAlign: 'center', maxWidth: '760px', margin: '0 auto 40px' }}>
-                        <div style={{ marginBottom: '14px' }}>
-                            <span className="telemetry-chip live">
-                                <span className="live-pulse-dot" style={{ width: '6px', height: '6px', borderRadius: '0px' }} />
-                                <span>CURRICULUM ARCHITECTURE // GRADES 6 TO 12</span>
-                            </span>
+                    {/* Academic Hero Header */}
+                    <div style={{
+                        textAlign: 'center',
+                        maxWidth: '820px',
+                        margin: '0 auto 40px',
+                        paddingTop: '16px'
+                    }}>
+                        <div style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            background: '#ecfdf5',
+                            border: '1px solid #a7f3d0',
+                            padding: '6px 16px',
+                            borderRadius: '9999px',
+                            color: '#047857',
+                            fontSize: '0.84rem',
+                            fontWeight: 700,
+                            letterSpacing: '0.3px',
+                            marginBottom: '16px'
+                        }}>
+                            <GraduationCap size={16} />
+                            <span>K-12 ACADEMIC CURRICULUM</span>
                         </div>
 
                         <h1 style={{
-                            fontFamily: "'Lora', serif",
-                            fontSize: 'clamp(2rem, 4vw, 2.75rem)',
+                            fontSize: 'clamp(2.1rem, 4.2vw, 3rem)',
                             fontWeight: 700,
                             color: '#0f172a',
-                            lineHeight: 1.25,
-                            marginBottom: '16px'
+                            lineHeight: 1.2,
+                            marginBottom: '16px',
+                            letterSpacing: '-0.02em'
                         }}>
-                            Select Your Class
+                            Select Your Academic Class
                         </h1>
-                        <p style={{ color: '#475569', fontSize: '1.1rem', lineHeight: 1.6, margin: 0 }}>
-                            Choose your grade and education board to explore dedicated subject syllabi, view demo videos, and book live 1-on-1 sessions with expert teachers.
+                        <p style={{
+                            color: '#475569',
+                            fontSize: '1.12rem',
+                            lineHeight: 1.65,
+                            margin: '0 auto 28px',
+                            maxWidth: '700px'
+                        }}>
+                            Structured learning roadmaps for Grades 6 through 12 across CBSE, ICSE, and State Boards. Select your grade to view syllabi and book 1-on-1 sessions with verified educators.
                         </p>
+
+                        {/* Institutional Value Strip */}
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            flexWrap: 'wrap',
+                            gap: '12px 24px',
+                            padding: '14px 20px',
+                            background: '#ffffff',
+                            borderRadius: '14px',
+                            border: '1px solid #e2e8f0',
+                            boxShadow: '0 2px 10px rgba(15, 23, 42, 0.03)',
+                            fontSize: '0.88rem',
+                            color: '#334155',
+                            fontWeight: 600
+                        }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+                                <CheckCircle2 size={16} color="#059669" />
+                                <span>1-on-1 Faculty Mentorship</span>
+                            </div>
+                            <span style={{ color: '#cbd5e1' }}>•</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+                                <BookOpen size={16} color="#2563eb" />
+                                <span>Board-Aligned Syllabi</span>
+                            </div>
+                            <span style={{ color: '#cbd5e1' }}>•</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+                                <Award size={16} color="#7c3aed" />
+                                <span>Chapter Tests & Doubts</span>
+                            </div>
+                            <span style={{ color: '#cbd5e1' }}>•</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+                                <ShieldCheck size={16} color="#059669" />
+                                <span>Verified Educators</span>
+                            </div>
+                        </div>
                     </div>
 
-                    {/* Filter & Search Controls Bar */}
+                    {/* Filter & Search Console */}
                     <div style={{
                         background: '#ffffff',
                         border: '1px solid #e2e8f0',
-                        borderRadius: '0px',
-                        padding: '20px 24px',
-                        boxShadow: '0 2px 10px rgba(15, 23, 42, 0.04)',
+                        borderRadius: '16px',
+                        padding: '24px',
+                        boxShadow: '0 4px 16px rgba(15, 23, 42, 0.04)',
                         marginBottom: '36px',
                         display: 'flex',
                         flexDirection: 'column',
-                        gap: '18px'
+                        gap: '20px'
                     }}>
                         {/* Search Input Row */}
-                        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', position: 'relative' }}>
-                            <div style={{
-                                position: 'relative', flex: 1, display: 'flex', alignItems: 'center'
-                            }}>
-                                <Search size={19} color="#94a3b8" style={{ position: 'absolute', left: '16px' }} />
-                                <input
-                                    type="text"
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    placeholder="Search by class, grade, or board (e.g., 10th CBSE, 11th Science)..."
+                        <div style={{ position: 'relative', width: '100%' }}>
+                            <Search
+                                size={19}
+                                color="#94a3b8"
+                                style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }}
+                            />
+                            <input
+                                type="text"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                placeholder="Search by grade, stream, or board (e.g. 10th CBSE, 11th Science, ICSE)..."
+                                style={{
+                                    width: '100%',
+                                    padding: '13px 44px 13px 48px',
+                                    fontSize: '0.96rem',
+                                    borderRadius: '12px',
+                                    border: '1px solid #cbd5e1',
+                                    background: '#f8fafc',
+                                    color: '#0f172a',
+                                    outline: 'none',
+                                    transition: 'all 0.2s ease',
+                                }}
+                                onFocus={(e) => {
+                                    e.target.style.borderColor = '#059669';
+                                    e.target.style.background = '#ffffff';
+                                    e.target.style.boxShadow = '0 0 0 3px rgba(5, 150, 105, 0.12)';
+                                }}
+                                onBlur={(e) => {
+                                    e.target.style.borderColor = '#cbd5e1';
+                                    e.target.style.background = '#f8fafc';
+                                    e.target.style.boxShadow = 'none';
+                                }}
+                            />
+                            {searchQuery && (
+                                <button
+                                    onClick={() => setSearchQuery('')}
                                     style={{
-                                        width: '100%',
-                                        padding: '13px 44px 13px 46px',
-                                        fontSize: '0.98rem',
-                                        borderRadius: '0px',
-                                        border: '1px solid #cbd5e1',
-                                        background: '#f8fafc',
-                                        color: '#0f172a',
-                                        outline: 'none',
-                                        transition: 'all 0.2s ease',
+                                        position: 'absolute',
+                                        right: '14px',
+                                        top: '50%',
+                                        transform: 'translateY(-50%)',
+                                        background: 'none',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        color: '#94a3b8',
+                                        padding: '4px',
+                                        display: 'flex'
                                     }}
-                                    onFocus={(e) => {
-                                        e.target.style.borderColor = 'var(--accent-green)';
-                                        e.target.style.background = '#ffffff';
-                                        e.target.style.boxShadow = '0 0 0 2px rgba(51, 174, 120, 0.2)';
-                                    }}
-                                    onBlur={(e) => {
-                                        e.target.style.borderColor = '#cbd5e1';
-                                        e.target.style.background = '#f8fafc';
-                                        e.target.style.boxShadow = 'none';
-                                    }}
-                                />
-                                {searchQuery && (
-                                    <button
-                                        onClick={() => setSearchQuery('')}
-                                        style={{
-                                            position: 'absolute', right: '14px', background: 'none', border: 'none',
-                                            cursor: 'pointer', color: '#94a3b8', padding: '4px', display: 'flex'
-                                        }}
-                                        title="Clear search"
-                                    >
-                                        <X size={16} />
-                                    </button>
-                                )}
-                            </div>
+                                    title="Clear search"
+                                >
+                                    <X size={16} />
+                                </button>
+                            )}
                         </div>
 
-                        {/* Filter Tabs Row */}
+                        {/* Filter Controls Row */}
                         <div style={{
-                            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                            flexWrap: 'wrap', gap: '14px', paddingTop: '12px', borderTop: '1px solid #f1f5f9'
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            flexWrap: 'wrap',
+                            gap: '16px',
+                            paddingTop: '16px',
+                            borderTop: '1px solid #f1f5f9'
                         }}>
                             {/* Board Filter Tabs */}
-                            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
-                                <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#64748b', marginRight: '6px' }}>
-                                    Board:
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                <span style={{ fontSize: '0.86rem', fontWeight: 700, color: '#475569', marginRight: '4px' }}>
+                                    Curriculum Board:
                                 </span>
                                 {[
-                                    { id: 'ALL', label: 'All Boards', count: boardCounts.ALL },
-                                    { id: 'CBSE', label: 'CBSE', count: boardCounts.CBSE },
-                                    { id: 'ICSE', label: 'ICSE', count: boardCounts.ICSE },
-                                    { id: 'State', label: 'State Board', count: boardCounts.State },
+                                    { id: 'ALL', label: 'All Boards', count: boardCounts.ALL, color: '#059669', bg: '#ecfdf5' },
+                                    { id: 'CBSE', label: 'CBSE National', count: boardCounts.CBSE, color: '#1d4ed8', bg: '#eff6ff' },
+                                    { id: 'ICSE', label: 'ICSE Council', count: boardCounts.ICSE, color: '#6d28d9', bg: '#f5f3ff' },
+                                    { id: 'State', label: 'State Board', count: boardCounts.State, color: '#047857', bg: '#ecfdf5' },
                                 ].map((tab) => {
                                     const active = selectedBoard === tab.id;
                                     return (
@@ -237,27 +342,27 @@ export default function CoursesPage() {
                                             key={tab.id}
                                             onClick={() => setSelectedBoard(tab.id)}
                                             style={{
-                                                padding: '8px 14px',
-                                                borderRadius: '0px',
-                                                fontSize: '0.88rem',
+                                                padding: '7px 14px',
+                                                borderRadius: '10px',
+                                                fontSize: '0.86rem',
                                                 fontWeight: active ? 700 : 500,
                                                 cursor: 'pointer',
-                                                border: active ? '1px solid var(--accent-green-dark)' : '1px solid #e2e8f0',
-                                                background: active ? 'var(--accent-green-light)' : '#ffffff',
-                                                color: active ? 'var(--accent-green-dark)' : '#475569',
+                                                border: active ? `1.5px solid ${tab.color}` : '1px solid #e2e8f0',
+                                                background: active ? tab.bg : '#ffffff',
+                                                color: active ? tab.color : '#475569',
                                                 display: 'flex',
                                                 alignItems: 'center',
-                                                gap: '6px',
+                                                gap: '7px',
                                                 transition: 'all 0.15s ease',
                                             }}
                                         >
                                             <span>{tab.label}</span>
                                             <span style={{
-                                                fontSize: '0.75rem',
-                                                padding: '2px 5px',
-                                                borderRadius: '0px',
-                                                background: active ? 'rgba(34, 139, 34, 0.18)' : '#f1f5f9',
-                                                color: active ? 'var(--accent-green-dark)' : '#64748b',
+                                                fontSize: '0.74rem',
+                                                padding: '2px 6px',
+                                                borderRadius: '6px',
+                                                background: active ? 'rgba(0,0,0,0.06)' : '#f1f5f9',
+                                                color: active ? tab.color : '#64748b',
                                                 fontWeight: 700
                                             }}>
                                                 {tab.count}
@@ -267,16 +372,16 @@ export default function CoursesPage() {
                                 })}
                             </div>
 
-                            {/* Grade Category Pills */}
-                            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
-                                <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#64748b', marginRight: '6px' }}>
+                            {/* Academic Level Selector */}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                <span style={{ fontSize: '0.86rem', fontWeight: 700, color: '#475569', marginRight: '4px' }}>
                                     Level:
                                 </span>
                                 {[
-                                    { id: 'ALL', label: 'All Classes' },
-                                    { id: 'MIDDLE', label: 'Middle (6 - 8)' },
-                                    { id: 'SECONDARY', label: 'Secondary (9 - 10)' },
-                                    { id: 'SENIOR', label: 'Senior (11 - 12)' },
+                                    { id: 'ALL', label: 'All Levels' },
+                                    { id: 'MIDDLE', label: 'Middle (6–8)' },
+                                    { id: 'SECONDARY', label: 'Secondary (9–10)' },
+                                    { id: 'SENIOR', label: 'Senior (11–12)' },
                                 ].map((cat) => {
                                     const active = selectedCategory === cat.id;
                                     return (
@@ -284,9 +389,9 @@ export default function CoursesPage() {
                                             key={cat.id}
                                             onClick={() => setSelectedCategory(cat.id)}
                                             style={{
-                                                padding: '7px 12px',
-                                                borderRadius: '0px',
-                                                fontSize: '0.82rem',
+                                                padding: '7px 13px',
+                                                borderRadius: '10px',
+                                                fontSize: '0.84rem',
                                                 fontWeight: active ? 700 : 500,
                                                 cursor: 'pointer',
                                                 border: active ? '1px solid #0f172a' : '1px solid #e2e8f0',
@@ -303,13 +408,16 @@ export default function CoursesPage() {
                         </div>
                     </div>
 
-                    {/* Results Counter */}
+                    {/* Results Counter Header */}
                     <div style={{
-                        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                        marginBottom: '20px', padding: '0 4px'
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        marginBottom: '22px',
+                        padding: '0 4px'
                     }}>
-                        <p style={{ fontSize: '0.92rem', color: '#64748b', margin: 0 }}>
-                            Showing <strong style={{ color: '#0f172a' }}>{filteredCourses.length}</strong> available classes
+                        <p style={{ fontSize: '0.94rem', color: '#64748b', margin: 0 }}>
+                            Showing <strong style={{ color: '#0f172a', fontWeight: 700 }}>{filteredCourses.length}</strong> academic programs
                         </p>
                         {(searchQuery || selectedBoard !== 'ALL' || selectedCategory !== 'ALL') && (
                             <button
@@ -319,41 +427,54 @@ export default function CoursesPage() {
                                     setSelectedCategory('ALL');
                                 }}
                                 style={{
-                                    background: 'none', border: 'none', color: 'var(--accent-green-dark)',
-                                    fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px'
+                                    background: 'none',
+                                    border: 'none',
+                                    color: '#059669',
+                                    fontSize: '0.88rem',
+                                    fontWeight: 700,
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '4px'
                                 }}
                             >
-                                Reset filters
+                                Reset all filters
                             </button>
                         )}
                     </div>
 
-                    {/* Content Section */}
+                    {/* Main Content Grid */}
                     {loading ? (
-                        <div className="loading-container" style={{ minHeight: '300px' }}>
+                        <div className="loading-container" style={{ minHeight: '340px' }}>
                             <div className="loading-spinner" />
                         </div>
                     ) : filteredCourses.length === 0 ? (
                         <div style={{
                             background: '#ffffff',
                             border: '1px solid #e2e8f0',
-                            borderRadius: '0px',
-                            padding: '60px 24px',
+                            borderRadius: '16px',
+                            padding: '64px 24px',
                             textAlign: 'center',
-                            boxShadow: '0 2px 10px rgba(15, 23, 42, 0.04)'
+                            boxShadow: '0 2px 12px rgba(15, 23, 42, 0.04)'
                         }}>
                             <div style={{
-                                width: '64px', height: '64px', borderRadius: '0px',
-                                background: '#f1f5f9', display: 'flex', alignItems: 'center',
-                                justifyContent: 'center', margin: '0 auto 16px', color: '#94a3b8'
+                                width: '64px',
+                                height: '64px',
+                                borderRadius: '16px',
+                                background: '#f1f5f9',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                margin: '0 auto 16px',
+                                color: '#94a3b8'
                             }}>
                                 <Search size={28} />
                             </div>
                             <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}>
-                                No matching classes found
+                                No classes match your criteria
                             </h3>
-                            <p style={{ color: '#64748b', fontSize: '0.95rem', maxWidth: '420px', margin: '0 auto 20px' }}>
-                                We couldn&apos;t find any classes matching &quot;{searchQuery}&quot;. Try adjusting your search query or filters.
+                            <p style={{ color: '#64748b', fontSize: '0.96rem', maxWidth: '440px', margin: '0 auto 20px', lineHeight: 1.6 }}>
+                                We couldn&apos;t find any classes matching your search or filters. Please reset your filters to explore available programs.
                             </p>
                             <button
                                 onClick={() => {
@@ -362,7 +483,7 @@ export default function CoursesPage() {
                                     setSelectedCategory('ALL');
                                 }}
                                 className="glass-btn primary"
-                                style={{ padding: '10px 24px', borderRadius: '0px', fontSize: '0.92rem' }}
+                                style={{ padding: '11px 26px', borderRadius: '10px', fontSize: '0.92rem', fontWeight: 700 }}
                             >
                                 Reset All Filters
                             </button>
@@ -370,24 +491,33 @@ export default function CoursesPage() {
                     ) : (
                         <div style={{
                             display: 'grid',
-                            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+                            gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
                             gap: '24px',
+                            marginBottom: '64px'
                         }}>
                             {filteredCourses.map((course) => {
                                 const boardMeta = getBoardMeta(course.name);
                                 const gradeNum = extractGradeNumber(course.name);
+                                const stageInfo = getGradeStage(gradeNum);
                                 const isSenior = gradeNum >= 11;
                                 const isCommerce = course.name.toLowerCase().includes('commerce');
                                 const isScience = course.name.toLowerCase().includes('science');
+
+                                // Refined academic stream subtitle
+                                let streamTitle = stageInfo.subtext;
+                                if (isSenior) {
+                                    if (isScience) streamTitle = 'Science Stream • Physics, Chemistry & Maths/Bio';
+                                    else if (isCommerce) streamTitle = 'Commerce Stream • Accountancy, Economics & Maths';
+                                    else streamTitle = 'Senior Secondary Specialized Stream';
+                                }
 
                                 return (
                                     <div
                                         key={course.id}
                                         onClick={() => router.push(`/courses/${course.id}`)}
-                                        className={`pro-card-hover ${isScience ? 'science-futuristic-card' : isCommerce ? 'math-geometric-card' : ''}`}
                                         style={{
                                             background: '#ffffff',
-                                            borderRadius: '0px',
+                                            borderRadius: '16px',
                                             border: '1px solid #e2e8f0',
                                             padding: '24px',
                                             cursor: 'pointer',
@@ -395,126 +525,163 @@ export default function CoursesPage() {
                                             flexDirection: 'column',
                                             position: 'relative',
                                             overflow: 'hidden',
-                                            boxShadow: '0 2px 8px rgba(15, 23, 42, 0.04)',
+                                            boxShadow: '0 2px 10px rgba(15, 23, 42, 0.03)',
+                                            transition: 'transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease',
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.transform = 'translateY(-4px)';
+                                            e.currentTarget.style.boxShadow = '0 14px 28px -4px rgba(15, 23, 42, 0.08)';
+                                            e.currentTarget.style.borderColor = boardMeta.accentColor;
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.transform = 'translateY(0)';
+                                            e.currentTarget.style.boxShadow = '0 2px 10px rgba(15, 23, 42, 0.03)';
+                                            e.currentTarget.style.borderColor = '#e2e8f0';
                                         }}
                                     >
-                                        {/* Card Top Row: Grade Square Emblem & Board Square Badge */}
+                                        {/* Card Header: Grade Shield & Board Badge */}
                                         <div style={{
                                             display: 'flex',
                                             justifyContent: 'space-between',
-                                            alignItems: 'flex-start',
-                                            marginBottom: '20px'
+                                            alignItems: 'center',
+                                            marginBottom: '18px'
                                         }}>
-                                            {/* Grade Square Emblem */}
+                                            {/* Grade Emblem */}
                                             <div style={{
-                                                width: '56px',
-                                                height: '56px',
-                                                borderRadius: '0px',
+                                                width: '58px',
+                                                height: '58px',
+                                                borderRadius: '14px',
                                                 background: boardMeta.gradient,
                                                 display: 'flex',
                                                 flexDirection: 'column',
                                                 alignItems: 'center',
                                                 justifyContent: 'center',
                                                 color: '#ffffff',
-                                                boxShadow: `0 4px 12px -2px ${boardMeta.accentColor}35`,
-                                                position: 'relative'
+                                                boxShadow: `0 4px 14px -2px ${boardMeta.accentColor}40`,
+                                                flexShrink: 0
                                             }}>
-                                                <span style={{ fontSize: '1.35rem', fontWeight: 800, lineHeight: 1 }}>
+                                                <span style={{ fontSize: '1.45rem', fontWeight: 800, lineHeight: 1 }}>
                                                     {gradeNum !== 99 ? gradeNum : '•'}
                                                 </span>
-                                                <span style={{ fontSize: '0.62rem', fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase', opacity: 0.9 }}>
+                                                <span style={{
+                                                    fontSize: '0.62rem',
+                                                    fontWeight: 700,
+                                                    letterSpacing: '0.6px',
+                                                    textTransform: 'uppercase',
+                                                    opacity: 0.95,
+                                                    marginTop: '2px'
+                                                }}>
                                                     Grade
                                                 </span>
                                             </div>
 
-                                            {/* Board Square Badge */}
-                                            <div style={{
-                                                padding: '5px 10px',
-                                                borderRadius: '0px',
-                                                fontSize: '0.78rem',
-                                                fontWeight: 800,
-                                                letterSpacing: '0.5px',
-                                                textTransform: 'uppercase',
-                                                background: boardMeta.badgeBg,
-                                                color: boardMeta.badgeColor,
-                                                border: `1px solid ${boardMeta.badgeBorder}`,
-                                                display: 'inline-flex',
-                                                alignItems: 'center',
-                                                gap: '4px'
-                                            }}>
-                                                <span>{boardMeta.name}</span>
+                                            {/* Board & Stage Pills */}
+                                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '5px' }}>
+                                                <span style={{
+                                                    padding: '4px 10px',
+                                                    borderRadius: '8px',
+                                                    fontSize: '0.78rem',
+                                                    fontWeight: 700,
+                                                    background: boardMeta.badgeBg,
+                                                    color: boardMeta.badgeColor,
+                                                    border: `1px solid ${boardMeta.badgeBorder}`,
+                                                }}>
+                                                    {boardMeta.tag}
+                                                </span>
+                                                <span style={{
+                                                    fontSize: '0.74rem',
+                                                    color: '#64748b',
+                                                    fontWeight: 600,
+                                                }}>
+                                                    {stageInfo.label}
+                                                </span>
                                             </div>
                                         </div>
 
-                                        {/* Course Title & Stream */}
+                                        {/* Program Title */}
                                         <h3 style={{
                                             fontSize: '1.25rem',
-                                            fontWeight: 800,
+                                            fontWeight: 700,
                                             color: '#0f172a',
                                             marginBottom: '6px',
-                                            lineHeight: 1.3
+                                            lineHeight: 1.35
                                         }}>
                                             {course.name}
                                         </h3>
 
-                                        {/* Secondary description/stream */}
+                                        {/* Stream / Scope Description */}
                                         <p style={{
                                             fontSize: '0.88rem',
                                             color: '#64748b',
-                                            marginBottom: '20px',
-                                            lineHeight: 1.5
+                                            marginBottom: '18px',
+                                            lineHeight: 1.5,
+                                            flex: 1
                                         }}>
-                                            {isSenior ? (
-                                                isScience ? 'Senior Secondary • Science Stream' :
-                                                isCommerce ? 'Senior Secondary • Commerce Stream' :
-                                                'Senior Secondary Stream'
-                                            ) : (
-                                                `Comprehensive Curriculum for Class ${gradeNum}`
-                                            )}
+                                            {streamTitle}
                                         </p>
 
-                                        {/* Stats Row */}
+                                        {/* Academic Highlights */}
+                                        <div style={{
+                                            background: '#f8fafc',
+                                            borderRadius: '10px',
+                                            padding: '12px 14px',
+                                            marginBottom: '18px',
+                                            border: '1px solid #f1f5f9',
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: '7px'
+                                        }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '7px', fontSize: '0.82rem', color: '#334155', fontWeight: 600 }}>
+                                                <CheckCircle2 size={14} color="#059669" />
+                                                <span>Complete Syllabus Coverage</span>
+                                            </div>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '7px', fontSize: '0.82rem', color: '#334155', fontWeight: 600 }}>
+                                                <CheckCircle2 size={14} color="#059669" />
+                                                <span>Live 1-on-1 Faculty Mentorship</span>
+                                            </div>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '7px', fontSize: '0.82rem', color: '#334155', fontWeight: 600 }}>
+                                                <CheckCircle2 size={14} color="#059669" />
+                                                <span>Periodic Tests & Doubt Clearing</span>
+                                            </div>
+                                        </div>
+
+                                        {/* Meta Stats Row */}
                                         <div style={{
                                             display: 'flex',
                                             alignItems: 'center',
-                                            gap: '12px',
-                                            paddingTop: '16px',
-                                            borderTop: '1px dashed #e2e8f0',
-                                            marginTop: 'auto',
-                                            marginBottom: '16px'
+                                            justifyContent: 'space-between',
+                                            paddingTop: '14px',
+                                            borderTop: '1px solid #f1f5f9',
+                                            marginBottom: '16px',
+                                            fontSize: '0.85rem',
+                                            color: '#475569',
+                                            fontWeight: 600
                                         }}>
-                                            <div style={{
-                                                display: 'flex', alignItems: 'center', gap: '6px',
-                                                fontSize: '0.85rem', color: '#475569', fontWeight: 600
-                                            }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                                                 <BookOpen size={16} color="#059669" />
-                                                <span>{course.subject_count || 4} Subjects</span>
+                                                <span>{course.subject_count || 4} Core Subjects</span>
                                             </div>
-                                            <span style={{ color: '#cbd5e1' }}>•</span>
-                                            <div style={{
-                                                display: 'flex', alignItems: 'center', gap: '6px',
-                                                fontSize: '0.85rem', color: '#475569', fontWeight: 600
-                                            }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                                                 <Users size={16} color="#2563eb" />
                                                 <span>Live 1-on-1</span>
                                             </div>
                                         </div>
 
-                                        {/* Action Link Button */}
+                                        {/* Explore Button */}
                                         <div style={{
                                             display: 'flex',
                                             alignItems: 'center',
                                             justifyContent: 'space-between',
-                                            padding: '11px 14px',
-                                            borderRadius: '0px',
+                                            padding: '11px 16px',
+                                            borderRadius: '10px',
                                             background: '#f8fafc',
                                             border: '1px solid #e2e8f0',
                                             fontSize: '0.88rem',
                                             fontWeight: 700,
-                                            color: 'var(--accent-green-dark)',
+                                            color: '#047857',
                                             transition: 'all 0.2s ease',
                                         }}>
-                                            <span>Explore Subjects</span>
+                                            <span>Explore Curriculum & Teachers</span>
                                             <ChevronRight size={17} />
                                         </div>
                                     </div>
@@ -522,6 +689,129 @@ export default function CoursesPage() {
                             })}
                         </div>
                     )}
+
+                    {/* Educational Trust & Standards Section */}
+                    <div style={{
+                        marginTop: '40px',
+                        padding: '48px 36px',
+                        background: '#ffffff',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '20px',
+                        boxShadow: '0 4px 18px rgba(15, 23, 42, 0.03)'
+                    }}>
+                        <div style={{ textAlign: 'center', maxWidth: '640px', margin: '0 auto 36px' }}>
+                            <span style={{
+                                fontSize: '0.8rem',
+                                fontWeight: 800,
+                                letterSpacing: '0.5px',
+                                color: '#059669',
+                                textTransform: 'uppercase',
+                                marginBottom: '8px',
+                                display: 'block'
+                            }}>
+                                ACADEMIC EXCELLENCE
+                            </span>
+                            <h2 style={{
+                                fontSize: '1.85rem',
+                                fontWeight: 700,
+                                color: '#0f172a',
+                                marginBottom: '12px'
+                            }}>
+                                The Produit Academy Approach
+                            </h2>
+                            <p style={{ color: '#64748b', fontSize: '1rem', lineHeight: 1.6, margin: 0 }}>
+                                Delivering high-touch, rigorous academic mentorship designed to build deep conceptual mastery and board exam readiness.
+                            </p>
+                        </div>
+
+                        <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                            gap: '24px'
+                        }}>
+                            <div style={{
+                                padding: '24px',
+                                background: '#f8fafc',
+                                borderRadius: '14px',
+                                border: '1px solid #e2e8f0'
+                            }}>
+                                <div style={{
+                                    width: '44px',
+                                    height: '44px',
+                                    borderRadius: '12px',
+                                    background: '#ecfdf5',
+                                    color: '#059669',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    marginBottom: '16px'
+                                }}>
+                                    <BookOpen size={22} />
+                                </div>
+                                <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}>
+                                    Standardized Board Alignment
+                                </h3>
+                                <p style={{ fontSize: '0.9rem', color: '#64748b', lineHeight: 1.6, margin: 0 }}>
+                                    Courses strictly reflect NCERT, CISCE, and state curriculum blueprints with chapter-wise objectives and problem-solving tracks.
+                                </p>
+                            </div>
+
+                            <div style={{
+                                padding: '24px',
+                                background: '#f8fafc',
+                                borderRadius: '14px',
+                                border: '1px solid #e2e8f0'
+                            }}>
+                                <div style={{
+                                    width: '44px',
+                                    height: '44px',
+                                    borderRadius: '12px',
+                                    background: '#eff6ff',
+                                    color: '#2563eb',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    marginBottom: '16px'
+                                }}>
+                                    <Users size={22} />
+                                </div>
+                                <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}>
+                                    1-on-1 Dedicated Faculty
+                                </h3>
+                                <p style={{ fontSize: '0.9rem', color: '#64748b', lineHeight: 1.6, margin: 0 }}>
+                                    No crowded batches. Every class is an individual interactive mentoring session tailored to the student&apos;s specific learning pace.
+                                </p>
+                            </div>
+
+                            <div style={{
+                                padding: '24px',
+                                background: '#f8fafc',
+                                borderRadius: '14px',
+                                border: '1px solid #e2e8f0'
+                            }}>
+                                <div style={{
+                                    width: '44px',
+                                    height: '44px',
+                                    borderRadius: '12px',
+                                    background: '#f5f3ff',
+                                    color: '#7c3aed',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    marginBottom: '16px'
+                                }}>
+                                    <Award size={22} />
+                                </div>
+                                <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}>
+                                    Progress Analytics & Reports
+                                </h3>
+                                <p style={{ fontSize: '0.9rem', color: '#64748b', lineHeight: 1.6, margin: 0 }}>
+                                    Transparent session notes, assignment feedback, and academic reviews so students and parents always know where they stand.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </main>
 

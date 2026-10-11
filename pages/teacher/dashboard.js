@@ -2,7 +2,7 @@ import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { withAuth, useAuth } from '../../lib/auth';
-import { apiGet, apiPatch, apiPost } from '../../lib/api';
+import { apiGet, apiPatch, apiPost, onPlatformSync } from '../../lib/api';
 import DashboardLayout from '../../components/DashboardLayout';
 import StatCard from '../../components/StatCard';
 import {
@@ -42,6 +42,8 @@ function TeacherDashboard() {
 
     useEffect(() => {
         loadData();
+        const unsub = onPlatformSync(() => loadData());
+        return unsub;
     }, []);
 
     const handleMarkOutcome = async () => {
@@ -136,6 +138,41 @@ function TeacherDashboard() {
                 <div className="loading-container"><div className="loading-spinner" /></div>
             ) : data ? (
                 <>
+                    {/* Google Meet Status Banner */}
+                    {!data.google_meet_link && (
+                        <div style={{
+                            background: '#fffbeb',
+                            border: '1px solid #fde68a',
+                            borderLeft: '5px solid #f59e0b',
+                            padding: '14px 20px',
+                            marginBottom: '20px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            flexWrap: 'wrap',
+                            gap: '12px'
+                        }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                <div>
+                                    <strong style={{ fontSize: '0.92rem', color: '#92400e', display: 'block' }}>
+                                        Official Google Meet Link Not Assigned
+                                    </strong>
+                                    <span style={{ fontSize: '0.84rem', color: '#b45309' }}>
+                                        Classes Administration has not assigned your official Google Meet link yet. Please contact admin to configure your classroom link before live sessions start.
+                                    </span>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => router.push('/teacher/manage-profile')}
+                                className="glass-btn secondary"
+                                style={{ padding: '6px 14px', fontSize: '0.82rem', background: '#ffffff', borderColor: '#fde68a', color: '#92400e' }}
+                            >
+                                View Profile
+                            </button>
+                        </div>
+                    )}
+
                     {/* Live Session Alert Banner */}
                     {data.live_sessions?.length > 0 && (
                         <div style={{
@@ -144,7 +181,8 @@ function TeacherDashboard() {
                             borderLeft: '6px solid #059669',
                             padding: '18px 24px',
                             marginBottom: '24px',
-                            boxShadow: '0 0 16px rgba(16, 185, 129, 0.25)',
+                            borderRadius: '14px',
+                            boxShadow: 'var(--shadow-sm)',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'space-between',
@@ -179,7 +217,7 @@ function TeacherDashboard() {
                                             display: 'inline-flex',
                                             alignItems: 'center',
                                             gap: '6px',
-                                            borderRadius: '0px',
+                                            borderRadius: '14px',
                                             boxShadow: '0 2px 8px rgba(5, 150, 105, 0.3)'
                                         }}
                                     >
@@ -199,7 +237,7 @@ function TeacherDashboard() {
                                         padding: '10px 16px',
                                         fontWeight: 700,
                                         fontSize: '0.85rem',
-                                        borderRadius: '0px',
+                                        borderRadius: '14px',
                                         cursor: 'pointer'
                                     }}
                                 >
@@ -217,7 +255,7 @@ function TeacherDashboard() {
                             borderLeft: '5px solid #d97706',
                             padding: '18px 22px',
                             marginBottom: '24px',
-                            borderRadius: '0px'
+                            borderRadius: '14px'
                         }}>
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '12px' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -257,7 +295,7 @@ function TeacherDashboard() {
                                                 setOutcomeStatus('Completed');
                                             }}
                                             className="glass-btn primary"
-                                            style={{ borderRadius: '0px', padding: '6px 14px', fontSize: '0.82rem', background: '#d97706' }}
+                                            style={{ borderRadius: '14px', padding: '6px 14px', fontSize: '0.82rem', background: '#d97706' }}
                                         >
                                             Confirm Outcome
                                         </button>
@@ -274,28 +312,28 @@ function TeacherDashboard() {
                         gap: '16px',
                         marginBottom: '28px'
                     }}>
-                        <div className="glass-card" style={{ padding: '20px', borderRadius: '0px', borderLeft: '4px solid #10b981' }}>
+                        <div className="glass-card" style={{ padding: '20px', borderRadius: '14px', borderLeft: '4px solid #10b981' }}>
                             <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>Classes Conducted</span>
                             <h3 style={{ fontSize: '1.8rem', fontWeight: 800, color: '#0f172a', margin: '4px 0 0' }}>{data.classes_conducted || 0}</h3>
                             <span style={{ fontSize: '0.78rem', color: '#10b981', fontWeight: 600 }}>Completed successfully</span>
                         </div>
 
-                        <div className="glass-card" style={{ padding: '20px', borderRadius: '0px', borderLeft: '4px solid #f59e0b' }}>
+                        <div className="glass-card" style={{ padding: '20px', borderRadius: '14px', borderLeft: '4px solid #f59e0b' }}>
                             <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>Needs Review</span>
                             <h3 style={{ fontSize: '1.8rem', fontWeight: 800, color: '#d97706', margin: '4px 0 0' }}>{data.needs_review_count || 0}</h3>
                             <span style={{ fontSize: '0.78rem', color: '#64748b' }}>Outcome not marked</span>
                         </div>
 
-                        <div className="glass-card" style={{ padding: '20px', borderRadius: '0px', borderLeft: '4px solid #ef4444' }}>
+                        <div className="glass-card" style={{ padding: '20px', borderRadius: '14px', borderLeft: '4px solid #ef4444' }}>
                             <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>Not Conducted</span>
                             <h3 style={{ fontSize: '1.8rem', fontWeight: 800, color: '#dc2626', margin: '4px 0 0' }}>{data.not_conducted || 0}</h3>
                             <span style={{ fontSize: '0.78rem', color: '#64748b' }}>Missed / Cancelled</span>
                         </div>
 
-                        <div className="glass-card" style={{ padding: '20px', borderRadius: '0px', borderLeft: '4px solid #3b82f6' }}>
-                            <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>Allotted Faculty Earnings</span>
-                            <h3 style={{ fontSize: '1.8rem', fontWeight: 800, color: '#2563eb', margin: '4px 0 0' }}>₹{parseFloat(data.total_earnings || 0).toLocaleString('en-IN')}</h3>
-                            <span style={{ fontSize: '0.78rem', color: '#64748b' }}>HR Allotted Rate: ₹{data.hourly_rate || 0}/hr &middot; Completed classes only</span>
+                        <div className="glass-card" style={{ padding: '20px', borderRadius: '14px', borderLeft: '4px solid #3b82f6' }}>
+                            <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>Active Students</span>
+                            <h3 style={{ fontSize: '1.8rem', fontWeight: 800, color: '#2563eb', margin: '4px 0 0' }}>{data.total_students || (data.assigned_students?.length || 0)}</h3>
+                            <span style={{ fontSize: '0.78rem', color: '#64748b' }}>Assigned to faculty</span>
                         </div>
                     </div>
 
@@ -311,7 +349,7 @@ function TeacherDashboard() {
                             className="glass-card pro-card-hover"
                             style={{
                                 padding: '18px 22px',
-                                borderRadius: '0px',
+                                borderRadius: '14px',
                                 cursor: 'pointer',
                                 display: 'flex',
                                 alignItems: 'center',
@@ -336,7 +374,7 @@ function TeacherDashboard() {
                             className="glass-card pro-card-hover"
                             style={{
                                 padding: '18px 22px',
-                                borderRadius: '0px',
+                                borderRadius: '14px',
                                 cursor: 'pointer',
                                 display: 'flex',
                                 alignItems: 'center',
@@ -371,7 +409,7 @@ function TeacherDashboard() {
                                 {data.upcoming_classes.map(cls => (
                                     <div key={cls.id} className="glass-card" style={{
                                         padding: '18px 22px',
-                                        borderRadius: '0px',
+                                        borderRadius: '14px',
                                         display: 'flex',
                                         justifyContent: 'space-between',
                                         alignItems: 'center',
@@ -413,7 +451,7 @@ function TeacherDashboard() {
                                                             background: '#047857',
                                                             color: '#ffffff',
                                                             padding: '6px 14px',
-                                                            borderRadius: '0px',
+                                                            borderRadius: '14px',
                                                             fontSize: '0.82rem',
                                                             fontWeight: 700,
                                                             display: 'inline-flex',
@@ -436,7 +474,7 @@ function TeacherDashboard() {
                                                         border: '1px solid #cbd5e1',
                                                         color: '#0f172a',
                                                         padding: '6px 12px',
-                                                        borderRadius: '0px',
+                                                        borderRadius: '14px',
                                                         fontSize: '0.82rem',
                                                         fontWeight: 700,
                                                         cursor: 'pointer',
@@ -459,7 +497,7 @@ function TeacherDashboard() {
                                                         border: '1px solid #cbd5e1',
                                                         color: '#334155',
                                                         padding: '6px 12px',
-                                                        borderRadius: '0px',
+                                                        borderRadius: '14px',
                                                         fontSize: '0.82rem',
                                                         fontWeight: 700,
                                                         cursor: 'pointer'
@@ -475,7 +513,7 @@ function TeacherDashboard() {
                                                         border: '1px solid #fecaca',
                                                         color: '#dc2626',
                                                         padding: '6px 10px',
-                                                        borderRadius: '0px',
+                                                        borderRadius: '14px',
                                                         fontSize: '0.82rem',
                                                         fontWeight: 600,
                                                         cursor: 'pointer'
@@ -489,7 +527,7 @@ function TeacherDashboard() {
                                 ))}
                             </div>
                         ) : (
-                            <div className="glass-card empty-state" style={{ borderRadius: '0px', padding: '36px', textAlign: 'center' }}>
+                            <div className="glass-card empty-state" style={{ borderRadius: '14px', padding: '36px', textAlign: 'center' }}>
                                 <p style={{ color: '#64748b', margin: 0 }}>No upcoming classes scheduled.</p>
                             </div>
                         )}
@@ -498,7 +536,7 @@ function TeacherDashboard() {
                     {/* Outcome Modal */}
                     {outcomeSession && (
                         <div className="modal-overlay" onClick={() => setOutcomeSession(null)}>
-                            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '480px', borderRadius: '0px' }}>
+                            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '480px', borderRadius: '10px' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
                                     <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800, color: '#0f172a' }}>
                                         Confirm Class Outcome
@@ -514,7 +552,7 @@ function TeacherDashboard() {
                                     <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
                                         Class Outcome *
                                     </label>
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '10px' }}>
                                         <button
                                             type="button"
                                             onClick={() => setOutcomeStatus('Completed')}
@@ -526,7 +564,7 @@ function TeacherDashboard() {
                                                 fontWeight: 700,
                                                 fontSize: '0.88rem',
                                                 cursor: 'pointer',
-                                                borderRadius: '0px',
+                                                borderRadius: '14px',
                                                 display: 'flex',
                                                 alignItems: 'center',
                                                 justifyContent: 'center',
@@ -548,7 +586,7 @@ function TeacherDashboard() {
                                                 fontWeight: 700,
                                                 fontSize: '0.88rem',
                                                 cursor: 'pointer',
-                                                borderRadius: '0px',
+                                                borderRadius: '14px',
                                                 display: 'flex',
                                                 alignItems: 'center',
                                                 justifyContent: 'center',
@@ -580,7 +618,7 @@ function TeacherDashboard() {
                                         type="button"
                                         className="glass-btn outline"
                                         onClick={() => setOutcomeSession(null)}
-                                        style={{ borderRadius: '0px' }}
+                                        style={{ borderRadius: '10px' }}
                                     >
                                         Cancel
                                     </button>
@@ -589,7 +627,7 @@ function TeacherDashboard() {
                                         onClick={handleMarkOutcome}
                                         disabled={outcomeLoading}
                                         className="glass-btn primary"
-                                        style={{ borderRadius: '0px' }}
+                                        style={{ borderRadius: '10px' }}
                                     >
                                         {outcomeLoading ? 'Saving...' : 'Confirm Outcome'}
                                     </button>
@@ -601,7 +639,7 @@ function TeacherDashboard() {
                     {/* Google Meet Link Modal */}
                     {meetSession && (
                         <div className="modal-overlay" onClick={() => setMeetSession(null)}>
-                            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '460px', borderRadius: '0px' }}>
+                            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '460px', borderRadius: '10px' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                         <Video size={20} color="#059669" />
@@ -635,7 +673,7 @@ function TeacherDashboard() {
                                         type="button"
                                         className="glass-btn outline"
                                         onClick={() => setMeetSession(null)}
-                                        style={{ borderRadius: '0px' }}
+                                        style={{ borderRadius: '10px' }}
                                     >
                                         Cancel
                                     </button>
@@ -644,7 +682,7 @@ function TeacherDashboard() {
                                         onClick={handleUpdateMeetLink}
                                         disabled={meetLoading || !meetUrl.trim()}
                                         className="glass-btn primary"
-                                        style={{ borderRadius: '0px' }}
+                                        style={{ borderRadius: '10px' }}
                                     >
                                         {meetLoading ? 'Updating...' : 'Save & Email Student'}
                                     </button>
@@ -656,7 +694,7 @@ function TeacherDashboard() {
                     {/* Cancel Session Modal */}
                     {cancelId && (
                         <div className="modal-overlay" onClick={() => setCancelId(null)}>
-                            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '460px', borderRadius: '0px' }}>
+                            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '460px', borderRadius: '10px' }}>
                                 <h3 style={{ color: '#dc2626', margin: '0 0 8px', fontSize: '1.2rem', fontWeight: 800 }}>
                                     Cancel Class Session
                                 </h3>
@@ -678,11 +716,11 @@ function TeacherDashboard() {
                                     />
                                 </div>
                                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-                                    <button type="button" className="glass-btn outline" style={{ borderRadius: '0px' }} onClick={() => { setCancelId(null); setCancelReason(''); }}>Go Back</button>
+                                    <button type="button" className="glass-btn outline" style={{ borderRadius: '10px' }} onClick={() => { setCancelId(null); setCancelReason(''); }}>Go Back</button>
                                     <button
                                         type="button"
                                         className="glass-btn danger"
-                                        style={{ borderRadius: '0px' }}
+                                        style={{ borderRadius: '10px' }}
                                         disabled={cancelling || !cancelReason.trim()}
                                         onClick={handleCancelSession}
                                     >

@@ -84,16 +84,16 @@ function StudentBookings() {
         return (
             <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
                 {s === 'confirmed' ? (
-                    <span className="telemetry-chip live" style={{ fontSize: '0.68rem', padding: '2px 8px' }}>[CONFIRMED]</span>
+                    <span className="telemetry-chip live" style={{ fontSize: '0.68rem', padding: '3px 10px', display: 'inline-flex', alignItems: 'center', lineHeight: 1 }}>[CONFIRMED]</span>
                 ) : s === 'completed' ? (
-                    <span className="telemetry-chip cyan" style={{ fontSize: '0.68rem', padding: '2px 8px' }}>[COMPLETED]</span>
+                    <span className="telemetry-chip cyan" style={{ fontSize: '0.68rem', padding: '3px 10px', display: 'inline-flex', alignItems: 'center', lineHeight: 1 }}>[COMPLETED]</span>
                 ) : s === 'cancelled' ? (
-                    <span className="telemetry-chip" style={{ fontSize: '0.68rem', padding: '2px 8px', color: '#dc2626', borderColor: '#fca5a5', background: '#fef2f2' }}>[CANCELLED]</span>
+                    <span className="telemetry-chip" style={{ fontSize: '0.68rem', padding: '3px 10px', color: '#dc2626', borderColor: '#fca5a5', background: '#fef2f2', display: 'inline-flex', alignItems: 'center', lineHeight: 1 }}>[CANCELLED]</span>
                 ) : (
-                    <span className="telemetry-chip" style={{ fontSize: '0.68rem', padding: '2px 8px' }}>[{s.toUpperCase()}]</span>
+                    <span className="telemetry-chip" style={{ fontSize: '0.68rem', padding: '3px 10px', display: 'inline-flex', alignItems: 'center', lineHeight: 1 }}>[{s.toUpperCase()}]</span>
                 )}
                 {p === 'refunded' && (
-                    <span className="telemetry-chip" style={{ fontSize: '0.68rem', padding: '2px 8px', color: '#059669', borderColor: '#a7f3d0', background: '#ecfdf5' }}>[REFUNDED]</span>
+                    <span className="telemetry-chip" style={{ fontSize: '0.68rem', padding: '3px 10px', color: '#059669', borderColor: '#a7f3d0', background: '#ecfdf5', display: 'inline-flex', alignItems: 'center', lineHeight: 1 }}>[REFUNDED]</span>
                 )}
             </div>
         );
@@ -107,7 +107,7 @@ function StudentBookings() {
                 <div style={{
                     padding: '14px 18px',
                     marginBottom: '20px',
-                    borderRadius: '0px',
+                    borderRadius: '14px',
                     border: bannerMessage.type === 'success' ? '1px solid #a7f3d0' : '1px solid #fecaca',
                     background: bannerMessage.type === 'success' ? '#ecfdf5' : '#fef2f2',
                     color: bannerMessage.type === 'success' ? '#065f46' : '#991b1b',
@@ -133,7 +133,7 @@ function StudentBookings() {
                 </div>
             ) : bookings.length === 0 ? (
                 <div style={{
-                    background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '0px',
+                    background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '14px',
                     textAlign: 'center', padding: '60px 24px', boxShadow: '0 2px 8px rgba(15, 23, 42, 0.03)'
                 }}>
                     <Calendar size={32} color="#94a3b8" style={{ margin: '0 auto 12px', display: 'block' }} />
@@ -147,7 +147,7 @@ function StudentBookings() {
                         href="/courses"
                         style={{
                             background: 'var(--accent-green)', color: '#ffffff',
-                            padding: '10px 20px', borderRadius: '0px', fontSize: '0.9rem',
+                            padding: '10px 20px', borderRadius: '14px', fontSize: '0.9rem',
                             fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '6px'
                         }}
                     >
@@ -163,7 +163,7 @@ function StudentBookings() {
                             style={{
                                 background: '#ffffff',
                                 border: '1px solid #e2e8f0',
-                                borderRadius: '0px',
+                                borderRadius: '14px',
                                 padding: '24px',
                                 boxShadow: '0 2px 8px rgba(15, 23, 42, 0.03)',
                                 borderLeft: b.booking_status === 'confirmed' ? '4px solid var(--accent-green)' : '4px solid #cbd5e1'
@@ -192,7 +192,7 @@ function StudentBookings() {
                                                 border: '1px solid #fca5a5',
                                                 color: '#dc2626',
                                                 padding: '5px 12px',
-                                                borderRadius: '0px',
+                                                borderRadius: '14px',
                                                 fontSize: '0.78rem',
                                                 fontWeight: 700,
                                                 cursor: 'pointer',
@@ -214,7 +214,7 @@ function StudentBookings() {
                             <div style={{
                                 display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
                                 gap: '12px', background: '#f8fafc', padding: '12px 16px',
-                                border: '1px solid #e2e8f0', borderRadius: '0px', marginBottom: '16px'
+                                border: '1px solid #e2e8f0', borderRadius: '14px', marginBottom: '16px'
                             }}>
                                 <div>
                                     <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Classes</span>
@@ -242,7 +242,7 @@ function StudentBookings() {
                                         rel="noopener noreferrer"
                                         style={{
                                             background: '#f0fdf4', border: '1px solid #a7f3d0',
-                                            color: '#047857', padding: '7px 14px', borderRadius: '0px',
+                                            color: '#047857', padding: '7px 14px', borderRadius: '14px',
                                             fontSize: '0.82rem', fontWeight: 700, display: 'inline-flex',
                                             alignItems: 'center', gap: '6px'
                                         }}
@@ -266,7 +266,7 @@ function StudentBookings() {
                                                 style={{
                                                     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                                                     gap: '12px', flexWrap: 'wrap',
-                                                    padding: '10px 14px', borderRadius: '0px',
+                                                    padding: '10px 14px', borderRadius: '14px',
                                                     background: s.status === 'cancelled' ? '#fef2f2' : s.status === 'completed' ? '#f0fdf4' : '#f8fafc',
                                                     border: `1px solid ${s.status === 'cancelled' ? '#fecaca' : s.status === 'completed' ? '#bbf7d0' : '#e2e8f0'}`,
                                                     opacity: s.status === 'cancelled' ? 0.75 : 1,
@@ -309,7 +309,7 @@ function StudentBookings() {
                                                         }}
                                                         style={{
                                                             background: 'none', border: '1px solid #fca5a5', color: '#dc2626',
-                                                            padding: '6px 12px', borderRadius: '0px', fontSize: '0.78rem',
+                                                            padding: '6px 12px', borderRadius: '14px', fontSize: '0.78rem',
                                                             fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap',
                                                         }}
                                                     >
@@ -333,7 +333,7 @@ function StudentBookings() {
                     background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center',
                     zIndex: 9999, padding: '20px',
                 }}>
-                    <div style={{ maxWidth: '460px', width: '100%', padding: '32px', background: '#ffffff', borderRadius: '0px', border: '1px solid #cbd5e1' }}>
+                    <div style={{ maxWidth: '460px', width: '100%', padding: '32px', background: '#ffffff', borderRadius: '14px', border: '1px solid #cbd5e1' }}>
                         <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#dc2626', marginBottom: '8px' }}>
                             Cancel Class Session
                         </h3>
@@ -350,7 +350,7 @@ function StudentBookings() {
                             placeholder="e.g., Schedule conflict, academic exam, personal reason..."
                             rows={3}
                             style={{
-                                width: '100%', padding: '10px 12px', borderRadius: '0px',
+                                width: '100%', padding: '10px 12px', borderRadius: '14px',
                                 border: '1px solid #cbd5e1', fontSize: '0.9rem',
                                 resize: 'vertical', marginBottom: '20px', fontFamily: 'inherit',
                             }}
@@ -359,7 +359,7 @@ function StudentBookings() {
                             <button
                                 onClick={() => { setCancelModal(null); setCancelReason(''); }}
                                 className="glass-btn"
-                                style={{ padding: '9px 18px', borderRadius: '0px' }}
+                                style={{ padding: '9px 18px', borderRadius: '10px' }}
                             >
                                 Keep Class
                             </button>
@@ -367,7 +367,7 @@ function StudentBookings() {
                                 onClick={handleCancel}
                                 disabled={cancelling || !cancelReason.trim()}
                                 style={{
-                                    padding: '9px 18px', borderRadius: '0px', fontWeight: 700,
+                                    padding: '10px 20px', borderRadius: '10px', fontWeight: 700,
                                     background: '#dc2626', color: '#fff', border: 'none', cursor: 'pointer',
                                     opacity: (cancelling || !cancelReason.trim()) ? 0.5 : 1,
                                 }}
@@ -385,7 +385,7 @@ function StudentBookings() {
                     background: 'rgba(0,0,0,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center',
                     zIndex: 9999, padding: '20px',
                 }}>
-                    <div style={{ maxWidth: '500px', width: '100%', padding: '32px', background: '#ffffff', borderRadius: '0px', border: '1px solid #cbd5e1', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
+                    <div style={{ maxWidth: '500px', width: '100%', padding: '32px', background: '#ffffff', borderRadius: '14px', border: '1px solid #cbd5e1', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
                             <div style={{ padding: '8px', background: '#fee2e2', color: '#dc2626' }}>
                                 <AlertCircle size={22} />
@@ -402,7 +402,7 @@ function StudentBookings() {
 
                         <div style={{
                             background: '#f8fafc', border: '1px solid #e2e8f0', padding: '14px 16px',
-                            borderRadius: '0px', marginBottom: '18px', fontSize: '0.86rem', color: '#334155'
+                            borderRadius: '14px', marginBottom: '18px', fontSize: '0.86rem', color: '#334155'
                         }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
                                 <span style={{ color: '#64748b' }}>Faculty:</span>
@@ -420,7 +420,7 @@ function StudentBookings() {
 
                         <div style={{
                             background: '#eff6ff', border: '1px solid #bfdbfe', padding: '12px 14px',
-                            borderRadius: '0px', marginBottom: '18px', fontSize: '0.82rem', color: '#1e40af', lineHeight: 1.5
+                            borderRadius: '14px', marginBottom: '18px', fontSize: '0.82rem', color: '#1e40af', lineHeight: 1.5
                         }}>
                             <strong>Refund Policy:</strong> In accordance with Produit Academy Refund Policy, full payment will be refunded directly to your original payment method (via Razorpay) within 5–7 business days. All scheduled sessions will be cancelled.
                         </div>
@@ -434,7 +434,7 @@ function StudentBookings() {
                             placeholder="e.g., Schedule conflict, requested change of tutor, personal emergency..."
                             rows={3}
                             style={{
-                                width: '100%', padding: '10px 12px', borderRadius: '0px',
+                                width: '100%', padding: '10px 12px', borderRadius: '14px',
                                 border: '1px solid #cbd5e1', fontSize: '0.88rem',
                                 resize: 'vertical', marginBottom: '22px', fontFamily: 'inherit',
                             }}
@@ -444,7 +444,7 @@ function StudentBookings() {
                             <button
                                 onClick={() => { setCancelBookingModal(null); setCancelBookingReason(''); }}
                                 style={{
-                                    padding: '9px 18px', borderRadius: '0px', border: '1px solid #cbd5e1',
+                                    padding: '9px 18px', borderRadius: '14px', border: '1px solid #cbd5e1',
                                     background: '#fff', color: '#475569', fontWeight: 600, cursor: 'pointer'
                                 }}
                             >
@@ -454,7 +454,7 @@ function StudentBookings() {
                                 onClick={handleCancelEntireBooking}
                                 disabled={cancellingBooking}
                                 style={{
-                                    padding: '9px 20px', borderRadius: '0px', fontWeight: 700,
+                                    padding: '10px 22px', borderRadius: '10px', fontWeight: 700,
                                     background: '#dc2626', color: '#fff', border: 'none', cursor: 'pointer',
                                     opacity: cancellingBooking ? 0.6 : 1,
                                     display: 'inline-flex', alignItems: 'center', gap: '6px'

@@ -91,7 +91,13 @@ export default function VerifyOTP() {
                 localStorage.setItem('access_token', data.access);
                 if (data.refresh) localStorage.setItem('refresh_token', data.refresh);
                 if (data.user) localStorage.setItem('user_data', JSON.stringify(data.user));
-                window.location.href = '/student/dashboard';
+
+                // If new registration or missing school/class profile, direct to complete profile onboarding
+                if (mode === 'register' || (!data.user?.current_class && !data.user?.school_name)) {
+                    window.location.href = '/student/complete-profile';
+                } else {
+                    window.location.href = '/student/dashboard';
+                }
             } else {
                 setError((data && (data.error || data.detail)) || `Verification failed (Status ${res.status}). Please try again.`);
             }

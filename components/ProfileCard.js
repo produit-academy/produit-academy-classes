@@ -1,19 +1,17 @@
-// components/ProfileCard.js - Elevated Teacher Profile Card (Crisp Square Architectural Aesthetic)
+// components/ProfileCard.js - Clean, Modern Teacher Profile Card
 import { useRouter } from 'next/router';
-import {
-    GraduationCap, Award, Globe, ArrowRight,
-    CheckCircle2, Star, Clock
-} from 'lucide-react';
+import { GraduationCap, Award, ArrowRight, CheckCircle2, User } from 'lucide-react';
 
 export default function ProfileCard({ teacher, subjectId, courseId }) {
     const router = useRouter();
 
     const initials = (teacher.name || 'T')
         .split(' ')
+        .filter(Boolean)
         .map(n => n[0])
         .join('')
         .toUpperCase()
-        .slice(0, 2);
+        .slice(0, 2) || 'T';
 
     const isAvailable = teacher.availability_status === 'Available';
     const photoSrc = teacher.profile_picture_base64 || teacher.profile_picture_url;
@@ -32,71 +30,88 @@ export default function ProfileCard({ teacher, subjectId, courseId }) {
 
     return (
         <div
-            className="pro-card-hover"
             onClick={handleCardClick}
             style={{
                 cursor: 'pointer',
-                borderRadius: '0px',
+                borderRadius: '16px',
                 display: 'flex',
                 flexDirection: 'column',
                 height: '100%',
                 background: '#ffffff',
                 border: '1px solid #e2e8f0',
-                boxShadow: '0 2px 8px rgba(15, 23, 42, 0.04)',
+                boxShadow: '0 4px 18px rgba(15, 23, 42, 0.05)',
                 overflow: 'hidden',
-                position: 'relative'
+                position: 'relative',
+                transition: 'transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease',
+            }}
+            onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-4px)';
+                e.currentTarget.style.boxShadow = '0 12px 28px -4px rgba(15, 23, 42, 0.1)';
+                e.currentTarget.style.borderColor = '#cbd5e1';
+            }}
+            onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 4px 18px rgba(15, 23, 42, 0.05)';
+                e.currentTarget.style.borderColor = '#e2e8f0';
             }}
         >
-            {/* Top Card Header with Square Avatar & Status */}
+            {/* Top Card Header with Avatar & Details */}
             <div style={{
                 background: 'linear-gradient(180deg, #f8fafc 0%, #ffffff 100%)',
-                padding: '22px 20px 16px',
+                padding: '22px 20px 18px',
                 borderBottom: '1px solid #f1f5f9',
                 display: 'flex',
-                alignItems: 'flex-start',
+                alignItems: 'center',
                 gap: '16px',
-                position: 'relative'
             }}>
-                {/* Crisp Square Avatar */}
+                {/* Clean Modern Rounded Avatar */}
                 <div style={{
-                    width: '84px',
-                    height: '84px',
-                    borderRadius: '0px',
+                    width: '74px',
+                    height: '74px',
+                    borderRadius: '14px',
                     flexShrink: 0,
-                    background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+                    background: photoSrc ? '#f1f5f9' : 'linear-gradient(135deg, #059669 0%, #047857 100%)',
                     color: '#ffffff',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: '1.8rem',
-                    fontWeight: 800,
+                    fontSize: '1.6rem',
+                    fontWeight: 700,
                     overflow: 'hidden',
-                    boxShadow: '0 4px 12px -2px rgba(5, 150, 105, 0.2)',
+                    boxShadow: '0 4px 14px rgba(0, 0, 0, 0.08)',
                     border: '2px solid #ffffff',
-                    outline: '1px solid #e2e8f0'
                 }}>
                     {photoSrc ? (
                         <img
                             src={photoSrc}
                             alt={teacher.name}
-                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            style={{
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'cover',
+                                display: 'block',
+                            }}
+                            onError={(e) => {
+                                // Fallback if image fails to load
+                                e.target.style.display = 'none';
+                            }}
                         />
                     ) : (
-                        initials
+                        <span>{initials}</span>
                     )}
                 </div>
 
                 {/* Identity & Badges */}
                 <div style={{ flex: 1, minWidth: 0 }}>
-                    {/* Square Availability Tag */}
-                    <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    {/* Modern Availability Pill */}
+                    <div style={{ marginBottom: '6px' }}>
                         <span style={{
                             fontSize: '0.72rem',
-                            fontWeight: 800,
-                            letterSpacing: '0.5px',
+                            fontWeight: 700,
+                            letterSpacing: '0.4px',
                             textTransform: 'uppercase',
-                            padding: '3px 8px',
-                            borderRadius: '0px',
+                            padding: '3px 9px',
+                            borderRadius: '999px',
                             display: 'inline-flex',
                             alignItems: 'center',
                             gap: '5px',
@@ -104,21 +119,31 @@ export default function ProfileCard({ teacher, subjectId, courseId }) {
                             color: isAvailable ? '#047857' : '#64748b',
                             border: `1px solid ${isAvailable ? '#a7f3d0' : '#e2e8f0'}`,
                         }}>
-                            {isAvailable && <span className="live-pulse-dot" style={{ width: '6px', height: '6px' }} />}
+                            {isAvailable && (
+                                <span
+                                    style={{
+                                        width: '6px',
+                                        height: '6px',
+                                        borderRadius: '50%',
+                                        background: '#10b981',
+                                        display: 'inline-block',
+                                    }}
+                                />
+                            )}
                             <span>{isAvailable ? 'Available This Week' : 'No Open Slots'}</span>
                         </span>
                     </div>
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                         <h3 style={{
-                            fontSize: '1.2rem',
+                            fontSize: '1.15rem',
                             fontWeight: 800,
                             color: '#0f172a',
                             margin: 0,
                             lineHeight: 1.3,
                             whiteSpace: 'nowrap',
                             overflow: 'hidden',
-                            textOverflow: 'ellipsis'
+                            textOverflow: 'ellipsis',
                         }}>
                             {teacher.name}
                         </h3>
@@ -127,11 +152,11 @@ export default function ProfileCard({ teacher, subjectId, courseId }) {
 
                     {teacher.subject_name && (
                         <span style={{
-                            fontSize: '0.8rem',
+                            fontSize: '0.82rem',
                             fontWeight: 600,
-                            color: 'var(--accent-green-dark)',
+                            color: '#059669',
                             display: 'block',
-                            marginTop: '2px'
+                            marginTop: '2px',
                         }}>
                             {teacher.subject_name} Faculty
                         </span>
@@ -139,17 +164,23 @@ export default function ProfileCard({ teacher, subjectId, courseId }) {
                 </div>
             </div>
 
-            {/* Details Section */}
+            {/* Body Section */}
             <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', flex: 1 }}>
                 
-                {/* Academic Qualifications & Experience Square Chips */}
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '16px' }}>
+                {/* Academic Chips */}
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '14px' }}>
                     {teacher.qualification && (
                         <span style={{
-                            display: 'inline-flex', alignItems: 'center', gap: '5px',
-                            background: '#f8fafc', border: '1px solid #e2e8f0',
-                            borderRadius: '0px', padding: '4px 8px',
-                            fontSize: '0.78rem', color: '#334155', fontWeight: 600
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '5px',
+                            background: '#f0f9ff',
+                            border: '1px solid #bae6fd',
+                            borderRadius: '6px',
+                            padding: '4px 9px',
+                            fontSize: '0.78rem',
+                            color: '#0369a1',
+                            fontWeight: 600,
                         }}>
                             <GraduationCap size={13} color="#0284c7" />
                             <span>{teacher.qualification}</span>
@@ -157,10 +188,16 @@ export default function ProfileCard({ teacher, subjectId, courseId }) {
                     )}
                     {teacher.experience && (
                         <span style={{
-                            display: 'inline-flex', alignItems: 'center', gap: '5px',
-                            background: '#f8fafc', border: '1px solid #e2e8f0',
-                            borderRadius: '0px', padding: '4px 8px',
-                            fontSize: '0.78rem', color: '#334155', fontWeight: 600
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '5px',
+                            background: '#fffbeb',
+                            border: '1px solid #fde68a',
+                            borderRadius: '6px',
+                            padding: '4px 9px',
+                            fontSize: '0.78rem',
+                            color: '#b45309',
+                            fontWeight: 600,
                         }}>
                             <Award size={13} color="#d97706" />
                             <span>{teacher.experience} exp</span>
@@ -169,7 +206,7 @@ export default function ProfileCard({ teacher, subjectId, courseId }) {
                 </div>
 
                 {/* Bio Snippet */}
-                <div style={{ flex: 1, marginBottom: '20px' }}>
+                <div style={{ flex: 1, marginBottom: '18px' }}>
                     <p style={{
                         fontSize: '0.88rem',
                         color: '#64748b',
@@ -180,11 +217,11 @@ export default function ProfileCard({ teacher, subjectId, courseId }) {
                         WebkitBoxOrient: 'vertical',
                         overflow: 'hidden',
                     }}>
-                        {teacher.bio || "Dedicated educator focused on conceptual clarity, active student engagement, and systematic problem solving."}
+                        {teacher.bio || "Dedicated faculty committed to high-yield concept delivery, personalized mentoring, and exam success."}
                     </p>
                 </div>
 
-                {/* Bottom Row: Pricing & Square Action Button */}
+                {/* Bottom Row: Pricing & View Profile Action */}
                 <div style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -194,30 +231,45 @@ export default function ProfileCard({ teacher, subjectId, courseId }) {
                     marginTop: 'auto',
                 }}>
                     <div>
-                        <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.4px' }}>
+                        <div style={{
+                            fontSize: '0.72rem',
+                            color: '#64748b',
+                            fontWeight: 700,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px',
+                        }}>
                             Per 1-Hour Class
                         </div>
-                        <div style={{ fontSize: '1.35rem', fontWeight: 800, color: '#0f172a', lineHeight: 1.2 }}>
+                        <div style={{
+                            fontSize: '1.35rem',
+                            fontWeight: 800,
+                            color: '#0f172a',
+                            lineHeight: 1.2,
+                            marginTop: '2px',
+                        }}>
                             ₹{teacher.hourly_rate || 0}
                         </div>
                     </div>
 
                     <button
+                        type="button"
                         style={{
-                            background: 'var(--accent-green)',
+                            background: '#059669',
                             color: '#ffffff',
                             border: 'none',
-                            padding: '10px 16px',
-                            borderRadius: '0px',
+                            padding: '9px 16px',
+                            borderRadius: '8px',
                             fontSize: '0.88rem',
                             fontWeight: 700,
                             cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
                             gap: '6px',
-                            boxShadow: '0 2px 6px rgba(51, 174, 120, 0.2)',
-                            transition: 'all 0.15s ease',
+                            boxShadow: '0 2px 6px rgba(5, 150, 105, 0.25)',
+                            transition: 'background 0.15s ease',
                         }}
+                        onMouseEnter={(e) => { e.currentTarget.style.background = '#047857'; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.background = '#059669'; }}
                     >
                         <span>View Profile</span>
                         <ArrowRight size={15} />

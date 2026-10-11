@@ -262,7 +262,7 @@ function TeacherReports() {
     const pastSessions = dashboardData?.recent_sessions || [];
 
     return (
-        <DashboardLayout title="Student Analysis & Faculty Reporting">
+        <DashboardLayout title="Faculty Reports & Daily Notes">
             <Head>
                 <title>Reports & Voice Notes | Produit Faculty</title>
             </Head>
@@ -272,7 +272,7 @@ function TeacherReports() {
                     <div style={{
                         padding: '12px 20px',
                         marginBottom: '20px',
-                        borderRadius: '0px',
+                        borderRadius: '50%',
                         background: message.type === 'success' ? '#ecfdf5' : '#fef2f2',
                         border: `1px solid ${message.type === 'success' ? '#a7f3d0' : '#fecaca'}`,
                         color: message.type === 'success' ? '#065f46' : '#991b1b',
@@ -326,7 +326,7 @@ function TeacherReports() {
 
                 {/* TAB 1: SUBMIT STUDENT REPORT */}
                 {activeTab === 'create_report' && (
-                    <div className="glass-card" style={{ padding: '28px', borderRadius: '0px' }}>
+                    <div className="glass-card" style={{ padding: '28px', borderRadius: '14px' }}>
                         <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0f172a', marginBottom: '8px' }}>
                             Submit Academic Observation & Evaluation
                         </h3>
@@ -502,7 +502,7 @@ function TeacherReports() {
                                                     background: '#ffffff',
                                                     border: '1px solid #cbd5e1',
                                                     padding: '6px 12px',
-                                                    borderRadius: '0px',
+                                                    borderRadius: '14px',
                                                     fontSize: '0.8rem',
                                                     fontWeight: 700,
                                                     cursor: 'pointer',
@@ -523,7 +523,7 @@ function TeacherReports() {
                                                     background: '#dc2626',
                                                     border: 'none',
                                                     padding: '6px 12px',
-                                                    borderRadius: '0px',
+                                                    borderRadius: '14px',
                                                     fontSize: '0.8rem',
                                                     fontWeight: 700,
                                                     cursor: 'pointer',
@@ -559,7 +559,7 @@ function TeacherReports() {
                                     onClick={() => { setReportStatus('draft'); }}
                                     disabled={submitting}
                                     className="glass-btn outline"
-                                    style={{ borderRadius: '0px' }}
+                                    style={{ borderRadius: '10px' }}
                                 >
                                     Save as Draft
                                 </button>
@@ -567,7 +567,7 @@ function TeacherReports() {
                                     type="submit"
                                     disabled={submitting}
                                     className="glass-btn primary"
-                                    style={{ borderRadius: '0px' }}
+                                    style={{ borderRadius: '10px' }}
                                 >
                                     {submitting ? 'Submitting Report...' : 'Submit Evaluation Report'}
                                 </button>
@@ -578,7 +578,7 @@ function TeacherReports() {
 
                 {/* TAB 2: REPORTS HISTORY */}
                 {activeTab === 'reports_history' && (
-                    <div className="glass-card" style={{ padding: '0', borderRadius: '0px', overflow: 'hidden' }}>
+                    <div className="glass-card" style={{ padding: '0', borderRadius: '14px', overflow: 'hidden' }}>
                         {reports.length === 0 ? (
                             <div style={{ padding: '50px', textAlign: 'center', color: '#64748b' }}>
                                 <FileText size={36} color="#94a3b8" style={{ margin: '0 auto 10px' }} />
@@ -656,7 +656,7 @@ function TeacherReports() {
                 {activeTab === 'voice_notes' && (
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
                         {/* New Voice Note Card */}
-                        <div className="glass-card" style={{ padding: '24px', borderRadius: '0px' }}>
+                        <div className="glass-card" style={{ padding: '24px', borderRadius: '14px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
                                 <Mic size={20} color="#dc2626" />
                                 <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>
@@ -710,7 +710,7 @@ function TeacherReports() {
                                                     color: '#ffffff',
                                                     border: 'none',
                                                     padding: '8px 16px',
-                                                    borderRadius: '0px',
+                                                    borderRadius: '14px',
                                                     fontSize: '0.85rem',
                                                     fontWeight: 700,
                                                     cursor: 'pointer',
@@ -731,7 +731,7 @@ function TeacherReports() {
                                                     color: '#ffffff',
                                                     border: 'none',
                                                     padding: '8px 16px',
-                                                    borderRadius: '0px',
+                                                    borderRadius: '14px',
                                                     fontSize: '0.85rem',
                                                     fontWeight: 700,
                                                     cursor: 'pointer',
@@ -763,7 +763,7 @@ function TeacherReports() {
                                     type="submit"
                                     disabled={submitting}
                                     className="glass-btn primary"
-                                    style={{ width: '100%', borderRadius: '0px' }}
+                                    style={{ width: '100%', borderRadius: '10px' }}
                                 >
                                     {submitting ? 'Saving...' : 'Save Voice Note'}
                                 </button>
@@ -771,7 +771,7 @@ function TeacherReports() {
                         </div>
 
                         {/* Voice Notes List */}
-                        <div className="glass-card" style={{ padding: '24px', borderRadius: '0px' }}>
+                        <div className="glass-card" style={{ padding: '24px', borderRadius: '14px' }}>
                             <h4 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', marginBottom: '14px' }}>
                                 Audio Recordings Archive
                             </h4>
@@ -784,7 +784,7 @@ function TeacherReports() {
                                             background: '#f8fafc',
                                             border: '1px solid #e2e8f0',
                                             padding: '12px 16px',
-                                            borderRadius: '0px'
+                                            borderRadius: '14px'
                                         }}>
                                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                                                 <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#64748b' }}>
@@ -816,7 +816,7 @@ function TeacherReports() {
                 {activeTab === 'monthly_report' && (
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
                         {/* Generate Monthly Report Form */}
-                        <div className="glass-card" style={{ padding: '24px', borderRadius: '0px' }}>
+                        <div className="glass-card" style={{ padding: '24px', borderRadius: '14px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
                                 <Calendar size={20} color="#2563eb" />
                                 <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>
@@ -828,7 +828,7 @@ function TeacherReports() {
                             </p>
 
                             <form onSubmit={handleMonthlyReportSubmit}>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '14px' }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '14px', marginBottom: '14px' }}>
                                     <div>
                                         <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
                                             Month
@@ -889,7 +889,7 @@ function TeacherReports() {
                                     type="submit"
                                     disabled={submitting}
                                     className="glass-btn primary"
-                                    style={{ width: '100%', borderRadius: '0px', background: '#2563eb' }}
+                                    style={{ width: '100%', borderRadius: '50%', background: '#2563eb' }}
                                 >
                                     {submitting ? 'Compiling Report...' : 'Compile & Submit Monthly Report'}
                                 </button>
@@ -897,7 +897,7 @@ function TeacherReports() {
                         </div>
 
                         {/* Historical Monthly Reports */}
-                        <div className="glass-card" style={{ padding: '24px', borderRadius: '0px' }}>
+                        <div className="glass-card" style={{ padding: '24px', borderRadius: '14px' }}>
                             <h4 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', marginBottom: '14px' }}>
                                 Past Monthly Submissions
                             </h4>
@@ -911,7 +911,7 @@ function TeacherReports() {
                                             border: '1px solid #e2e8f0',
                                             borderLeft: '4px solid #2563eb',
                                             padding: '16px',
-                                            borderRadius: '0px'
+                                            borderRadius: '14px'
                                         }}>
                                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                                                 <span style={{ fontWeight: 800, color: '#0f172a', fontSize: '1.05rem' }}>
@@ -922,7 +922,7 @@ function TeacherReports() {
                                                 </span>
                                             </div>
 
-                                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '10px', fontSize: '0.78rem' }}>
+                                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(90px, 1fr))', gap: '8px', marginBottom: '10px', fontSize: '0.78rem' }}>
                                                 <div>
                                                     <span style={{ color: '#64748b' }}>Conducted:</span>
                                                     <strong style={{ display: 'block', color: '#166534', fontSize: '1rem' }}>{mr.total_classes_conducted}</strong>

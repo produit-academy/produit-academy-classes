@@ -7,7 +7,6 @@ import { useAuth } from '../lib/auth';
 import { useLiveSlots } from '../lib/useLiveSlots';
 import { Clock, ShieldAlert, Sparkles, Lock, Hourglass, CheckCircle2 } from 'lucide-react';
 
-const PLATFORM_FEE = 50;
 
 export default function BookingModal({ teacher, subjectId, courseId, onClose }) {
     const router = useRouter();
@@ -40,8 +39,7 @@ export default function BookingModal({ teacher, subjectId, courseId, onClose }) 
     );
 
     const teacherFee = parseFloat(teacher.hourly_rate || 0);
-    const totalTeacherFee = teacherFee * selectedSlots.length;
-    const totalAmount = totalTeacherFee + PLATFORM_FEE;
+    const totalAmount = teacherFee * selectedSlots.length;
 
     const toggleSlot = (slot) => {
         if (slot.is_booked || slot.is_held) return;
@@ -75,7 +73,7 @@ export default function BookingModal({ teacher, subjectId, courseId, onClose }) 
         return date.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' }).toLowerCase();
     };
 
-    // 15-minute countdown timer on Step 2
+    // 5-minute countdown timer on Step 2
     useEffect(() => {
         if (step !== 2 || !booking?.expires_at) return;
 
@@ -85,7 +83,7 @@ export default function BookingModal({ teacher, subjectId, courseId, onClose }) 
             const diff = Math.max(0, Math.floor((expiresTime - Date.now()) / 1000));
             setTimeRemaining(diff);
             if (diff === 0) {
-                setError('Your 15-minute slot reservation has expired. Please select your slot again.');
+                setError('Your 5-minute slot reservation has expired. Please select your slot again.');
                 setStep(1);
             }
         };
@@ -246,11 +244,11 @@ export default function BookingModal({ teacher, subjectId, courseId, onClose }) 
                 {/* Header with Live Sync Indicator */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
                     <div>
-                        <h2 style={{ fontSize: '1.4rem', fontWeight: 800, margin: 0, color: '#0f172a', fontFamily: "'Lora', serif" }}>
+                        <h2 style={{ fontSize: '1.4rem', fontWeight: 800, margin: 0, color: '#0f172a' }}>
                             Book Class with {teacher.name}
                         </h2>
                         <p style={{ color: '#64748b', fontSize: '0.88rem', margin: '4px 0 0' }}>
-                            ₹{teacherFee}/class + ₹{PLATFORM_FEE} platform fee
+                            ₹{teacherFee} per 1-hour class
                         </p>
                     </div>
 
@@ -260,7 +258,6 @@ export default function BookingModal({ teacher, subjectId, courseId, onClose }) 
                         padding: '4px 8px', borderRadius: '6px', fontSize: '0.72rem',
                         fontWeight: 700, color: '#15803d', flexShrink: 0
                     }}>
-                        <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22c55e', display: 'inline-block' }} />
                         <span>Live Sync</span>
                     </div>
                 </div>
@@ -355,17 +352,13 @@ export default function BookingModal({ teacher, subjectId, courseId, onClose }) 
                             padding: '16px', borderRadius: '10px',
                             background: '#f8fafc', border: '1px solid #e2e8f0',
                         }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.88rem' }}>
-                                <span>Class Tuition ({selectedSlots.length} × ₹{teacherFee})</span>
-                                <span style={{ fontWeight: 600 }}>₹{totalTeacherFee}</span>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.88rem' }}>
-                                <span>Platform Processing Fee</span>
-                                <span style={{ fontWeight: 600 }}>₹{PLATFORM_FEE}</span>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '10px', borderTop: '1px solid #e2e8f0', fontSize: '0.98rem' }}>
-                                <span style={{ fontWeight: 700 }}>Total Payable</span>
-                                <span style={{ fontWeight: 800, color: '#0284c7' }}>₹{selectedSlots.length > 0 ? totalAmount : 0}</span>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.98rem' }}>
+                                <span style={{ fontWeight: 700, color: '#1e293b' }}>
+                                    Total Amount ({selectedSlots.length} {selectedSlots.length === 1 ? 'class' : 'classes'} × ₹{teacherFee})
+                                </span>
+                                <span style={{ fontWeight: 800, fontSize: '1.25rem', color: '#0284c7' }}>
+                                    ₹{selectedSlots.length > 0 ? totalAmount : 0}
+                                </span>
                             </div>
                         </div>
 
@@ -407,9 +400,8 @@ export default function BookingModal({ teacher, subjectId, courseId, onClose }) 
                             <p style={{ marginBottom: '8px', fontSize: '0.9rem' }}><strong>Subject:</strong> {booking.subject}</p>
                             <p style={{ marginBottom: '8px', fontSize: '0.9rem' }}><strong>Class Sessions:</strong> {booking.num_classes}</p>
                             <div style={{ borderTop: '1px solid #e2e8f0', marginTop: '12px', paddingTop: '12px' }}>
-                                <p style={{ marginBottom: '4px', fontSize: '0.88rem' }}>Tuition: ₹{booking.teacher_fee_per_class}/class × {booking.num_classes} = ₹{booking.teacher_fee_per_class * booking.num_classes}</p>
-                                <p style={{ marginBottom: '4px', fontSize: '0.88rem' }}>Platform Fee: ₹{booking.platform_fee}</p>
-                                <p style={{ fontWeight: 800, fontSize: '1.15rem', marginTop: '8px', color: '#0284c7' }}>
+                                <p style={{ marginBottom: '4px', fontSize: '0.88rem' }}>Fee: ₹{booking.teacher_fee_per_class}/class × {booking.num_classes} {booking.num_classes === 1 ? 'class' : 'classes'}</p>
+                                <p style={{ fontWeight: 800, fontSize: '1.2rem', marginTop: '8px', color: '#0284c7' }}>
                                     Total Amount: ₹{booking.total_amount}
                                 </p>
                             </div>
@@ -434,7 +426,7 @@ export default function BookingModal({ teacher, subjectId, courseId, onClose }) 
                         <div style={{ marginBottom: '16px' }}>
                             <CheckCircle2 size={60} color="#22c55e" style={{ margin: '0 auto' }} />
                         </div>
-                        <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '8px', color: '#0f172a', fontFamily: "'Lora', serif" }}>
+                        <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '8px', color: '#0f172a' }}>
                             Booking Confirmed!
                         </h2>
                         <p style={{ color: '#475569', marginBottom: '8px', fontSize: '0.92rem' }}>

@@ -1,17 +1,17 @@
-/* styles/Home.module.css - 70% Minimalist + 20% Futuristic + 10% Playful (Architectural Squares, Zero Emojis) */
+/* styles/Home.module.css - Professional Education Platform Design */
 
 .heroSection {
   position: relative;
-  min-height: 90vh;
+  min-height: 85vh;
   display: flex;
   align-items: center;
-  padding: 120px 0 80px;
+  padding: 120px 0 70px;
   overflow: hidden;
-  background: var(--background-white);
+  background: #ffffff;
 }
 
 .heroContent {
-  max-width: 840px;
+  max-width: 860px;
   margin: 0 auto;
   text-align: center;
   position: relative;
@@ -22,45 +22,30 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 14px;
-  background: rgba(51, 174, 120, 0.08);
-  color: var(--accent-green-dark);
-  border: 1px solid rgba(51, 174, 120, 0.25);
-  border-radius: 0px;
-  font-family: monospace;
-  font-size: 0.76rem;
+  padding: 6px 16px;
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+  border-radius: 9999px;
+  font-size: 0.82rem;
   font-weight: 700;
-  letter-spacing: 1.5px;
+  letter-spacing: 0.4px;
   text-transform: uppercase;
   margin-bottom: 24px;
 }
 
-.pulseDot {
-  width: 7px;
-  height: 7px;
-  background: #22c55e;
-  border-radius: 0px;
-  box-shadow: 0 0 8px #22c55e;
-  animation: pulseAnimation 2s infinite ease-in-out;
-}
-
-@keyframes pulseAnimation {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.4; transform: scale(0.8); }
-}
-
 .heroTitle {
-  font-family: 'Lora', serif;
-  font-size: 3.8rem;
+  font-family: inherit;
+  font-size: 3.6rem;
   font-weight: 700;
-  line-height: 1.15;
+  line-height: 1.18;
   margin-bottom: 1.2rem;
   color: #0f172a;
   letter-spacing: -0.5px;
 }
 
 .heroHighlight {
-  background: linear-gradient(135deg, var(--accent-green), #059669);
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -70,7 +55,7 @@
   font-size: 1.15rem;
   color: #475569;
   line-height: 1.7;
-  max-width: 640px;
+  max-width: 680px;
   margin: 0 auto 36px;
 }
 
@@ -87,22 +72,23 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 12px 28px;
-  font-size: 0.95rem;
+  padding: 13px 28px;
+  font-size: 0.96rem;
   font-weight: 700;
-  background: var(--accent-green);
+  background: #059669;
   color: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 0px;
+  border: 1px solid transparent;
+  border-radius: 12px;
   text-decoration: none;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
+  box-shadow: 0 4px 14px rgba(5, 150, 105, 0.25);
 }
 
 .heroBtnPrimary:hover {
-  background: var(--accent-green-dark);
+  background: #047857;
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px -4px rgba(51, 174, 120, 0.35);
+  box-shadow: 0 8px 22px rgba(5, 150, 105, 0.35);
   color: #ffffff;
 }
 
@@ -110,13 +96,13 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 12px 28px;
-  font-size: 0.95rem;
+  padding: 13px 28px;
+  font-size: 0.96rem;
   font-weight: 700;
   background: #ffffff;
   color: #0f172a;
   border: 1px solid #cbd5e1;
-  border-radius: 0px;
+  border-radius: 12px;
   text-decoration: none;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
@@ -129,38 +115,38 @@
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
 }
 
-/* Background Orbs */
+/* Background Ambient Orbs */
 .heroOrb {
   position: absolute;
   border-radius: 50%;
-  filter: blur(80px);
+  filter: blur(90px);
   z-index: 1;
-  opacity: 0.5;
+  opacity: 0.45;
   animation: orbFloat 10s ease-in-out infinite;
   pointer-events: none;
 }
 
 .heroOrb1 {
-  width: 400px;
-  height: 400px;
-  background: rgba(51, 174, 120, 0.2);
+  width: 420px;
+  height: 420px;
+  background: rgba(5, 150, 105, 0.15);
   top: -100px;
   left: -100px;
 }
 
 .heroOrb2 {
-  width: 300px;
-  height: 300px;
-  background: rgba(52, 152, 219, 0.15);
+  width: 320px;
+  height: 320px;
+  background: rgba(37, 99, 235, 0.12);
   bottom: 0;
   right: -50px;
   animation-delay: -3s;
 }
 
 .heroOrb3 {
-  width: 250px;
-  height: 250px;
-  background: rgba(155, 89, 182, 0.15);
+  width: 260px;
+  height: 260px;
+  background: rgba(124, 58, 237, 0.1);
   top: 30%;
   right: 15%;
   animation-delay: -6s;
@@ -173,53 +159,13 @@
   75% { transform: translate(20px, 20px); }
 }
 
-/* KITE EMOJI ANIMATION */
-.kitesContainer {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
-  pointer-events: none;
-}
-
-.kite {
-  position: absolute;
-  opacity: 0.7;
-}
-
-@keyframes flyPath1 {
-  0% { transform: translateX(-10vw) translateY(20vh) rotate(-10deg); }
-  50% { transform: translateX(50vw) translateY(-10vh) rotate(10deg); }
-  100% { transform: translateX(110vw) translateY(5vh) rotate(-5deg); }
-}
-
-@keyframes flyPath2 {
-  0% { transform: translateX(-10vw) translateY(10vh) rotate(10deg); }
-  50% { transform: translateX(60vw) translateY(15vh) rotate(-15deg); }
-  100% { transform: translateX(110vw) translateY(-5vh) rotate(5deg); }
-}
-
-.kite:nth-child(1) { top: 5%; font-size: 4em; animation: flyPath1 18s linear infinite; animation-delay: -2s; }
-.kite:nth-child(2) { top: 15%; font-size: 2.5rem; animation: flyPath2 15s linear infinite; animation-delay: -8s; }
-.kite:nth-child(3) { top: 10%; font-size: 3.5rem; animation: flyPath1 22s linear infinite; animation-delay: -15s; }
-.kite:nth-child(4) { top: 25%; font-size: 2rem; animation: flyPath2 13s linear infinite; animation-delay: -20s; }
-
-@media screen and (max-width: 768px) {
-  .kite:nth-child(3),
-  .kite:nth-child(4) {
-    display: none;
-  }
-}
-
 /* Hero Stats Bar */
 .heroStatsWrapper {
   width: 100%;
   background: #ffffff;
   border-top: 1px solid #e2e8f0;
   border-bottom: 1px solid #e2e8f0;
-  padding: 1.25rem 0;
+  padding: 1.5rem 0;
 }
 
 .heroStats {
@@ -228,38 +174,38 @@
   gap: 1.5rem;
   max-width: 1200px;
   margin: 0 auto;
+  padding: 0 20px;
 }
 
 .heroStat {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 10px 16px;
-  border-left: 2px solid #e2e8f0;
+  gap: 5px;
+  padding: 10px 18px;
+  border-left: 3px solid #e2e8f0;
   transition: border-color 0.2s ease;
 }
 
 .heroStat:hover {
-  border-left-color: var(--accent-green);
+  border-left-color: #059669;
 }
 
 .heroStatTag {
-  font-family: monospace;
-  font-size: 0.72rem;
+  font-size: 0.74rem;
   font-weight: 700;
-  color: var(--accent-green);
-  letter-spacing: 1px;
+  color: #059669;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
 }
 
 .heroStatValue {
   font-size: 1.2rem;
   font-weight: 700;
   color: #0f172a;
-  font-family: 'Lora', serif;
 }
 
 .heroStatLabel {
-  font-size: 0.8rem;
+  font-size: 0.84rem;
   color: #64748b;
   font-weight: 500;
 }
@@ -273,21 +219,20 @@
 
 .sectionBadge {
   display: inline-block;
-  font-family: monospace;
-  font-size: 0.75rem;
+  font-size: 0.78rem;
   font-weight: 700;
-  color: var(--accent-green-dark);
-  background: rgba(51, 174, 120, 0.08);
-  border: 1px solid rgba(51, 174, 120, 0.25);
-  padding: 4px 12px;
-  border-radius: 0px;
-  letter-spacing: 1.5px;
+  color: #047857;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  padding: 5px 14px;
+  border-radius: 9999px;
+  letter-spacing: 0.4px;
   text-transform: uppercase;
   margin-bottom: 14px;
 }
 
 .sectionTitle {
-  font-family: 'Lora', serif;
+  font-family: inherit;
   font-size: 2.3rem;
   font-weight: 700;
   color: #0f172a;
@@ -317,28 +262,28 @@
 .featureCard {
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 0px;
+  border-radius: 16px;
   padding: 32px 26px;
   text-align: left;
   position: relative;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03);
 }
 
 .featureCard:hover {
-  border-color: #94a3b8;
-  box-shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.08);
+  border-color: #cbd5e1;
+  box-shadow: 0 14px 28px -6px rgba(15, 23, 42, 0.08);
   transform: translateY(-4px);
 }
 
 .featureIconBox {
-  width: 44px;
-  height: 44px;
-  border-radius: 0px;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 20px;
-  border: 1px solid transparent;
 }
 
 .featureCard h3 {
@@ -346,7 +291,6 @@
   font-weight: 700;
   color: #0f172a;
   margin-bottom: 10px;
-  font-family: 'Lora', serif;
 }
 
 .featureCard p {
@@ -369,9 +313,9 @@
 }
 
 .stepCard {
-  background: #ffffff;
+  background: #f8fafc;
   border: 1px solid #e2e8f0;
-  border-radius: 0px;
+  border-radius: 16px;
   padding: 34px 26px;
   position: relative;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
@@ -380,23 +324,24 @@
 }
 
 .stepCard:hover {
+  background: #ffffff;
   border-color: #cbd5e1;
-  box-shadow: 0 14px 28px -6px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 14px 28px -6px rgba(15, 23, 42, 0.07);
   transform: translateY(-3px);
 }
 
 .stepBadge {
   display: inline-block;
-  font-family: monospace;
-  font-size: 0.8rem;
-  font-weight: 800;
-  color: var(--accent-green-dark);
-  background: var(--accent-green-light);
-  border: 1px solid rgba(51, 174, 120, 0.3);
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #047857;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
   padding: 4px 10px;
-  border-radius: 0px;
+  border-radius: 6px;
   margin-bottom: 18px;
   align-self: flex-start;
+  letter-spacing: 0.3px;
 }
 
 .stepCard h3 {
@@ -404,7 +349,6 @@
   font-weight: 700;
   color: #0f172a;
   margin-bottom: 12px;
-  font-family: 'Lora', serif;
 }
 
 .stepCard p {
@@ -414,7 +358,7 @@
   margin: 0;
 }
 
-/* Grade Preview Cards (10% Playful Showcase) */
+/* Grade Preview Cards */
 .gradesSection {
   padding: 80px 0;
   background: #f8fafc;
@@ -430,40 +374,40 @@
 .gradeCard {
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 0px;
-  padding: 24px;
+  border-radius: 16px;
+  padding: 26px 22px;
   text-decoration: none;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   transition: all 0.2s ease;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03);
 }
 
 .gradeCard:hover {
-  border-color: var(--accent-green);
-  box-shadow: 0 10px 24px -4px rgba(51, 174, 120, 0.15);
-  transform: translateY(-2px);
+  border-color: #059669;
+  box-shadow: 0 12px 26px -4px rgba(5, 150, 105, 0.12);
+  transform: translateY(-3px);
 }
 
 .gradeTier {
-  font-family: monospace;
-  font-size: 0.72rem;
+  font-size: 0.76rem;
   font-weight: 700;
-  color: #64748b;
-  letter-spacing: 1px;
+  color: #059669;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
   margin-bottom: 6px;
 }
 
 .gradeTitle {
-  font-size: 1.15rem;
+  font-size: 1.2rem;
   font-weight: 700;
   color: #0f172a;
-  font-family: 'Lora', serif;
   margin-bottom: 8px;
 }
 
 .gradeSubjects {
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   color: #64748b;
   margin-bottom: 18px;
   line-height: 1.5;
@@ -473,14 +417,14 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   font-weight: 700;
-  color: var(--accent-green);
+  color: #059669;
 }
 
 /* Contact Section */
 .contactSection {
-  padding: 80px 0;
+  padding: 90px 0;
   background: #ffffff;
 }
 
@@ -489,9 +433,9 @@
   gap: 3.5rem;
   background: #ffffff;
   padding: 3rem;
-  border-radius: 0px;
+  border-radius: 20px;
   border: 1px solid #e2e8f0;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 8px 30px rgba(15, 23, 42, 0.04);
 }
 
 .contactForm {
@@ -516,10 +460,10 @@
 
 .contactInfoItem h4 {
   font-size: 0.8rem;
-  font-family: monospace;
+  font-weight: 700;
   color: #64748b;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.6px;
   margin-bottom: 0.35rem;
 }
 
@@ -532,13 +476,13 @@
 }
 
 .contactInfoItem a {
-  color: var(--accent-green);
+  color: #059669;
   text-decoration: none;
   transition: color 0.2s ease;
 }
 
 .contactInfoItem a:hover {
-  color: var(--accent-green-dark);
+  color: #047857;
   text-decoration: underline;
 }
 
