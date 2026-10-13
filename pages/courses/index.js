@@ -161,103 +161,47 @@ export default function CoursesPage() {
             </Head>
             <Header />
 
-            <main className="main-content" style={{ paddingTop: '100px', paddingBottom: '90px' }}>
-                <div className="container" style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px' }}>
+            <main className="main-content" style={{ paddingTop: '86px', paddingBottom: '60px' }}>
+                <div className="container" style={{ maxWidth: '1200px', margin: '0 auto' }}>
                     
-                    {/* Academic Hero Header */}
+                    {/* Clean Minimal Academic Header */}
                     <div style={{
                         textAlign: 'center',
-                        maxWidth: '820px',
-                        margin: '0 auto 40px',
-                        paddingTop: '16px'
+                        maxWidth: '700px',
+                        margin: '0 auto 24px',
+                        padding: '0 16px'
                     }}>
-                        <div style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            background: '#ecfdf5',
-                            border: '1px solid #a7f3d0',
-                            padding: '6px 16px',
-                            borderRadius: '9999px',
-                            color: '#047857',
-                            fontSize: '0.84rem',
-                            fontWeight: 700,
-                            letterSpacing: '0.3px',
-                            marginBottom: '16px'
-                        }}>
-                            <GraduationCap size={16} />
-                            <span>K-12 ACADEMIC CURRICULUM</span>
-                        </div>
-
                         <h1 style={{
-                            fontSize: 'clamp(2.1rem, 4.2vw, 3rem)',
-                            fontWeight: 700,
+                            fontSize: 'clamp(1.75rem, 3.5vw, 2.4rem)',
+                            fontWeight: 800,
                             color: '#0f172a',
                             lineHeight: 1.2,
-                            marginBottom: '16px',
+                            marginBottom: '8px',
                             letterSpacing: '-0.02em'
                         }}>
-                            Select Your Academic Class
+                            Select Your Class
                         </h1>
                         <p style={{
-                            color: '#475569',
-                            fontSize: '1.12rem',
-                            lineHeight: 1.65,
-                            margin: '0 auto 28px',
-                            maxWidth: '700px'
+                            color: '#64748b',
+                            fontSize: '0.96rem',
+                            lineHeight: 1.5,
+                            margin: 0
                         }}>
-                            Structured learning roadmaps for Grades 6 through 12 across CBSE, ICSE, and State Boards. Select your grade to view syllabi and book 1-on-1 sessions with verified educators.
+                            Grades 6 through 12 across CBSE, ICSE, and State Boards.
                         </p>
-
-                        {/* Institutional Value Strip */}
-                        <div style={{
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            flexWrap: 'wrap',
-                            gap: '12px 24px',
-                            padding: '14px 20px',
-                            background: '#ffffff',
-                            borderRadius: '14px',
-                            border: '1px solid #e2e8f0',
-                            boxShadow: '0 2px 10px rgba(15, 23, 42, 0.03)',
-                            fontSize: '0.88rem',
-                            color: '#334155',
-                            fontWeight: 600
-                        }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
-                                <CheckCircle2 size={16} color="#059669" />
-                                <span>1-on-1 Faculty Mentorship</span>
-                            </div>
-                            <span style={{ color: '#cbd5e1' }}>•</span>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
-                                <BookOpen size={16} color="#2563eb" />
-                                <span>Board-Aligned Syllabi</span>
-                            </div>
-                            <span style={{ color: '#cbd5e1' }}>•</span>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
-                                <Award size={16} color="#7c3aed" />
-                                <span>Chapter Tests & Doubts</span>
-                            </div>
-                            <span style={{ color: '#cbd5e1' }}>•</span>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
-                                <ShieldCheck size={16} color="#059669" />
-                                <span>Verified Educators</span>
-                            </div>
-                        </div>
                     </div>
 
                     {/* Filter & Search Console */}
-                    <div style={{
+                    <div className="courses-filter-console" style={{
                         background: '#ffffff',
                         border: '1px solid #e2e8f0',
                         borderRadius: '16px',
-                        padding: '24px',
                         boxShadow: '0 4px 16px rgba(15, 23, 42, 0.04)',
-                        marginBottom: '36px',
+                        marginBottom: '28px',
+                        padding: '16px 20px',
                         display: 'flex',
                         flexDirection: 'column',
-                        gap: '20px'
+                        gap: '14px'
                     }}>
                         {/* Search Input Row */}
                         <div style={{ position: 'relative', width: '100%' }}>
@@ -315,96 +259,45 @@ export default function CoursesPage() {
                             )}
                         </div>
 
-                        {/* Filter Controls Row */}
-                        <div style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
+                        {/* Clean Filter Chips Row */}
+                        <div className="mobile-scroll-strip" style={{
                             alignItems: 'center',
-                            flexWrap: 'wrap',
-                            gap: '16px',
-                            paddingTop: '16px',
+                            gap: '8px',
+                            paddingTop: '14px',
                             borderTop: '1px solid #f1f5f9'
                         }}>
-                            {/* Board Filter Tabs */}
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                                <span style={{ fontSize: '0.86rem', fontWeight: 700, color: '#475569', marginRight: '4px' }}>
-                                    Curriculum Board:
-                                </span>
-                                {[
-                                    { id: 'ALL', label: 'All Boards', count: boardCounts.ALL, color: '#059669', bg: '#ecfdf5' },
-                                    { id: 'CBSE', label: 'CBSE National', count: boardCounts.CBSE, color: '#1d4ed8', bg: '#eff6ff' },
-                                    { id: 'ICSE', label: 'ICSE Council', count: boardCounts.ICSE, color: '#6d28d9', bg: '#f5f3ff' },
-                                    { id: 'State', label: 'State Board', count: boardCounts.State, color: '#047857', bg: '#ecfdf5' },
-                                ].map((tab) => {
-                                    const active = selectedBoard === tab.id;
-                                    return (
-                                        <button
-                                            key={tab.id}
-                                            onClick={() => setSelectedBoard(tab.id)}
-                                            style={{
-                                                padding: '7px 14px',
-                                                borderRadius: '10px',
-                                                fontSize: '0.86rem',
-                                                fontWeight: active ? 700 : 500,
-                                                cursor: 'pointer',
-                                                border: active ? `1.5px solid ${tab.color}` : '1px solid #e2e8f0',
-                                                background: active ? tab.bg : '#ffffff',
-                                                color: active ? tab.color : '#475569',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                gap: '7px',
-                                                transition: 'all 0.15s ease',
-                                            }}
-                                        >
-                                            <span>{tab.label}</span>
-                                            <span style={{
-                                                fontSize: '0.74rem',
-                                                padding: '2px 6px',
-                                                borderRadius: '6px',
-                                                background: active ? 'rgba(0,0,0,0.06)' : '#f1f5f9',
-                                                color: active ? tab.color : '#64748b',
-                                                fontWeight: 700
-                                            }}>
-                                                {tab.count}
-                                            </span>
-                                        </button>
-                                    );
-                                })}
-                            </div>
-
-                            {/* Academic Level Selector */}
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                                <span style={{ fontSize: '0.86rem', fontWeight: 700, color: '#475569', marginRight: '4px' }}>
-                                    Level:
-                                </span>
-                                {[
-                                    { id: 'ALL', label: 'All Levels' },
-                                    { id: 'MIDDLE', label: 'Middle (6–8)' },
-                                    { id: 'SECONDARY', label: 'Secondary (9–10)' },
-                                    { id: 'SENIOR', label: 'Senior (11–12)' },
-                                ].map((cat) => {
-                                    const active = selectedCategory === cat.id;
-                                    return (
-                                        <button
-                                            key={cat.id}
-                                            onClick={() => setSelectedCategory(cat.id)}
-                                            style={{
-                                                padding: '7px 13px',
-                                                borderRadius: '10px',
-                                                fontSize: '0.84rem',
-                                                fontWeight: active ? 700 : 500,
-                                                cursor: 'pointer',
-                                                border: active ? '1px solid #0f172a' : '1px solid #e2e8f0',
-                                                background: active ? '#0f172a' : '#ffffff',
-                                                color: active ? '#ffffff' : '#64748b',
-                                                transition: 'all 0.15s ease',
-                                            }}
-                                        >
-                                            {cat.label}
-                                        </button>
-                                    );
-                                })}
-                            </div>
+                            {[
+                                { id: 'ALL', label: 'All Boards', count: boardCounts.ALL },
+                                { id: 'CBSE', label: 'CBSE', count: boardCounts.CBSE },
+                                { id: 'ICSE', label: 'ICSE', count: boardCounts.ICSE },
+                                { id: 'State', label: 'State Board', count: boardCounts.State },
+                            ].map((tab) => {
+                                const active = selectedBoard === tab.id;
+                                return (
+                                    <button
+                                        key={tab.id}
+                                        onClick={() => setSelectedBoard(tab.id)}
+                                        style={{
+                                            padding: '8px 16px',
+                                            borderRadius: '20px',
+                                            fontSize: '0.86rem',
+                                            fontWeight: active ? 700 : 500,
+                                            cursor: 'pointer',
+                                            border: active ? '1.5px solid #059669' : '1px solid #cbd5e1',
+                                            background: active ? '#ecfdf5' : '#ffffff',
+                                            color: active ? '#047857' : '#475569',
+                                            whiteSpace: 'nowrap',
+                                            flexShrink: 0,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '6px'
+                                        }}
+                                    >
+                                        <span>{tab.label}</span>
+                                        <span style={{ fontSize: '0.74rem', opacity: 0.8 }}>({tab.count})</span>
+                                    </button>
+                                );
+                            })}
                         </div>
                     </div>
 
@@ -489,12 +382,7 @@ export default function CoursesPage() {
                             </button>
                         </div>
                     ) : (
-                        <div style={{
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-                            gap: '24px',
-                            marginBottom: '64px'
-                        }}>
+                        <div className="courses-grid">
                             {filteredCourses.map((course) => {
                                 const boardMeta = getBoardMeta(course.name);
                                 const gradeNum = extractGradeNumber(course.name);
@@ -620,30 +508,6 @@ export default function CoursesPage() {
                                             {streamTitle}
                                         </p>
 
-                                        {/* Academic Highlights */}
-                                        <div style={{
-                                            background: '#f8fafc',
-                                            borderRadius: '10px',
-                                            padding: '12px 14px',
-                                            marginBottom: '18px',
-                                            border: '1px solid #f1f5f9',
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            gap: '7px'
-                                        }}>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '7px', fontSize: '0.82rem', color: '#334155', fontWeight: 600 }}>
-                                                <CheckCircle2 size={14} color="#059669" />
-                                                <span>Complete Syllabus Coverage</span>
-                                            </div>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '7px', fontSize: '0.82rem', color: '#334155', fontWeight: 600 }}>
-                                                <CheckCircle2 size={14} color="#059669" />
-                                                <span>Live 1-on-1 Faculty Mentorship</span>
-                                            </div>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '7px', fontSize: '0.82rem', color: '#334155', fontWeight: 600 }}>
-                                                <CheckCircle2 size={14} color="#059669" />
-                                                <span>Periodic Tests & Doubt Clearing</span>
-                                            </div>
-                                        </div>
 
                                         {/* Meta Stats Row */}
                                         <div style={{
@@ -689,128 +553,6 @@ export default function CoursesPage() {
                             })}
                         </div>
                     )}
-
-                    {/* Educational Trust & Standards Section */}
-                    <div style={{
-                        marginTop: '40px',
-                        padding: '48px 36px',
-                        background: '#ffffff',
-                        border: '1px solid #e2e8f0',
-                        borderRadius: '20px',
-                        boxShadow: '0 4px 18px rgba(15, 23, 42, 0.03)'
-                    }}>
-                        <div style={{ textAlign: 'center', maxWidth: '640px', margin: '0 auto 36px' }}>
-                            <span style={{
-                                fontSize: '0.8rem',
-                                fontWeight: 800,
-                                letterSpacing: '0.5px',
-                                color: '#059669',
-                                textTransform: 'uppercase',
-                                marginBottom: '8px',
-                                display: 'block'
-                            }}>
-                                ACADEMIC EXCELLENCE
-                            </span>
-                            <h2 style={{
-                                fontSize: '1.85rem',
-                                fontWeight: 700,
-                                color: '#0f172a',
-                                marginBottom: '12px'
-                            }}>
-                                The Produit Academy Approach
-                            </h2>
-                            <p style={{ color: '#64748b', fontSize: '1rem', lineHeight: 1.6, margin: 0 }}>
-                                Delivering high-touch, rigorous academic mentorship designed to build deep conceptual mastery and board exam readiness.
-                            </p>
-                        </div>
-
-                        <div style={{
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                            gap: '24px'
-                        }}>
-                            <div style={{
-                                padding: '24px',
-                                background: '#f8fafc',
-                                borderRadius: '14px',
-                                border: '1px solid #e2e8f0'
-                            }}>
-                                <div style={{
-                                    width: '44px',
-                                    height: '44px',
-                                    borderRadius: '12px',
-                                    background: '#ecfdf5',
-                                    color: '#059669',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    marginBottom: '16px'
-                                }}>
-                                    <BookOpen size={22} />
-                                </div>
-                                <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}>
-                                    Standardized Board Alignment
-                                </h3>
-                                <p style={{ fontSize: '0.9rem', color: '#64748b', lineHeight: 1.6, margin: 0 }}>
-                                    Courses strictly reflect NCERT, CISCE, and state curriculum blueprints with chapter-wise objectives and problem-solving tracks.
-                                </p>
-                            </div>
-
-                            <div style={{
-                                padding: '24px',
-                                background: '#f8fafc',
-                                borderRadius: '14px',
-                                border: '1px solid #e2e8f0'
-                            }}>
-                                <div style={{
-                                    width: '44px',
-                                    height: '44px',
-                                    borderRadius: '12px',
-                                    background: '#eff6ff',
-                                    color: '#2563eb',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    marginBottom: '16px'
-                                }}>
-                                    <Users size={22} />
-                                </div>
-                                <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}>
-                                    1-on-1 Dedicated Faculty
-                                </h3>
-                                <p style={{ fontSize: '0.9rem', color: '#64748b', lineHeight: 1.6, margin: 0 }}>
-                                    No crowded batches. Every class is an individual interactive mentoring session tailored to the student&apos;s specific learning pace.
-                                </p>
-                            </div>
-
-                            <div style={{
-                                padding: '24px',
-                                background: '#f8fafc',
-                                borderRadius: '14px',
-                                border: '1px solid #e2e8f0'
-                            }}>
-                                <div style={{
-                                    width: '44px',
-                                    height: '44px',
-                                    borderRadius: '12px',
-                                    background: '#f5f3ff',
-                                    color: '#7c3aed',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    marginBottom: '16px'
-                                }}>
-                                    <Award size={22} />
-                                </div>
-                                <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}>
-                                    Progress Analytics & Reports
-                                </h3>
-                                <p style={{ fontSize: '0.9rem', color: '#64748b', lineHeight: 1.6, margin: 0 }}>
-                                    Transparent session notes, assignment feedback, and academic reviews so students and parents always know where they stand.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
 
                 </div>
             </main>

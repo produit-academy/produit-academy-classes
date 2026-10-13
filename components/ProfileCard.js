@@ -31,6 +31,7 @@ export default function ProfileCard({ teacher, subjectId, courseId }) {
     return (
         <div
             onClick={handleCardClick}
+            className="teacher-profile-card"
             style={{
                 cursor: 'pointer',
                 borderRadius: '16px',
@@ -56,7 +57,7 @@ export default function ProfileCard({ teacher, subjectId, courseId }) {
             }}
         >
             {/* Top Card Header with Avatar & Details */}
-            <div style={{
+            <div className="teacher-card-header" style={{
                 background: 'linear-gradient(180deg, #f8fafc 0%, #ffffff 100%)',
                 padding: '22px 20px 18px',
                 borderBottom: '1px solid #f1f5f9',
@@ -65,7 +66,7 @@ export default function ProfileCard({ teacher, subjectId, courseId }) {
                 gap: '16px',
             }}>
                 {/* Clean Modern Rounded Avatar */}
-                <div style={{
+                <div className="teacher-card-avatar" style={{
                     width: '74px',
                     height: '74px',
                     borderRadius: '14px',
@@ -165,7 +166,7 @@ export default function ProfileCard({ teacher, subjectId, courseId }) {
             </div>
 
             {/* Body Section */}
-            <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', flex: 1 }}>
+            <div className="teacher-card-body" style={{ padding: '20px', display: 'flex', flexDirection: 'column', flex: 1 }}>
                 
                 {/* Academic Chips */}
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '14px' }}>

@@ -99,17 +99,8 @@ export default function CompleteProfile() {
 
             <Header />
 
-            <main style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 16px' }}>
-                <div style={{
-                    maxWidth: '560px',
-                    width: '100%',
-                    background: '#ffffff',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '16px',
-                    padding: '40px',
-                    boxShadow: '0 4px 20px rgba(15, 23, 42, 0.05)',
-                    position: 'relative'
-                }}>
+            <main style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '30px 16px' }}>
+                <div className="student-onboard-card">
                     <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#ecfdf5', color: '#047857', padding: '4px 12px', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '16px' }}>
                         <Sparkles size={14} />
                         <span>Step 2 &bull; Academic Details</span>
@@ -243,6 +234,7 @@ export default function CompleteProfile() {
                             disabled={submitting}
                             style={{
                                 width: '100%',
+                                minHeight: '48px',
                                 padding: '14px 24px',
                                 background: '#0f172a',
                                 color: '#ffffff',

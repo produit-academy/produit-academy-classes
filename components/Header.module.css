@@ -478,6 +478,10 @@
 @media screen and (max-width: 768px) {
   .hamburger {
     display: flex;
+    min-width: 44px;
+    min-height: 44px;
+    justify-content: center;
+    align-items: center;
   }
 
   .desktopNav,
@@ -486,10 +490,28 @@
   }
 
   .logoText {
-    font-size: 1.5rem;
+    font-size: 1.05rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: calc(100vw - 110px);
+  }
+
+  .sidebar {
+    width: min(320px, 85vw);
+    height: 100dvh;
   }
 
   .sidebarContent {
-    padding-top: calc(2rem + env(safe-area-inset-top));
+    padding: 1.5rem 1.25rem;
+    padding-top: calc(1.5rem + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@media screen and (max-width: 400px) {
+  .logoText {
+    font-size: 0.95rem;
+    max-width: calc(100vw - 95px);
   }
 }

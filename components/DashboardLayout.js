@@ -43,6 +43,30 @@ const PORTAL_LABELS = {
     admin: { title: 'Admin Console', badge: 'Administrator' },
 };
 
+const BOTTOM_NAV_ITEMS = {
+    student: [
+        { label: 'Home', href: '/student/dashboard', icon: LayoutGrid },
+        { label: 'Classes', href: '/courses', icon: BookOpen },
+        { label: 'Bookings', href: '/student/bookings', icon: Calendar },
+        { label: 'Payments', href: '/student/payments', icon: Wallet },
+        { label: 'Profile', href: '/student/profile', icon: User },
+    ],
+    teacher: [
+        { label: 'Home', href: '/teacher/dashboard', icon: LayoutGrid },
+        { label: 'Schedule', href: '/teacher/availability', icon: Calendar },
+        { label: 'Bookings', href: '/teacher/bookings', icon: BookOpen },
+        { label: 'Reports', href: '/teacher/reports', icon: FileText },
+        { label: 'Profile', href: '/teacher/manage-profile', icon: User },
+    ],
+    admin: [
+        { label: 'Home', href: '/admin/dashboard', icon: LayoutGrid },
+        { label: 'Bookings', href: '/admin/bookings', icon: Calendar },
+        { label: 'Students', href: '/admin/students', icon: Users },
+        { label: 'Staff', href: '/admin/staff', icon: ShieldCheck },
+        { label: 'Payments', href: '/admin/payments', icon: CreditCard },
+    ],
+};
+
 export default function DashboardLayout({ children, title, subtitle }) {
     const { user, logout } = useAuth();
     const router = useRouter();
@@ -50,6 +74,7 @@ export default function DashboardLayout({ children, title, subtitle }) {
 
     const role = user?.role || 'student';
     const navItems = NAV_ITEMS[role] || NAV_ITEMS.student;
+    const bottomNavItems = BOTTOM_NAV_ITEMS[role] || BOTTOM_NAV_ITEMS.student;
     const portalInfo = PORTAL_LABELS[role] || PORTAL_LABELS.student;
 
     // Close sidebar on route change
@@ -190,6 +215,25 @@ export default function DashboardLayout({ children, title, subtitle }) {
                     {children}
                 </div>
             </main>
+
+            {/* Mobile Bottom Navigation Bar (App-like UX) */}
+            <nav className="mobile-bottom-nav" aria-label="Mobile Navigation">
+                {bottomNavItems.map((item) => {
+                    const IconComponent = item.icon;
+                    const isActive = router.pathname === item.href;
+                    return (
+                        <Link
+                            key={item.href}
+                            href={item.href}
+                            className={`mobile-bottom-nav-item ${isActive ? 'active' : ''}`}
+                        >
+                            {isActive && <span className="mobile-bottom-indicator" />}
+                            <IconComponent size={20} className="mobile-bottom-icon" />
+                            <span className="mobile-bottom-label">{item.label}</span>
+                        </Link>
+                    );
+                })}
+            </nav>
         </div>
     );
 }

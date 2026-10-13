@@ -95,17 +95,17 @@ export default function TeachersPage() {
             </Head>
             <Header />
 
-            <main className="main-content" style={{ paddingTop: '100px', paddingBottom: '90px' }}>
-                <div className="container" style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px' }}>
+            <main className="main-content" style={{ paddingTop: '86px', paddingBottom: '60px' }}>
+                <div className="container" style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 16px' }}>
                     
                     {/* Breadcrumbs Navigation */}
                     <nav style={{
                         display: 'flex',
                         alignItems: 'center',
                         gap: '8px',
-                        fontSize: '0.88rem',
+                        fontSize: '0.86rem',
                         color: '#64748b',
-                        marginBottom: '24px',
+                        marginBottom: '18px',
                         flexWrap: 'wrap'
                     }}>
                         <Link href="/courses" style={{ color: '#059669', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
@@ -126,39 +126,21 @@ export default function TeachersPage() {
                         background: '#ffffff',
                         border: '1px solid #e2e8f0',
                         borderRadius: '16px',
-                        padding: '36px 32px',
-                        boxShadow: '0 4px 16px rgba(15, 23, 42, 0.03)',
-                        marginBottom: '32px',
+                        padding: '24px 22px',
+                        boxShadow: '0 2px 12px rgba(15, 23, 42, 0.03)',
+                        marginBottom: '24px',
                     }}>
-                        <div style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '7px',
-                            background: '#ecfdf5',
-                            border: '1px solid #a7f3d0',
-                            color: '#047857',
-                            padding: '5px 14px',
-                            borderRadius: '9999px',
-                            fontSize: '0.82rem',
-                            fontWeight: 700,
-                            letterSpacing: '0.3px',
-                            marginBottom: '14px'
-                        }}>
-                            <GraduationCap size={15} />
-                            <span>1-ON-1 FACULTY MENTORSHIP</span>
-                        </div>
-
                         <h1 style={{
-                            fontSize: 'clamp(1.9rem, 3.6vw, 2.6rem)',
-                            fontWeight: 700,
+                            fontSize: 'clamp(1.75rem, 3.4vw, 2.3rem)',
+                            fontWeight: 800,
                             color: '#0f172a',
                             lineHeight: 1.25,
-                            marginBottom: '10px'
+                            marginBottom: '6px'
                         }}>
-                            {subjectName} Teachers for {courseName}
+                            {subjectName} Teachers
                         </h1>
-                        <p style={{ color: '#475569', fontSize: '1.05rem', lineHeight: 1.6, maxWidth: '780px', margin: 0 }}>
-                            Review verified teacher profiles, inspect qualifications, watch demo classes, and schedule personalized 1-on-1 interactive sessions.
+                        <p style={{ color: '#64748b', fontSize: '0.96rem', lineHeight: 1.5, margin: 0 }}>
+                            Verified educators for {courseName} available for 1-on-1 mentoring.
                         </p>
                     </div>
 

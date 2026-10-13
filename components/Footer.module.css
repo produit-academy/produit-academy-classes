@@ -114,18 +114,20 @@
 
 @media screen and (max-width: 480px) {
   .footer {
-    padding-top: 1.5rem;
+    padding-top: 2rem;
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
   }
 
   .footerGrid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1rem;
+    gap: 1.5rem 1rem;
   }
 
   .footerColumn:first-child {
     grid-column: 1 / -1;
-    text-align: center;
+    text-align: left;
+    margin-bottom: 0.5rem;
   }
 
   .logoText br {
@@ -133,18 +135,23 @@
   }
 
   .logoText {
-    margin-bottom: 1rem;
+    font-size: 1.35rem;
+    margin-bottom: 0.75rem;
   }
 
+  .socialIcons {
+    justify-content: flex-start;
+    gap: 1.25rem;
+  }
 
-
-  .logoText {
-    font-size: 1.8rem;
+  .footerBottom {
+    padding-top: 1.25rem;
   }
 
   .footerBottomContainer {
     flex-direction: column;
-    gap: 1.5rem;
-    align-items: flex-start;
+    gap: 0.75rem;
+    align-items: center;
+    text-align: center;
   }
 }

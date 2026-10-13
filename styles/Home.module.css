@@ -536,7 +536,21 @@
     justify-content: center;
   }
   .heroStats {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    padding: 12px 10px;
+  }
+  .heroStat {
+    padding: 10px 8px;
+  }
+  .heroStatTag {
+    font-size: 0.68rem;
+  }
+  .heroStatValue {
+    font-size: 0.88rem;
+  }
+  .heroStatLabel {
+    display: none;
   }
   .contactContainer {
     padding: 1.5rem 1rem;

@@ -272,7 +272,7 @@ function TeacherReports() {
                     <div style={{
                         padding: '12px 20px',
                         marginBottom: '20px',
-                        borderRadius: '50%',
+                        borderRadius: '10px',
                         background: message.type === 'success' ? '#ecfdf5' : '#fef2f2',
                         border: `1px solid ${message.type === 'success' ? '#a7f3d0' : '#fecaca'}`,
                         color: message.type === 'success' ? '#065f46' : '#991b1b',
@@ -284,12 +284,10 @@ function TeacherReports() {
                 )}
 
                 {/* Tab Navigation */}
-                <div style={{
-                    display: 'flex',
+                <div className="mobile-scroll-strip" style={{
                     borderBottom: '1px solid #e2e8f0',
                     marginBottom: '24px',
                     gap: '4px',
-                    flexWrap: 'wrap'
                 }}>
                     {[
                         { id: 'create_report', label: 'Submit Class Report', icon: FileText },
@@ -314,7 +312,9 @@ function TeacherReports() {
                                     cursor: 'pointer',
                                     display: 'inline-flex',
                                     alignItems: 'center',
-                                    gap: '8px'
+                                    gap: '8px',
+                                    whiteSpace: 'nowrap',
+                                    flexShrink: 0
                                 }}
                             >
                                 <Icon size={16} color={active ? 'var(--accent-green-dark)' : '#94a3b8'} />

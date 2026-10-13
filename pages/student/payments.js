@@ -145,14 +145,14 @@ function StudentPayments() {
                                 }}>
                                     <div>
                                         <span>Gateway Order ID: </span>
-                                        <code style={{ background: '#f1f5f9', padding: '2px 6px', borderRadius: '4px', color: '#334155' }}>
+                                        <code style={{ background: '#f1f5f9', padding: '2px 6px', borderRadius: '4px', color: '#334155', wordBreak: 'break-all' }}>
                                             {p.razorpay_order_id || p.order_id || 'N/A'}
                                         </code>
                                     </div>
                                     {p.razorpay_payment_id && (
                                         <div>
                                             <span>Payment Ref: </span>
-                                            <code style={{ background: '#ecfdf5', padding: '2px 6px', borderRadius: '4px', color: '#047857' }}>
+                                            <code style={{ background: '#ecfdf5', padding: '2px 6px', borderRadius: '4px', color: '#047857', wordBreak: 'break-all' }}>
                                                 {p.razorpay_payment_id}
                                             </code>
                                         </div>

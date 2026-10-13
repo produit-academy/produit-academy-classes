@@ -229,17 +229,10 @@ export default function BookingModal({ teacher, subjectId, courseId, onClose }) 
     };
 
     return (
-        <div style={{
-            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-            background: 'rgba(15, 23, 42, 0.65)', backdropFilter: 'blur(6px)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            zIndex: 1000, padding: '20px',
-        }} onClick={onClose}>
-            <div style={{
-                background: '#ffffff', borderRadius: '12px', padding: '32px',
-                maxWidth: '540px', width: '100%', maxHeight: '90vh', overflowY: 'auto',
-                boxShadow: '0 20px 50px rgba(0,0,0,0.25)', border: '1px solid #cbd5e1'
-            }} onClick={(e) => e.stopPropagation()}>
+        <div className="modal-overlay" onClick={onClose}>
+            <div className="modal-content" style={{ maxWidth: '540px' }} onClick={(e) => e.stopPropagation()}>
+                {/* Mobile Drag Indicator */}
+                <div className="mobile-sheet-handle" />
 
                 {/* Header with Live Sync Indicator */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
@@ -363,12 +356,12 @@ export default function BookingModal({ teacher, subjectId, courseId, onClose }) 
                         </div>
 
                         <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-                            <button onClick={onClose} className="glass-btn" style={{ flex: 1, padding: '12px', borderRadius: '8px' }}>Cancel</button>
+                            <button onClick={onClose} className="glass-btn" style={{ flex: 1, padding: '12px', minHeight: '44px', borderRadius: '12px' }}>Cancel</button>
                             <button
                                 onClick={handleCreateBooking}
                                 className="glass-btn primary"
                                 disabled={loading || selectedSlots.length === 0}
-                                style={{ flex: 1, padding: '12px', borderRadius: '8px', opacity: selectedSlots.length === 0 ? 0.5 : 1 }}
+                                style={{ flex: 1, padding: '12px', minHeight: '44px', borderRadius: '12px', opacity: selectedSlots.length === 0 ? 0.5 : 1 }}
                             >
                                 {loading ? 'Locking Slots...' : `Review & Book (${selectedSlots.length})`}
                             </button>
@@ -382,7 +375,7 @@ export default function BookingModal({ teacher, subjectId, courseId, onClose }) 
                         {timeRemaining !== null && (
                             <div style={{
                                 background: '#eff6ff', border: '1px solid #bfdbfe',
-                                borderRadius: '8px', padding: '10px 14px', marginBottom: '16px',
+                                borderRadius: '10px', padding: '10px 14px', marginBottom: '16px',
                                 display: 'flex', justifyContent: 'space-between', alignItems: 'center'
                             }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#1e40af', fontSize: '0.86rem', fontWeight: 600 }}>
@@ -395,7 +388,7 @@ export default function BookingModal({ teacher, subjectId, courseId, onClose }) 
                             </div>
                         )}
 
-                        <div style={{ padding: '20px', borderRadius: '10px', background: '#f8fafc', border: '1px solid #e2e8f0', marginBottom: '20px' }}>
+                        <div style={{ padding: '20px', borderRadius: '12px', background: '#f8fafc', border: '1px solid #e2e8f0', marginBottom: '20px' }}>
                             <p style={{ marginBottom: '8px', fontSize: '0.9rem' }}><strong>Faculty:</strong> {booking.teacher_name}</p>
                             <p style={{ marginBottom: '8px', fontSize: '0.9rem' }}><strong>Subject:</strong> {booking.subject}</p>
                             <p style={{ marginBottom: '8px', fontSize: '0.9rem' }}><strong>Class Sessions:</strong> {booking.num_classes}</p>
@@ -408,12 +401,12 @@ export default function BookingModal({ teacher, subjectId, courseId, onClose }) 
                         </div>
 
                         <div style={{ display: 'flex', gap: '10px' }}>
-                            <button onClick={() => setStep(1)} className="glass-btn" style={{ flex: 1, padding: '12px', borderRadius: '8px' }}>Back</button>
+                            <button onClick={() => setStep(1)} className="glass-btn" style={{ flex: 1, padding: '12px', minHeight: '44px', borderRadius: '12px' }}>Back</button>
                             <button
                                 onClick={handlePayment}
                                 className="glass-btn primary"
                                 disabled={loading}
-                                style={{ flex: 1, padding: '12px', borderRadius: '8px', fontWeight: 700 }}
+                                style={{ flex: 1, padding: '12px', minHeight: '44px', borderRadius: '12px', fontWeight: 700 }}
                             >
                                 {loading ? 'Processing...' : `Pay ₹${booking.total_amount}`}
                             </button>
@@ -436,10 +429,10 @@ export default function BookingModal({ teacher, subjectId, courseId, onClose }) 
                             Check your email for the Google Meet link and class timings.
                         </p>
                         <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
-                            <button onClick={() => router.push('/student/bookings')} className="glass-btn primary" style={{ padding: '12px 24px', borderRadius: '8px' }}>
+                            <button onClick={() => router.push('/student/bookings')} className="glass-btn primary" style={{ padding: '12px 24px', minHeight: '44px', borderRadius: '12px' }}>
                                 View Bookings
                             </button>
-                            <button onClick={onClose} className="glass-btn" style={{ padding: '12px 24px', borderRadius: '8px' }}>Close</button>
+                            <button onClick={onClose} className="glass-btn" style={{ padding: '12px 24px', minHeight: '44px', borderRadius: '12px' }}>Close</button>
                         </div>
                     </div>
                 )}

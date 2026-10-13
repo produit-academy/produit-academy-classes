@@ -194,11 +194,10 @@ function StudentDashboard() {
             ) : data ? (
                 <>
                     {/* Minimal Welcome & Academic Class Banner */}
-                    <div style={{
+                    <div className="student-banner-card" style={{
                         background: '#ffffff',
                         border: '1px solid #e2e8f0',
                         borderRadius: '14px',
-                        padding: '24px 28px',
                         marginBottom: '28px',
                         display: 'flex',
                         justifyContent: 'space-between',
@@ -332,12 +331,7 @@ function StudentDashboard() {
                     })()}
 
                     {/* Futuristic HUD Telemetry Stat Cards */}
-                    <div style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-                        gap: '20px',
-                        marginBottom: '32px'
-                    }}>
+                    <div className="stats-grid" style={{ marginBottom: '24px' }}>
                         {/* Attendance Card */}
                         <div style={{
                             background: '#ffffff',
@@ -954,7 +948,8 @@ function StudentDashboard() {
                     {/* Cancel Session Modal */}
                     {cancelId && (
                         <div className="modal-overlay" onClick={() => setCancelId(null)}>
-                            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '460px', borderRadius: '10px' }}>
+                            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '460px' }}>
+                                <div className="mobile-sheet-handle" />
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
                                     <h3 style={{ color: '#dc2626', margin: 0, fontSize: '1.25rem', fontWeight: 700 }}>
                                         Cancel Scheduled Class
@@ -1001,7 +996,8 @@ function StudentDashboard() {
                     {/* Switch Academic Class Modal */}
                     {changeClassModal && (
                         <div className="modal-overlay" onClick={() => setChangeClassModal(false)}>
-                            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '500px', borderRadius: '10px', padding: '28px' }}>
+                            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '500px' }}>
+                                <div className="mobile-sheet-handle" />
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                         <GraduationCap size={20} color="#047857" />

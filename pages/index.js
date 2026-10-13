@@ -104,7 +104,7 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
               >
-                Live interactive classes, dedicated teacher mentorship, and real-time academic progression tracking - engineered with clarity and precision.
+                Live interactive 1-on-1 classes with verified faculty for Classes 6 through 12.
               </motion.p>
 
               <motion.div
@@ -168,7 +168,7 @@ export default function Home() {
               <span className={styles.sectionBadge}>CORE CAPABILITIES</span>
               <h2 className={styles.sectionTitle}>Engineered for Academic Mastery</h2>
               <p className={styles.sectionSubtitle}>
-                A focused, distraction-free environment combining high-touch teaching with modern digital workflow.
+                A focused environment combining personalized teaching with structured curricula.
               </p>
             </div>
 
@@ -182,7 +182,7 @@ export default function Home() {
                 </div>
                 <h3>Live Classroom Hub</h3>
                 <p>
-                  Join scheduled video classes with a single click. Integrated Google Meet and Zoom with automatic attendance verification.
+                  1-click Google Meet video sessions with integrated attendance tracking.
                 </p>
               </div>
 
@@ -195,7 +195,7 @@ export default function Home() {
                 </div>
                 <h3>Curriculum Roadmaps</h3>
                 <p>
-                  Class 6 to 12 syllabi mapped chapter by chapter. Download session materials, assignments, and test preparation schedules.
+                  Classes 6 to 12 syllabi mapped chapter by chapter with study resources.
                 </p>
               </div>
 
@@ -208,7 +208,7 @@ export default function Home() {
                 </div>
                 <h3>Academic Progression</h3>
                 <p>
-                  Real-time analytics for students and parents. Track test performance, completion milestones, and regular attendance.
+                  Real-time analytics tracking class attendance, test scores, and milestones.
                 </p>
               </div>
 
@@ -221,7 +221,7 @@ export default function Home() {
                 </div>
                 <h3>Verified Educators</h3>
                 <p>
-                  Every educator is thoroughly assessed on subject depth and pedagogical clarity, ensuring top-tier instruction.
+                  Experienced educators evaluated on subject mastery and teaching clarity.
                 </p>
               </div>
             </div>
@@ -235,7 +235,7 @@ export default function Home() {
               <span className={styles.sectionBadge}>ADMISSIONS & ONBOARDING</span>
               <h2 className={styles.sectionTitle}>How Produit Classes Works</h2>
               <p className={styles.sectionSubtitle}>
-                Get onboarded into your focused learning cohort in three simple steps.
+                Get onboarded into your personalized learning cohort in three simple steps.
               </p>
             </div>
 
@@ -244,7 +244,7 @@ export default function Home() {
                 <span className={styles.stepBadge}>STEP 01</span>
                 <h3>Select Grade & Subject</h3>
                 <p>
-                  Choose your grade level (Classes 6 through 12) and pick your target subject - from foundation sciences to advanced mathematics.
+                  Choose your grade level (Classes 6-12) and select your target subject.
                 </p>
                 <div style={{ marginTop: 'auto', paddingTop: '20px' }}>
                   <Link href="/courses" style={{ fontSize: '0.85rem', fontWeight: 700, color: '#059669', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
@@ -260,7 +260,7 @@ export default function Home() {
                 </span>
                 <h3>Book a Teacher & Demo</h3>
                 <p>
-                  Browse verified educator profiles, review bios and hourly rates, and schedule an interactive demo at your preferred time.
+                  Explore verified faculty profiles and schedule a 1-on-1 demo session.
                 </p>
                 <div style={{ marginTop: 'auto', paddingTop: '20px' }}>
                   <Link href="/courses" style={{ fontSize: '0.85rem', fontWeight: 700, color: '#2563eb', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
@@ -276,7 +276,7 @@ export default function Home() {
                 </span>
                 <h3>Join Live Classes</h3>
                 <p>
-                  Access your student dashboard, enter your scheduled virtual classroom, access lesson notes, and review your performance telemetry.
+                  Launch your student portal, enter live classrooms, and track your progress.
                 </p>
                 <div style={{ marginTop: 'auto', paddingTop: '20px' }}>
                   <Link href="/login" style={{ fontSize: '0.85rem', fontWeight: 700, color: '#7c3aed', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>

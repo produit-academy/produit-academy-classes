@@ -306,12 +306,7 @@ function TeacherDashboard() {
                     )}
 
                     {/* Stat Metrics Grid */}
-                    <div style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                        gap: '16px',
-                        marginBottom: '28px'
-                    }}>
+                    <div className="stats-grid" style={{ marginBottom: '24px' }}>
                         <div className="glass-card" style={{ padding: '20px', borderRadius: '14px', borderLeft: '4px solid #10b981' }}>
                             <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>Classes Conducted</span>
                             <h3 style={{ fontSize: '1.8rem', fontWeight: 800, color: '#0f172a', margin: '4px 0 0' }}>{data.classes_conducted || 0}</h3>
@@ -536,7 +531,8 @@ function TeacherDashboard() {
                     {/* Outcome Modal */}
                     {outcomeSession && (
                         <div className="modal-overlay" onClick={() => setOutcomeSession(null)}>
-                            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '480px', borderRadius: '10px' }}>
+                            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '480px' }}>
+                                <div className="mobile-sheet-handle" />
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
                                     <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800, color: '#0f172a' }}>
                                         Confirm Class Outcome
@@ -639,7 +635,8 @@ function TeacherDashboard() {
                     {/* Google Meet Link Modal */}
                     {meetSession && (
                         <div className="modal-overlay" onClick={() => setMeetSession(null)}>
-                            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '460px', borderRadius: '10px' }}>
+                            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '460px' }}>
+                                <div className="mobile-sheet-handle" />
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                         <Video size={20} color="#059669" />
@@ -694,7 +691,8 @@ function TeacherDashboard() {
                     {/* Cancel Session Modal */}
                     {cancelId && (
                         <div className="modal-overlay" onClick={() => setCancelId(null)}>
-                            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '460px', borderRadius: '10px' }}>
+                            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '460px' }}>
+                                <div className="mobile-sheet-handle" />
                                 <h3 style={{ color: '#dc2626', margin: '0 0 8px', fontSize: '1.2rem', fontWeight: 800 }}>
                                     Cancel Class Session
                                 </h3>

@@ -328,12 +328,9 @@ function StudentBookings() {
 
             {/* Cancel Modal */}
             {cancelModal && (
-                <div style={{
-                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-                    background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    zIndex: 9999, padding: '20px',
-                }}>
-                    <div style={{ maxWidth: '460px', width: '100%', padding: '32px', background: '#ffffff', borderRadius: '14px', border: '1px solid #cbd5e1' }}>
+                <div className="modal-overlay" onClick={() => setCancelModal(null)}>
+                    <div className="modal-content" style={{ maxWidth: '460px' }} onClick={(e) => e.stopPropagation()}>
+                        <div className="mobile-sheet-handle" />
                         <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#dc2626', marginBottom: '8px' }}>
                             Cancel Class Session
                         </h3>
@@ -351,7 +348,7 @@ function StudentBookings() {
                             rows={3}
                             style={{
                                 width: '100%', padding: '10px 12px', borderRadius: '14px',
-                                border: '1px solid #cbd5e1', fontSize: '0.9rem',
+                                border: '1px solid #cbd5e1', fontSize: '16px',
                                 resize: 'vertical', marginBottom: '20px', fontFamily: 'inherit',
                             }}
                         />
@@ -359,7 +356,7 @@ function StudentBookings() {
                             <button
                                 onClick={() => { setCancelModal(null); setCancelReason(''); }}
                                 className="glass-btn"
-                                style={{ padding: '9px 18px', borderRadius: '10px' }}
+                                style={{ padding: '9px 18px', minHeight: '44px', borderRadius: '12px' }}
                             >
                                 Keep Class
                             </button>
@@ -367,7 +364,7 @@ function StudentBookings() {
                                 onClick={handleCancel}
                                 disabled={cancelling || !cancelReason.trim()}
                                 style={{
-                                    padding: '10px 20px', borderRadius: '10px', fontWeight: 700,
+                                    padding: '10px 20px', minHeight: '44px', borderRadius: '12px', fontWeight: 700,
                                     background: '#dc2626', color: '#fff', border: 'none', cursor: 'pointer',
                                     opacity: (cancelling || !cancelReason.trim()) ? 0.5 : 1,
                                 }}
@@ -380,14 +377,11 @@ function StudentBookings() {
             )}
             {/* Cancel Entire Booking & Refund Modal */}
             {cancelBookingModal && (
-                <div style={{
-                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-                    background: 'rgba(0,0,0,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    zIndex: 9999, padding: '20px',
-                }}>
-                    <div style={{ maxWidth: '500px', width: '100%', padding: '32px', background: '#ffffff', borderRadius: '14px', border: '1px solid #cbd5e1', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
+                <div className="modal-overlay" onClick={() => setCancelBookingModal(null)}>
+                    <div className="modal-content" style={{ maxWidth: '500px' }} onClick={(e) => e.stopPropagation()}>
+                        <div className="mobile-sheet-handle" />
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
-                            <div style={{ padding: '8px', background: '#fee2e2', color: '#dc2626' }}>
+                            <div style={{ padding: '8px', background: '#fee2e2', color: '#dc2626', borderRadius: '10px' }}>
                                 <AlertCircle size={22} />
                             </div>
                             <div>
@@ -435,7 +429,7 @@ function StudentBookings() {
                             rows={3}
                             style={{
                                 width: '100%', padding: '10px 12px', borderRadius: '14px',
-                                border: '1px solid #cbd5e1', fontSize: '0.88rem',
+                                border: '1px solid #cbd5e1', fontSize: '16px',
                                 resize: 'vertical', marginBottom: '22px', fontFamily: 'inherit',
                             }}
                         />
@@ -444,7 +438,7 @@ function StudentBookings() {
                             <button
                                 onClick={() => { setCancelBookingModal(null); setCancelBookingReason(''); }}
                                 style={{
-                                    padding: '9px 18px', borderRadius: '14px', border: '1px solid #cbd5e1',
+                                    padding: '9px 18px', minHeight: '44px', borderRadius: '12px', border: '1px solid #cbd5e1',
                                     background: '#fff', color: '#475569', fontWeight: 600, cursor: 'pointer'
                                 }}
                             >
@@ -454,7 +448,7 @@ function StudentBookings() {
                                 onClick={handleCancelEntireBooking}
                                 disabled={cancellingBooking}
                                 style={{
-                                    padding: '10px 22px', borderRadius: '10px', fontWeight: 700,
+                                    padding: '10px 22px', minHeight: '44px', borderRadius: '12px', fontWeight: 700,
                                     background: '#dc2626', color: '#fff', border: 'none', cursor: 'pointer',
                                     opacity: cancellingBooking ? 0.6 : 1,
                                     display: 'inline-flex', alignItems: 'center', gap: '6px'

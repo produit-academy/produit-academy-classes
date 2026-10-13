@@ -156,12 +156,7 @@ function ClassAnalysis() {
                 </div>
 
                 {/* KPI Metrics Summary Grid */}
-                <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
-                    gap: '16px',
-                    marginBottom: '28px'
-                }}>
+                <div className="stats-grid" style={{ marginBottom: '24px' }}>
                     {/* Total Classes */}
                     <div className="glass-card" style={{ padding: '20px', borderLeft: '4px solid #3b82f6' }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
@@ -287,7 +282,7 @@ function ClassAnalysis() {
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '14px' }}>
                         
                         {/* Status Filter Tabs */}
-                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                        <div className="mobile-scroll-strip" style={{ gap: '6px' }}>
                             {['All', 'Completed', 'Upcoming', 'Needs Review', 'Not Conducted', 'Cancelled'].map(st => (
                                 <button
                                     key={st}
@@ -301,7 +296,9 @@ function ClassAnalysis() {
                                         background: statusFilter === st ? '#ecfdf5' : '#ffffff',
                                         color: statusFilter === st ? '#065f46' : '#475569',
                                         cursor: 'pointer',
-                                        transition: 'all 0.15s ease'
+                                        transition: 'all 0.15s ease',
+                                        whiteSpace: 'nowrap',
+                                        flexShrink: 0
                                     }}
                                 >
                                     {st}
@@ -531,6 +528,7 @@ function ClassAnalysis() {
                 {outcomeSession && (
                     <div className="modal-overlay" onClick={() => setOutcomeSession(null)}>
                         <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '460px', padding: '24px' }}>
+                            <div className="mobile-sheet-handle" />
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
                                 <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: '#0f172a' }}>
                                     Confirm Class Outcome

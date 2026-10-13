@@ -315,7 +315,7 @@ function TeacherAvailability() {
                             <label style={{ display: 'block', fontWeight: 700, fontSize: '0.9rem', marginBottom: '10px', color: '#1e293b' }}>
                                 1. Select Date
                             </label>
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '12px' }}>
+                            <div className="mobile-scroll-strip" style={{ marginBottom: '12px' }}>
                                 {upcomingDays.map(d => {
                                     const isSelected = selectedDate === d.value;
                                     return (
@@ -330,6 +330,7 @@ function TeacherAvailability() {
                                                 color: isSelected ? '#0369a1' : '#334155',
                                                 cursor: 'pointer', transition: 'all 0.15s ease',
                                                 display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '84px',
+                                                flexShrink: 0,
                                                 boxShadow: isSelected ? '0 2px 8px rgba(2, 132, 199, 0.15)' : 'none'
                                             }}
                                         >
@@ -366,7 +367,7 @@ function TeacherAvailability() {
                                 2. Manual Time Entry & Duration
                             </label>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', alignItems: 'center' }}>
+                            <div className="mobile-time-grid">
                                 <div>
                                     <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#64748b', marginBottom: '6px' }}>
                                         Start Time
@@ -469,7 +470,7 @@ function TeacherAvailability() {
                             type="button"
                             onClick={handleAddSlot}
                             disabled={saving || !validationResult.valid}
-                            className="glass-btn primary"
+                            className="glass-btn primary mobile-full-btn"
                             style={{
                                 padding: '12px 28px', borderRadius: '10px', fontWeight: 700,
                                 display: 'inline-flex', alignItems: 'center', gap: '8px',

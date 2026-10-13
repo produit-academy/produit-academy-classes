@@ -160,17 +160,17 @@ export default function SubjectsPage() {
             </Head>
             <Header />
 
-            <main className="main-content" style={{ paddingTop: '100px', paddingBottom: '90px' }}>
-                <div className="container" style={{ maxWidth: '1160px', margin: '0 auto', padding: '0 24px' }}>
+            <main className="main-content" style={{ paddingTop: '86px', paddingBottom: '60px' }}>
+                <div className="container" style={{ maxWidth: '1160px', margin: '0 auto', padding: '0 16px' }}>
                     
                     {/* Professional Academic Breadcrumbs */}
                     <nav style={{
                         display: 'flex',
                         alignItems: 'center',
                         gap: '8px',
-                        fontSize: '0.88rem',
+                        fontSize: '0.86rem',
                         color: '#64748b',
-                        marginBottom: '24px'
+                        marginBottom: '18px'
                     }}>
                         <Link href="/courses" style={{
                             color: '#059669',
@@ -190,45 +190,27 @@ export default function SubjectsPage() {
                         background: '#ffffff',
                         border: '1px solid #e2e8f0',
                         borderRadius: '16px',
-                        padding: '36px 32px',
-                        boxShadow: '0 4px 16px rgba(15, 23, 42, 0.03)',
-                        marginBottom: '36px',
+                        padding: '24px 22px',
+                        boxShadow: '0 2px 12px rgba(15, 23, 42, 0.03)',
+                        marginBottom: '28px',
                         display: 'flex',
                         justifyContent: 'space-between',
                         alignItems: 'center',
                         flexWrap: 'wrap',
-                        gap: '24px'
+                        gap: '16px'
                     }}>
                         <div style={{ maxWidth: '680px' }}>
-                            <div style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '8px',
-                                background: '#ecfdf5',
-                                border: '1px solid #a7f3d0',
-                                padding: '5px 14px',
-                                borderRadius: '9999px',
-                                color: '#047857',
-                                fontSize: '0.82rem',
-                                fontWeight: 700,
-                                letterSpacing: '0.3px',
-                                marginBottom: '14px'
-                            }}>
-                                <GraduationCap size={15} />
-                                <span>{courseName ? courseName.toUpperCase() : 'CURRICULUM'} ROADMAP</span>
-                            </div>
-
                             <h1 style={{
-                                fontSize: 'clamp(2rem, 3.8vw, 2.6rem)',
-                                fontWeight: 700,
+                                fontSize: 'clamp(1.75rem, 3.5vw, 2.3rem)',
+                                fontWeight: 800,
                                 color: '#0f172a',
                                 lineHeight: 1.25,
-                                marginBottom: '10px'
+                                marginBottom: '6px'
                             }}>
                                 {courseName} Subjects
                             </h1>
-                            <p style={{ color: '#475569', fontSize: '1.05rem', lineHeight: 1.6, margin: 0 }}>
-                                Choose a discipline below to review syllabus details, watch demo lectures, and book 1-on-1 mentoring sessions with certified subject educators.
+                            <p style={{ color: '#64748b', fontSize: '0.96rem', lineHeight: 1.5, margin: 0 }}>
+                                Choose a subject below to review certified educators and book 1-on-1 sessions.
                             </p>
                         </div>
 
@@ -381,36 +363,15 @@ export default function SubjectsPage() {
                                         </h3>
 
                                         <p style={{
-                                            fontSize: '0.9rem',
+                                            fontSize: '0.86rem',
                                             color: '#64748b',
-                                            marginBottom: '20px',
-                                            lineHeight: 1.55,
+                                            marginBottom: '14px',
+                                            lineHeight: 1.45,
                                             flex: 1
                                         }}>
-                                            {subject.description || `Structured curriculum mastery, targeted problem solving, and personalized doubt sessions in ${subject.name}.`}
+                                            {subject.description || 'Board-aligned curriculum & 1-on-1 mentoring.'}
                                         </p>
 
-                                        {/* Academic Highlights */}
-                                        <div style={{
-                                            display: 'flex',
-                                            gap: '12px',
-                                            fontSize: '0.8rem',
-                                            color: '#475569',
-                                            fontWeight: 600,
-                                            marginBottom: '18px',
-                                            paddingTop: '14px',
-                                            borderTop: '1px solid #f1f5f9'
-                                        }}>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                                <CheckCircle2 size={14} color="#059669" />
-                                                <span>1-on-1 Sessions</span>
-                                            </div>
-                                            <span>&middot;</span>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                                <Video size={14} color="#2563eb" />
-                                                <span>Demo Lectures</span>
-                                            </div>
-                                        </div>
 
                                         {/* Action Button */}
                                         <div style={{

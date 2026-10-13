@@ -581,3 +581,32 @@
     padding: 100px 16px 40px;
   }
 }
+
+@media (max-width: 480px) {
+  .proAuthWrapper {
+    padding: calc(75px + env(safe-area-inset-top, 0px)) 12px calc(40px + env(safe-area-inset-bottom, 0px));
+  }
+  .proAuthCard {
+    border-radius: 18px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.05);
+  }
+  .proFormPanel {
+    padding: 1.75rem 1.15rem;
+  }
+  .formTitle {
+    font-size: 1.45rem;
+  }
+  .roleTab {
+    padding: 9px 8px;
+    font-size: 0.82rem;
+  }
+  .authInput {
+    font-size: 16px !important;
+    padding: 12px 14px;
+  }
+  .submitBtn {
+    min-height: 48px;
+    font-size: 0.95rem;
+  }
+}

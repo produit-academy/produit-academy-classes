@@ -163,20 +163,15 @@ export default function TeacherProfilePage() {
                     </div>
 
                     {/* Hero Profile Banner Card */}
-                    <div style={{
+                    <div className="teacher-hero-card" style={{
                         background: '#ffffff',
-                        borderRadius: '50%',
+                        borderRadius: '18px',
                         border: '1px solid #e2e8f0',
                         boxShadow: '0 2px 12px rgba(15, 23, 42, 0.04)',
-                        padding: '36px',
                         marginBottom: '32px',
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-                        gap: '36px',
-                        alignItems: 'center',
                     }}>
                         {/* Left Side: Crisp Square Photo & Personal Details */}
-                        <div style={{ display: 'flex', gap: '28px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+                        <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
                             {/* Crisp Square Avatar */}
                             <div style={{
                                 width: '130px',
@@ -207,7 +202,7 @@ export default function TeacherProfilePage() {
                             </div>
 
                             {/* Details & Credentials */}
-                            <div style={{ flex: 1, minWidth: '240px' }}>
+                            <div style={{ flex: 1, minWidth: 'min(240px, 100%)' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', flexWrap: 'wrap' }}>
                                     <span style={{
                                         display: 'inline-flex', alignItems: 'center', gap: '5px',
@@ -457,11 +452,10 @@ export default function TeacherProfilePage() {
                     }}>
                         {/* About Section */}
                         {profile.bio && (
-                            <div style={{
+                            <div className="teacher-content-card" style={{
                                 background: '#ffffff',
-                                borderRadius: '50%',
+                                borderRadius: '18px',
                                 border: '1px solid #e2e8f0',
-                                padding: '32px',
                                 boxShadow: '0 2px 8px rgba(15, 23, 42, 0.03)'
                             }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '18px' }}>
@@ -484,11 +478,10 @@ export default function TeacherProfilePage() {
 
                         {/* Teaching Style & Methodology */}
                         {profile.teaching_style && (
-                            <div style={{
+                            <div className="teacher-content-card" style={{
                                 background: '#ffffff',
-                                borderRadius: '50%',
+                                borderRadius: '18px',
                                 border: '1px solid #e2e8f0',
-                                padding: '32px',
                                 boxShadow: '0 2px 8px rgba(15, 23, 42, 0.03)'
                             }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '18px' }}>
@@ -512,11 +505,10 @@ export default function TeacherProfilePage() {
 
                     {/* Academic & Professional Background Card */}
                     {(profile.skills || profile.certifications) && (
-                        <div style={{
+                        <div className="teacher-content-card" style={{
                             background: '#ffffff',
-                            borderRadius: '50%',
+                            borderRadius: '18px',
                             border: '1px solid #e2e8f0',
-                            padding: '32px',
                             marginBottom: '32px',
                             boxShadow: '0 2px 8px rgba(15, 23, 42, 0.03)'
                         }}>
@@ -580,11 +572,10 @@ export default function TeacherProfilePage() {
 
                     {/* Upcoming Available Schedule Preview */}
                     {hasSlots && (
-                        <div style={{
+                        <div className="teacher-content-card" style={{
                             background: '#ffffff',
-                            borderRadius: '50%',
+                            borderRadius: '18px',
                             border: '1px solid #e2e8f0',
-                            padding: '32px',
                             marginBottom: '32px',
                             boxShadow: '0 2px 8px rgba(15, 23, 42, 0.03)'
                         }}>
@@ -694,11 +685,10 @@ export default function TeacherProfilePage() {
 
                     {/* Demo Classes Section */}
                     {profile.demo_videos?.length > 0 && (
-                        <div style={{
+                        <div className="teacher-content-card" style={{
                             background: '#ffffff',
-                            borderRadius: '50%',
+                            borderRadius: '18px',
                             border: '1px solid #e2e8f0',
-                            padding: '32px',
                             marginBottom: '32px',
                             boxShadow: '0 2px 8px rgba(15, 23, 42, 0.03)'
                         }}>
