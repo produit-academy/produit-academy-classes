@@ -4,6 +4,7 @@ import Head from 'next/head';
 import '../styles/globals.css';
 import { AuthProvider } from '../lib/auth';
 import InstallPrompt from '../components/InstallPrompt';
+import ChatbotWidget from '../components/ChatbotWidget';
 
 function MyApp({ Component, pageProps }) {
   // Register service worker on mount
@@ -29,6 +30,7 @@ function MyApp({ Component, pageProps }) {
       </Head>
       <Component {...pageProps} />
       <InstallPrompt />
+      <ChatbotWidget />
     </AuthProvider>
   );
 }
