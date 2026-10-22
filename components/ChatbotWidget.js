@@ -12,7 +12,7 @@ export default function ChatbotWidget() {
       id="produit-chatbot"
       src={`${CHATBOT_URL}/static/widget.js`}
       strategy="lazyOnload"
-      data-api={`${CHATBOT_URL}/api`}
+      data-api={process.env.NEXT_PUBLIC_CHATBOT_API_ENDPOINT || '/api/chatbot-proxy'}
       data-token-url={`${SITE_API}/api/chatbot/token/`}
       data-auth-key="access_token"
     />

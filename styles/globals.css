@@ -1248,11 +1248,13 @@ a:hover {
 .student-onboard-card {
   max-width: 560px;
   width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 16px;
+  border-radius: 20px;
   padding: 40px;
-  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
   position: relative;
 }
 

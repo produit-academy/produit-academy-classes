@@ -99,7 +99,16 @@ export default function CompleteProfile() {
 
             <Header />
 
-            <main style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '30px 16px' }}>
+            <main style={{
+                flex: 1,
+                width: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '110px 20px 60px',
+                boxSizing: 'border-box'
+            }}>
                 <div className="student-onboard-card">
                     <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#ecfdf5', color: '#047857', padding: '4px 12px', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '16px' }}>
                         <Sparkles size={14} />
