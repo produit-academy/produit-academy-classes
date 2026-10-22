@@ -85,9 +85,14 @@ function AdminBookings() {
                                         )}
                                     </td>
                                     <td>
-                                        <div style={{ fontWeight: 600 }}>₹{b.total_amount}</div>
-                                        <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Fee: ₹{b.teacher_fee_per_class}/class</div>
-                                        <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Platform: ₹{b.platform_fee}</div>
+                                        <div style={{ fontWeight: 700, color: 'var(--text-primary)' }}>₹{b.total_amount} <span style={{ fontSize: '0.75rem', fontWeight: 400, color: 'var(--text-secondary)' }}>({b.num_classes} classes)</span></div>
+                                        <div style={{ fontSize: '0.78rem', color: '#059669', fontWeight: 600 }}>Teacher: ₹{b.teacher_fee_per_class}/class</div>
+                                        <div style={{ fontSize: '0.78rem', color: '#0284c7' }}>Academy Fee: ₹{b.platform_fee}/class</div>
+                                        {b.credited_payout_amount > 0 && (
+                                            <div style={{ fontSize: '0.74rem', color: '#16a34a', fontWeight: 700, marginTop: '2px' }}>
+                                                Credited: ₹{b.credited_payout_amount} ({b.completed_classes_count || 0}/{b.num_classes} completed)
+                                            </div>
+                                        )}
                                     </td>
                                     <td>
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'flex-start' }}>

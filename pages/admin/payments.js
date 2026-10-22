@@ -352,6 +352,18 @@ function AdminPayments() {
                                                             Awaiting Payment
                                                         </div>
                                                     )}
+                                                    {p.teacher_total_payout > 0 && (
+                                                        <div style={{ marginTop: '6px', paddingTop: '4px', borderTop: '1px dashed #e2e8f0', fontSize: '0.72rem' }}>
+                                                            <div style={{ color: '#0369a1', fontWeight: 600 }}>
+                                                                Teacher: ₹{p.teacher_total_payout} · Margin: ₹{p.platform_total_fee || 0}
+                                                            </div>
+                                                            {p.credited_payout_amount > 0 && (
+                                                                <div style={{ color: '#059669', fontWeight: 700, marginTop: '1px' }}>
+                                                                    ₹{p.credited_payout_amount} credited ({p.credited_classes || 0}/{p.num_classes || 1} conducted)
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    )}
                                                 </td>
                                                 <td>
                                                     <div style={{ fontFamily: 'monospace', fontSize: '0.78rem', color: '#334155' }}>
