@@ -387,7 +387,7 @@ export default function SubjectsPage() {
                                             color: '#047857',
                                             transition: 'all 0.2s ease',
                                         }}>
-                                            <span>Browse Faculty & Demo</span>
+                                            <span>Browse Faculty</span>
                                             <ChevronRight size={17} />
                                         </div>
                                     </div>

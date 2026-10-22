@@ -130,7 +130,7 @@ export default function TeacherProfilePage() {
         <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: 'linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%)' }}>
             <Head>
                 <title>{profile.name} - Faculty Profile | Produit Academy</title>
-                <meta name="description" content={`Book 1-on-1 classes with ${profile.name}. Review academic credentials, teaching style, demo classes, and schedule live sessions.`} />
+                <meta name="description" content={`Book 1-on-1 classes with ${profile.name}. Review academic credentials, teaching style, sample lectures, and schedule live sessions.`} />
             </Head>
             <Header />
 
@@ -683,7 +683,7 @@ export default function TeacherProfilePage() {
                         </div>
                     )}
 
-                    {/* Demo Classes Section */}
+                    {/* Sample Lectures Section */}
                     {profile.demo_videos?.length > 0 && (
                         <div className="teacher-content-card" style={{
                             background: '#ffffff',
@@ -702,7 +702,7 @@ export default function TeacherProfilePage() {
                                 </div>
                                 <div>
                                     <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>
-                                        Interactive Demo Classes
+                                        Sample Lectures & Previews
                                     </h2>
                                     <p style={{ fontSize: '0.85rem', color: '#64748b', margin: '2px 0 0' }}>
                                         Preview teaching clarity, pace, and interactive explanations.

@@ -149,8 +149,8 @@ export default function Home() {
 
             <div className={styles.heroStat}>
               <span className={styles.heroStatTag}>03 • Flexible</span>
-              <span className={styles.heroStatValue}>Self-Service Demo</span>
-              <span className={styles.heroStatLabel}>Pick batch times and test trial sessions</span>
+              <span className={styles.heroStatValue}>Flexible Scheduling</span>
+              <span className={styles.heroStatLabel}>Pick batch times and learn at your own pace</span>
             </div>
 
             <div className={styles.heroStat}>
@@ -258,9 +258,9 @@ export default function Home() {
                 <span className={styles.stepBadge} style={{ color: '#2563eb', background: '#eff6ff', borderColor: '#bfdbfe' }}>
                   STEP 02
                 </span>
-                <h3>Book a Teacher & Demo</h3>
+                <h3>Choose Your Mentor</h3>
                 <p>
-                  Explore verified faculty profiles and schedule a 1-on-1 demo session.
+                  Explore verified faculty profiles and select your personalized teacher.
                 </p>
                 <div style={{ marginTop: 'auto', paddingTop: '20px' }}>
                   <Link href="/courses" style={{ fontSize: '0.85rem', fontWeight: 700, color: '#2563eb', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
@@ -353,7 +353,7 @@ export default function Home() {
               <span className={styles.sectionBadge}>DIRECT INQUIRY</span>
               <h2 className={styles.sectionTitle}>Connect With Our Academic Team</h2>
               <p className={styles.sectionSubtitle}>
-                Have a question about courses, batch timings, or demo scheduling? Send us a message below.
+                Have a question about courses, batch timings, or admissions? Send us a message below.
               </p>
             </div>
 

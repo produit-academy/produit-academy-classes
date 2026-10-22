@@ -18,7 +18,6 @@ function StudentDashboard() {
     const router = useRouter();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [acceptingId, setAcceptingId] = useState(null);
 
     // Cancel modal state
     const [cancelId, setCancelId] = useState(null);
@@ -53,40 +52,6 @@ function StudentDashboard() {
         return unsub;
     }, []);
 
-    const handleAcceptDemo = async (demoId) => {
-        setAcceptingId(demoId);
-        try {
-            const res = await apiPost(`/api/classes/student/demo/${demoId}/accept/`);
-            if (res.ok) {
-                loadData();
-            } else {
-                const d = await res.json();
-                alert(d.error || 'Failed to accept demo');
-            }
-        } catch (err) {
-            console.error('Failed to accept demo', err);
-        } finally {
-            setAcceptingId(null);
-        }
-    };
-
-    const handleRejectDemo = async (demoId) => {
-        if (!confirm('Are you sure you want to request a new teacher? This will notify the admin.')) return;
-        setAcceptingId(demoId);
-        try {
-            const res = await apiPost(`/api/classes/student/demo/${demoId}/reject/`);
-            if (res.ok) {
-                loadData();
-            } else {
-                const d = await res.json();
-                alert(d.error || 'Failed to reject demo');
-            }
-        } catch (err) {
-            console.error('Failed to reject demo', err);
-        } finally {
-            setAcceptingId(null);
-        }
-    };
 
     const handleCancelSession = async () => {
         if (!cancelReason.trim()) {
@@ -474,75 +439,7 @@ function StudentDashboard() {
                         </div>
                     )}
 
-                    {/* Completed Demos - Accept/Reject Section */}
-                    {data.completed_demos?.length > 0 && (
-                        <div style={{ marginBottom: '32px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
-                                <Zap size={18} color="#7c3aed" />
-                                <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
-                                    Demo Class Decisions
-                                </h3>
-                            </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                {data.completed_demos.map((demo) => (
-                                    <div key={demo.id} style={{
-                                        background: '#ffffff',
-                                        border: '1px solid #e2e8f0',
-                                        borderLeft: '4px solid #7c3aed',
-                                        borderRadius: '14px',
-                                        padding: '18px 24px',
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'center',
-                                        flexWrap: 'wrap',
-                                        gap: '16px',
-                                        boxShadow: '0 2px 8px rgba(15, 23, 42, 0.03)'
-                                    }}>
-                                        <div>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                                                <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
-                                                    {demo.title}
-                                                </h4>
-                                                <span className="telemetry-chip purple" style={{ padding: '2px 8px', fontSize: '0.68rem' }}>
-                                                    DEMO EVALUATION
-                                                </span>
-                                            </div>
-                                            <p style={{ fontSize: '0.88rem', color: '#64748b', margin: 0 }}>
-                                                {demo.course_name} &middot; Conducted {formatDate(demo.scheduled_time)}
-                                            </p>
-                                        </div>
 
-                                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                                            <button
-                                                onClick={() => handleAcceptDemo(demo.id)}
-                                                disabled={acceptingId === demo.id}
-                                                className="glass-btn primary"
-                                                style={{ fontSize: '0.85rem', padding: '8px 18px', borderRadius: '14px' }}
-                                            >
-                                                {acceptingId === demo.id ? 'Processing...' : 'Accept Teacher'}
-                                            </button>
-                                            <button
-                                                onClick={() => handleRejectDemo(demo.id)}
-                                                disabled={acceptingId === demo.id}
-                                                style={{
-                                                    background: '#ffffff',
-                                                    border: '1px solid #fca5a5',
-                                                    color: '#dc2626',
-                                                    padding: '8px 14px',
-                                                    borderRadius: '14px',
-                                                    fontSize: '0.85rem',
-                                                    fontWeight: 600,
-                                                    cursor: 'pointer'
-                                                }}
-                                            >
-                                                Request Alternate
-                                            </button>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
 
                     {/* Live Class In Progress Alert Banner */}
                     {data.live_sessions?.length > 0 && (
@@ -657,10 +554,6 @@ function StudentDashboard() {
                                                 </h4>
                                                 {cls.effective_status === 'Live' ? (
                                                     <span className="status-badge badge-live">LIVE NOW</span>
-                                                ) : cls.is_demo ? (
-                                                    <span className="telemetry-chip cyan" style={{ padding: '2px 8px', fontSize: '0.68rem' }}>
-                                                        DEMO SESSION
-                                                    </span>
                                                 ) : (
                                                     <span className="status-badge badge-scheduled">
                                                         SCHEDULED

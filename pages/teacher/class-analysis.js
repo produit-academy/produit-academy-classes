@@ -401,11 +401,7 @@ function ClassAnalysis() {
                                                     <span style={{ fontSize: '0.78rem', color: '#64748b' }}>
                                                         {sess.course_name}
                                                     </span>
-                                                    {sess.is_demo && (
-                                                        <span className="badge" style={{ marginLeft: '6px', fontSize: '0.7rem', background: '#eff6ff', color: '#2563eb' }}>
-                                                            Demo
-                                                        </span>
-                                                    )}
+
                                                 </td>
 
                                                 <td>

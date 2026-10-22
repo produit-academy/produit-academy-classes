@@ -271,9 +271,9 @@ function ManageProfile() {
                         </button>
                     </div>
 
-                    {/* Demo Videos */}
+                    {/* Sample Lecture Videos */}
                     <div className="glass-card" style={{ padding: '28px' }}>
-                        <h3 className="section-heading">Demo Videos</h3>
+                        <h3 className="section-heading">Sample Lecture Videos</h3>
                         {videos.length > 0 && (
                             <div style={{ display: 'grid', gap: '12px', marginBottom: '20px' }}>
                                 {videos.map(v => (
