@@ -7,7 +7,7 @@ import { apiGet, apiPost } from '../../lib/api';
 import DashboardLayout from '../../components/DashboardLayout';
 import {
     Calendar, Video, Clock, CheckCircle2, AlertCircle,
-    X, ArrowRight, UserCheck, CreditCard
+    X, ArrowRight, UserCheck, CreditCard, HelpCircle, ShieldAlert
 } from 'lucide-react';
 
 function StudentBookings() {
@@ -21,6 +21,7 @@ function StudentBookings() {
     const [cancelBookingModal, setCancelBookingModal] = useState(null);
     const [cancelBookingReason, setCancelBookingReason] = useState('');
     const [cancellingBooking, setCancellingBooking] = useState(false);
+    const [supportModal, setSupportModal] = useState(null);
     const [bannerMessage, setBannerMessage] = useState(null);
 
     const loadBookings = () => {
@@ -184,29 +185,76 @@ function StudentBookings() {
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
                                     {statusBadge(b.booking_status, b.payment_status)}
-                                    {(b.booking_status === 'confirmed' || b.booking_status === 'pending') && (
+                                    {b.can_cancel_booking ? (
+                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '3px' }}>
+                                            <button
+                                                onClick={() => setCancelBookingModal(b)}
+                                                style={{
+                                                    background: '#fff',
+                                                    border: '1px solid #fca5a5',
+                                                    color: '#dc2626',
+                                                    padding: '5px 12px',
+                                                    borderRadius: '12px',
+                                                    fontSize: '0.78rem',
+                                                    fontWeight: 700,
+                                                    cursor: 'pointer',
+                                                    display: 'inline-flex',
+                                                    alignItems: 'center',
+                                                    gap: '4px',
+                                                    transition: 'all 0.15s'
+                                                }}
+                                                className="hover-danger-btn"
+                                            >
+                                                <X size={13} />
+                                                <span>Cancel &amp; Refund</span>
+                                            </button>
+                                            <span style={{ fontSize: '0.68rem', color: '#059669', fontWeight: 600 }}>
+                                                100% refund eligible
+                                            </span>
+                                        </div>
+                                    ) : (b.booking_status === 'confirmed' ? (
+                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '3px' }}>
+                                            <button
+                                                onClick={() => setSupportModal(b)}
+                                                style={{
+                                                    background: '#f8fafc',
+                                                    border: '1px solid #cbd5e1',
+                                                    color: '#475569',
+                                                    padding: '5px 12px',
+                                                    borderRadius: '12px',
+                                                    fontSize: '0.75rem',
+                                                    fontWeight: 600,
+                                                    cursor: 'pointer',
+                                                    display: 'inline-flex',
+                                                    alignItems: 'center',
+                                                    gap: '4px'
+                                                }}
+                                                title="View refund policy details"
+                                            >
+                                                <HelpCircle size={13} color="#64748b" />
+                                                <span>Refund Policy</span>
+                                            </button>
+                                            <span style={{ fontSize: '0.68rem', color: '#94a3b8' }}>
+                                                Class commenced
+                                            </span>
+                                        </div>
+                                    ) : (b.booking_status === 'pending' && (
                                         <button
                                             onClick={() => setCancelBookingModal(b)}
                                             style={{
                                                 background: '#fff',
-                                                border: '1px solid #fca5a5',
-                                                color: '#dc2626',
+                                                border: '1px solid #cbd5e1',
+                                                color: '#64748b',
                                                 padding: '5px 12px',
-                                                borderRadius: '14px',
+                                                borderRadius: '12px',
                                                 fontSize: '0.78rem',
-                                                fontWeight: 700,
-                                                cursor: 'pointer',
-                                                display: 'inline-flex',
-                                                alignItems: 'center',
-                                                gap: '4px',
-                                                transition: 'all 0.15s'
+                                                fontWeight: 600,
+                                                cursor: 'pointer'
                                             }}
-                                            className="hover-danger-btn"
                                         >
-                                            <X size={13} />
-                                            <span>Cancel &amp; Refund</span>
+                                            Cancel Hold
                                         </button>
-                                    )}
+                                    )))}
                                 </div>
                             </div>
 
@@ -298,23 +346,38 @@ function StudentBookings() {
                                                 </div>
 
                                                 {s.status === 'scheduled' && (
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            setCancelModal({
-                                                                scheduleId: s.id,
-                                                                date: new Date(s.date + 'T00:00:00').toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' }),
-                                                                time: s.start_time?.slice(0, 5),
-                                                            });
-                                                        }}
-                                                        style={{
-                                                            background: 'none', border: '1px solid #fca5a5', color: '#dc2626',
-                                                            padding: '6px 12px', borderRadius: '14px', fontSize: '0.78rem',
-                                                            fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap',
-                                                        }}
-                                                    >
-                                                        Cancel Session
-                                                    </button>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                        {s.is_within_12_hours && (
+                                                            <span style={{
+                                                                fontSize: '0.68rem', fontWeight: 700,
+                                                                background: '#fef3c7', color: '#b45309', border: '1px solid #fde68a',
+                                                                padding: '3px 8px', borderRadius: '8px'
+                                                            }}>
+                                                                &lt; 12 hrs to class
+                                                            </span>
+                                                        )}
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                setCancelModal({
+                                                                    scheduleId: s.id,
+                                                                    date: new Date(s.date + 'T00:00:00').toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' }),
+                                                                    time: s.start_time?.slice(0, 5),
+                                                                    isWithin12Hours: s.is_within_12_hours,
+                                                                    canCancelSchedule: s.can_cancel_schedule !== false,
+                                                                });
+                                                            }}
+                                                            style={{
+                                                                background: 'none',
+                                                                border: s.is_within_12_hours ? '1px solid #cbd5e1' : '1px solid #fca5a5',
+                                                                color: s.is_within_12_hours ? '#64748b' : '#dc2626',
+                                                                padding: '6px 12px', borderRadius: '14px', fontSize: '0.78rem',
+                                                                fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap',
+                                                            }}
+                                                        >
+                                                            Cancel Session
+                                                        </button>
+                                                    </div>
                                                 )}
                                             </div>
                                         ))}
@@ -326,18 +389,28 @@ function StudentBookings() {
                 </div>
             )}
 
-            {/* Cancel Modal */}
+            {/* Cancel Session Modal */}
             {cancelModal && (
                 <div className="modal-overlay" onClick={() => setCancelModal(null)}>
-                    <div className="modal-content" style={{ maxWidth: '460px' }} onClick={(e) => e.stopPropagation()}>
+                    <div className="modal-content" style={{ maxWidth: '480px' }} onClick={(e) => e.stopPropagation()}>
                         <div className="mobile-sheet-handle" />
                         <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#dc2626', marginBottom: '8px' }}>
                             Cancel Class Session
                         </h3>
-                        <p style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: '20px', lineHeight: 1.6 }}>
-                            You are cancelling the class on <strong>{cancelModal.date}</strong> at <strong>{cancelModal.time}</strong>.
-                            Your teacher will receive this notice.
+                        <p style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: '16px', lineHeight: 1.6 }}>
+                            You are requesting to cancel the class on <strong>{cancelModal.date}</strong> at <strong>{cancelModal.time}</strong>.
                         </p>
+
+                        {cancelModal.isWithin12Hours && (
+                            <div style={{
+                                background: '#fffbeb', border: '1px solid #fde68a',
+                                padding: '12px 14px', borderRadius: '12px', marginBottom: '16px',
+                                fontSize: '0.82rem', color: '#92400e', lineHeight: 1.5
+                            }}>
+                                <strong>Advance Notice Requirement:</strong> In accordance with Produit Academy Refund Policy (Section 3), individual sessions must be cancelled with at least <strong>12 hours advance notice</strong>. Self-service cancellation within 12 hours is restricted. Please contact your teacher or student support for emergency rescheduling.
+                            </div>
+                        )}
+
                         <label style={{ fontSize: '0.82rem', fontWeight: 700, display: 'block', marginBottom: '6px', color: '#334155' }}>
                             Reason for cancellation *
                         </label>
@@ -362,19 +435,20 @@ function StudentBookings() {
                             </button>
                             <button
                                 onClick={handleCancel}
-                                disabled={cancelling || !cancelReason.trim()}
+                                disabled={cancelling || !cancelReason.trim() || cancelModal.isWithin12Hours}
                                 style={{
                                     padding: '10px 20px', minHeight: '44px', borderRadius: '12px', fontWeight: 700,
-                                    background: '#dc2626', color: '#fff', border: 'none', cursor: 'pointer',
-                                    opacity: (cancelling || !cancelReason.trim()) ? 0.5 : 1,
+                                    background: '#dc2626', color: '#fff', border: 'none', cursor: cancelModal.isWithin12Hours ? 'not-allowed' : 'pointer',
+                                    opacity: (cancelling || !cancelReason.trim() || cancelModal.isWithin12Hours) ? 0.5 : 1,
                                 }}
                             >
-                                {cancelling ? 'Cancelling...' : 'Confirm Cancellation'}
+                                {cancelling ? 'Cancelling...' : cancelModal.isWithin12Hours ? 'Notice < 12 Hours' : 'Confirm Cancellation'}
                             </button>
                         </div>
                     </div>
                 </div>
             )}
+
             {/* Cancel Entire Booking & Refund Modal */}
             {cancelBookingModal && (
                 <div className="modal-overlay" onClick={() => setCancelBookingModal(null)}>
@@ -413,10 +487,10 @@ function StudentBookings() {
                         </div>
 
                         <div style={{
-                            background: '#eff6ff', border: '1px solid #bfdbfe', padding: '12px 14px',
-                            borderRadius: '14px', marginBottom: '18px', fontSize: '0.82rem', color: '#1e40af', lineHeight: 1.5
+                            background: '#ecfdf5', border: '1px solid #a7f3d0', padding: '12px 14px',
+                            borderRadius: '14px', marginBottom: '18px', fontSize: '0.82rem', color: '#065f46', lineHeight: 1.5
                         }}>
-                            <strong>Refund Policy:</strong> In accordance with Produit Academy Refund Policy, full payment will be refunded directly to your original payment method (via Razorpay) within 5–7 business days. All scheduled sessions will be cancelled.
+                            <strong>Refund Policy Compliance:</strong> Under Section 1 of Produit Academy Cancellation &amp; Refund Policy, cancelling prior to the commencement of your first scheduled class session qualifies for a <strong>100% full refund</strong>. The amount (₹{cancelBookingModal.total_amount}) will be automatically credited to your original payment method via Razorpay within 5–7 business days. All future timetable reservations will be cancelled.
                         </div>
 
                         <label style={{ fontSize: '0.82rem', fontWeight: 700, display: 'block', marginBottom: '6px', color: '#334155' }}>
@@ -455,6 +529,86 @@ function StudentBookings() {
                                 }}
                             >
                                 {cancellingBooking ? 'Processing Refund...' : 'Confirm & Issue Refund'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Support / Past Refund Window Policy Modal */}
+            {supportModal && (
+                <div className="modal-overlay" onClick={() => setSupportModal(null)}>
+                    <div className="modal-content" style={{ maxWidth: '520px' }} onClick={(e) => e.stopPropagation()}>
+                        <div className="mobile-sheet-handle" />
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+                            <div style={{ padding: '8px', background: '#eff6ff', color: '#2563eb', borderRadius: '10px' }}>
+                                <ShieldAlert size={22} />
+                            </div>
+                            <div>
+                                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+                                    Cancellation &amp; Refund Policy
+                                </h3>
+                                <span style={{ fontSize: '0.8rem', color: '#64748b' }}>
+                                    Booking #{supportModal.id} &middot; {supportModal.subject_name}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div style={{
+                            background: '#fef2f2', border: '1px solid #fecaca', padding: '12px 14px',
+                            borderRadius: '12px', marginBottom: '16px', fontSize: '0.84rem', color: '#991b1b', lineHeight: 1.5
+                        }}>
+                            <strong>Automated Full Refund Window Closed:</strong> Under the Produit Academy Refund Policy, automated 100% refunds are strictly available <strong>prior to the start of the first scheduled class session</strong>. Because your course sessions have already commenced, automated refunds cannot be processed self-service online.
+                        </div>
+
+                        <div style={{
+                            background: '#f8fafc', border: '1px solid #e2e8f0', padding: '14px 16px',
+                            borderRadius: '12px', marginBottom: '18px', fontSize: '0.85rem', color: '#334155', lineHeight: 1.6
+                        }}>
+                            <h4 style={{ margin: '0 0 8px', fontSize: '0.9rem', color: '#0f172a' }}>Emergency &amp; Pro-Rata Inquiries</h4>
+                            <p style={{ margin: '0 0 10px' }}>
+                                If you have attended classes and wish to cancel unattended sessions due to an instructor mismatch, academic timetable emergency, or technical impediment, requests are evaluated on a pro-rata basis by our academic administration team.
+                            </p>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '0.82rem', color: '#475569' }}>
+                                <div>&bull; <strong>Email:</strong> <a href="mailto:produitacademy@gmail.com" style={{ color: '#2563eb' }}>produitacademy@gmail.com</a></div>
+                                <div>&bull; <strong>WhatsApp / Phone:</strong> <a href="tel:+918139805996" style={{ color: '#2563eb' }}>+91 8139 805 996</a></div>
+                                <div>&bull; <strong>Support Hours:</strong> Mon&ndash;Sat, 9:00 AM &ndash; 7:00 PM IST</div>
+                            </div>
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+                            <Link
+                                href="/refund-policy"
+                                target="_blank"
+                                style={{
+                                    padding: '9px 16px', minHeight: '42px', borderRadius: '12px',
+                                    border: '1px solid #cbd5e1', background: '#fff', color: '#475569',
+                                    fontSize: '0.85rem', fontWeight: 600, display: 'inline-flex', alignItems: 'center'
+                                }}
+                            >
+                                Read Full Policy
+                            </Link>
+                            <a
+                                href="https://wa.me/918139805996?text=Hello%20Produit%20Academy%20Support,%20I%20have%20an%20inquiry%20regarding%20my%20booking"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{
+                                    padding: '9px 18px', minHeight: '42px', borderRadius: '12px',
+                                    background: '#059669', color: '#fff', textDecoration: 'none',
+                                    fontSize: '0.85rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center'
+                                }}
+                            >
+                                WhatsApp Support
+                            </a>
+                            <button
+                                onClick={() => setSupportModal(null)}
+                                style={{
+                                    padding: '9px 16px', minHeight: '42px', borderRadius: '12px',
+                                    border: 'none', background: '#e2e8f0', color: '#334155',
+                                    fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer'
+                                }}
+                            >
+                                Close
                             </button>
                         </div>
                     </div>
