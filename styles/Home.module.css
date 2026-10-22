@@ -45,10 +45,8 @@
 }
 
 .heroHighlight {
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #047857;
+  font-weight: 800;
 }
 
 .heroSubtitle {
