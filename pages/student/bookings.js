@@ -490,7 +490,7 @@ function StudentBookings() {
                             background: '#ecfdf5', border: '1px solid #a7f3d0', padding: '12px 14px',
                             borderRadius: '14px', marginBottom: '18px', fontSize: '0.82rem', color: '#065f46', lineHeight: 1.5
                         }}>
-                            <strong>Refund Policy Compliance:</strong> Under Section 1 of Produit Academy Cancellation &amp; Refund Policy, cancelling prior to the commencement of your first scheduled class session qualifies for a <strong>100% full refund</strong>. The amount (₹{cancelBookingModal.total_amount}) will be automatically credited to your original payment method via Razorpay within 5–7 business days. All future timetable reservations will be cancelled.
+                            <strong>Refund Policy Compliance:</strong> Under Section 1 of Produit Academy Cancellation &amp; Refund Policy, cancelling prior to the commencement of your first scheduled class session qualifies for a <strong>100% full refund</strong>. The amount (₹{cancelBookingModal.total_amount}) will be automatically credited to your original payment method via Razorpay within 5-7 business days. All future timetable reservations will be cancelled.
                         </div>
 
                         <label style={{ fontSize: '0.82rem', fontWeight: 700, display: 'block', marginBottom: '6px', color: '#334155' }}>

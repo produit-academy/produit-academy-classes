@@ -334,7 +334,7 @@ function AdminPayments() {
                                                     <div style={{ fontSize: '0.78rem', color: '#64748b' }}>{p.student_email}</div>
                                                 </td>
                                                 <td>
-                                                    <div style={{ fontWeight: 600, color: '#1e293b' }}>{p.course_name || p.course || '—'}</div>
+                                                    <div style={{ fontWeight: 600, color: '#1e293b' }}>{p.course_name || p.course || '-'}</div>
                                                     <div style={{ fontSize: '0.78rem', color: '#64748b' }}>{p.subject ? `${p.subject} · ` : ''}Faculty: {p.teacher_name}</div>
                                                 </td>
                                                 <td>

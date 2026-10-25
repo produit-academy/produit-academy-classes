@@ -530,7 +530,7 @@ function TeacherAvailability() {
                                                             }}>
                                                                 <Clock size={15} color={slot.is_booked ? '#b45309' : '#0284c7'} />
                                                                 <span style={{ fontSize: '0.9rem', fontWeight: 700, color: slot.is_booked ? '#92400e' : '#0369a1' }}>
-                                                                    {formatTime(slot.start_time)} – {formatTime(slot.end_time)}
+                                                                    {formatTime(slot.start_time)} - {formatTime(slot.end_time)}
                                                                 </span>
 
                                                                 {slot.is_booked ? (

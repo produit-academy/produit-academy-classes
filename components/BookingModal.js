@@ -318,7 +318,7 @@ export default function BookingModal({ teacher, subjectId, courseId, onClose }) 
                                                         ) : (
                                                             <Clock size={13} />
                                                         )}
-                                                        <span>{formatTime(slot.start_time)} – {formatTime(slot.end_time)}</span>
+                                                        <span>{formatTime(slot.start_time)} - {formatTime(slot.end_time)}</span>
                                                         {isBooked && (
                                                             <span style={{ fontSize: '0.65rem', fontWeight: 800, background: '#e2e8f0', color: '#64748b', padding: '1px 5px', borderRadius: '4px' }}>
                                                                 BOOKED
